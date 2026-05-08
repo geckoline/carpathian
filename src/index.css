@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-400: #00994d;
+  --color-primary-500: #006633;
+  --color-primary-600: #004d26;
+  --color-primary-700: #003319;
+  --color-accent: #ff9900;
+  --color-surface-muted: #f5f5f5;
+  --color-text-muted: #6c757d;
+  --color-status-active: #006633;
+  --color-status-past: #999999;
+  --color-status-planned: #ff9900;
+  --font-sans: system-ui, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: #ffffff;
+  color: #1a1a1a;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+#citizen-science-root {
+  min-height: 100vh;
+  width: 100%;
+}

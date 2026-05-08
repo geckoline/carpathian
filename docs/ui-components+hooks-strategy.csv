@@ -1,0 +1,6 @@
+﻿Group,Old Count,New Approach,Action
+Layout Wrappers (MapSidebarSection", "SearchDetailsWrapper", "ModalsSection", "ScrollDetailsSection", "TopicsSection),5+,Unified App.tsx grid + semantic sections,🗑️ Drop (replaced by cleaner layout)
+Banners/Headers (HeaderBanner", "HeroBanner", "Breadcrumb),3,Minimal <header> + Tailwind utilities,"🗑️ Drop (visual noise, low ROI)"
+Card Sub-components (ExpertBioSection", "ExpertSocialButtons", "ProjectDescriptionSection", "ProjectDetailsSection", "EnhancedMapSidebarProjectCard),5+,Unified ProjectCard/ExpertCard with conditional rendering,🗑️ Drop (fragmentation caused test/DX pain)
+Filter/Search UI (SearchFilters", "FilterControls", "SearchControls", "ProjectList", "StatusLegend", "Sidebar),6+,FilterBar.tsx + App.tsx grid + Tailwind form styles,🔄 Migrate core logic into FilterBar + useProjectFilters
+Hooks (useFilteringLogic", "useStatsCalculation", "useColorReduced", "useFontSize", "useMapState", "useModalState", "useDateFormatter", "useExpertFilter", "useProjectFilter", "useExpertsWithAvatars),11,useProjectFilters", "useExpertFilters", "useDebounce", "useLocalStorage", Zustand "ui slice,"🔄 Keep 4 essential, drop 7 (merged into store or inline utils)"
