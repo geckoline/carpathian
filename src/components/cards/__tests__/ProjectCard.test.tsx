@@ -9,9 +9,6 @@ import { useAppStore } from '@/store/appStore';
 vi.mock('@/store/appStore', () => ({
   useAppStore: vi.fn((sel: (s: any) => any) => sel({ 
     setSelectedExpertId: vi.fn(),
-    setHoveredProjectId: vi.fn(),
-    ui: { hoveredProjectId: null },
-    filters: { searchTerm: '' }
   }))
 }));
 vi.mock('@/hooks/useCardFlip', () => ({
@@ -35,7 +32,7 @@ describe('ProjectCard', () => {
 
   it('sets selectedExpertId when lead is clicked', async () => {
     const setSelectedExpertId = vi.fn();
-    vi.mocked(useAppStore).mockImplementation((sel) => sel({ setSelectedExpertId, setHoveredProjectId: vi.fn(), ui: { hoveredProjectId: null } } as any));
+    vi.mocked(useAppStore).mockImplementation((sel) => sel({ setSelectedExpertId } as any));
     const user = userEvent.setup();
     render(<ProjectCard {...mockProject} />);
     
@@ -51,7 +48,7 @@ describe('ProjectCard', () => {
     expect(toggleBtn).toHaveAttribute('aria-expanded', 'false');
     await user.click(toggleBtn);
     await waitFor(() => expect(toggleBtn).toHaveAttribute('aria-expanded', 'true'), { timeout: 200 });
-    expect(toggleBtn).toHaveTextContent('Read less');
+    expect(toggleBtn).toHaveTextContent('Show less');
   });
 
   it('copies link and stops propagation', async () => {
@@ -61,5 +58,14 @@ describe('ProjectCard', () => {
     render(<ProjectCard {...mockProject} />);
     await user.click(screen.getByTestId('copy-project-link'));
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringContaining('/project/p1'));
+  });
+
+  it('renders full project details on back side when flipped', () => {
+    vi.mocked(useCardFlip).mockReturnValue({ isFlipped: true, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() });
+    render(<ProjectCard {...mockProject} />);
+    expect(screen.getByText('Monitoring deforestation across northern ranges. Full text expands on toggle.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /read more/i })).toBeInTheDocument();
+    expect(screen.getByText('3 Countries')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /back/i })).toBeInTheDocument();
   });
 });

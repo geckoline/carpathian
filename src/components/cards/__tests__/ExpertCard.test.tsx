@@ -38,7 +38,7 @@ describe('ExpertCard', () => {
     await user.click(toggleBtn);
     
     await waitFor(() => expect(toggleBtn).toHaveAttribute('aria-expanded', 'true'), { timeout: 200 });
-    expect(toggleBtn).toHaveTextContent('Read less');
+    expect(toggleBtn).toHaveTextContent('Show less');
   });
 
   it('copies link and stops propagation', async () => {
@@ -55,5 +55,14 @@ describe('ExpertCard', () => {
     vi.mocked(useCardFlip).mockReturnValue({ isFlipped: false, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() });
     const { container } = render(<ExpertCard {...mockExpert} />);
     expect(container.querySelector('img')).not.toBeInTheDocument();
+  });
+
+  it('renders full expert bio, tags, and stats on back side when flipped', () => {
+    vi.mocked(useCardFlip).mockReturnValue({ isFlipped: true, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() });
+    render(<ExpertCard {...mockExpert} />);
+    expect(screen.getByText('Leading research on Carpathian biodiversity. Full bio expands on toggle.')).toBeInTheDocument();
+    expect(screen.getByTestId('expert-tags')).toHaveTextContent('Alpine Eco');
+    expect(screen.getByText('42')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /back/i })).toBeInTheDocument();
   });
 });

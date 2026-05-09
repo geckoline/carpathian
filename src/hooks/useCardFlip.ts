@@ -51,5 +51,3 @@ export const useCardFlip = ({ durationMs = 600, onFlip }: UseCardFlipOptions = {
     clear: clearTimer 
   };
 };
-
-export default useCardFlip;

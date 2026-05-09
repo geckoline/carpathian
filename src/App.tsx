@@ -11,39 +11,24 @@ import StatsSection from '@/components/layout/StatsSection';
 import AccessibilityControls from '@/components/layout/AccessibilityControls';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { AddProjectModal } from '@/components/modals/AddProjectModal';
-import { VolunteerModal } from '@/components/modals/VolunteerModal';
 
 const MapView = lazy(() => import('@/components/map/MapView'));
 
 export default function App() {
   useApplyAccessibility();
   const { retry, isRetrying } = useDataFetch();
-  const { addProject, addExpert } = useAppStore();
+  const { addProject } = useAppStore();
   const { filters, data, setActiveTab } = useAppStore();
   const { filteredProjects } = useProjectFilters(data.projects);
   const { filteredExperts } = useExpertFilters();
   const isLoading = data.loading && data.projects.length === 0 && !data.error;
 
   const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
-  const [volunteerProjectId, setVolunteerProjectId] = useState<string | null>(null);
 
   const handleAddProject = async (formData: any) => {
     addProject({ ...formData, lat: formData.lat ?? 47.5, lng: formData.lng ?? 25.0 });
     await new Promise(resolve => setTimeout(resolve, 400));
     setIsAddProjectOpen(false);
-  };
-
-  const handleVolunteer = async (formData: any) => {
-    addExpert({
-      name: formData.name,
-      institution: formData.organization || 'Independent',
-      country: formData.country || 'Demo Region',
-      degree: 'Volunteer',
-      bio: formData.motivation,
-      expertise: [formData.expertise],
-    });
-    await new Promise(resolve => setTimeout(resolve, 400));
-    setVolunteerProjectId(null);
   };
 
   if (data.error) {
@@ -93,12 +78,7 @@ export default function App() {
           ) : (
             <>
               {filters.activeTab === 'projects' && filteredProjects.map((p) => (
-                <ProjectCard 
-                  key={p.id} 
-                  {...p} 
-                  searchTerm={filters.searchTerm}
-                  onVolunteer={() => setVolunteerProjectId(p.id)}
-                />
+                <ProjectCard key={p.id} {...p} />
               ))}
               {filters.activeTab === 'experts' && filteredExperts.map((e) => (
                 <ExpertCard key={e.id} {...e} />
@@ -122,14 +102,6 @@ export default function App() {
         onClose={() => setIsAddProjectOpen(false)} 
         onSubmit={handleAddProject} 
       />
-      {volunteerProjectId && (
-        <VolunteerModal 
-          isOpen={!!volunteerProjectId} 
-          onClose={() => setVolunteerProjectId(null)} 
-          projectId={volunteerProjectId}
-          onSubmit={handleVolunteer}
-        />
-      )}
     </main>
   );
 }
