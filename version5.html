@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carpathian Citizen Science - Version 5</title>
+  <style>
+    :root {
+      --primary-green: #006633;
+      --secondary-green: #008040;
+      --accent-green: #00a050;
+      --light-green: #e8f5e9;
+      --dark-green: #004d26;
+      --text-dark: #2e2e2e;
+      --text-light: #666;
+      --border-color: #c8e6c9;
+      --shadow: 0 8px 30px rgba(0,0,0,0.15);
+      --transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+      --card-bg: linear-gradient(145deg, #ffffff 0%, #f8fdfa 100%);
+      --hover-transform: translateY(-12px) scale(1.03);
+      --gradient-angle: 135deg;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Source Sans Pro', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.75;
+      color: var(--text-dark);
+      background: linear-gradient(var(--gradient-angle), #f0f9f5 0%, #e0f5f0 50%, #d0f0ea 100%);
+      padding: 30px;
+      background-attachment: fixed;
+    }
+    
+    .container {
+      max-width: 1450px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+      padding: 50px;
+      background: linear-gradient(var(--gradient-angle), var(--primary-green) 0%, var(--secondary-green) 100%);
+      color: white;
+      border-radius: 25px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    header::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+      transform: rotate(30deg);
+    }
+    
+    header h1 {
+      font-size: 3.2rem;
+      margin-bottom: 15px;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    header p {
+      font-size: 1.4rem;
+      opacity: 0.95;
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .component-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 40px;
+      margin-bottom: 50px;
+    }
+    
+    .component-card {
+      background: var(--card-bg);
+      border-radius: 25px;
+      padding: 40px;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      border: 1px solid rgba(200, 230, 201, 0.7);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+    
+    .component-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(to right, var(--primary-green), var(--accent-green), var(--primary-green));
+      background-size: 200% 100%;
+      animation: gradientShift 3s ease infinite;
+    }
+    
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+    
+    .component-card:hover {
+      transform: var(--hover-transform);
+      box-shadow: 0 20px 45px rgba(0,0,0,0.22);
+    }
+    
+    .component-title {
+      font-size: 1.6rem;
+      margin-top: 0;
+      margin-bottom: 30px;
+      color: var(--primary-green);
+      display: flex;
+      align-items: center;
+      position: relative;
+      padding-left: 40px;
+      font-weight: 700;
+    }
+    
+    .component-title::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--accent-green);
+      font-size: 2.5rem;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    
+    .map-container {
+      height: 400px;
+      background: linear-gradient(var(--gradient-angle), #e6f7ee 0%, #d1f2e0 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 30px;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid var(--border-color);
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+    }
+    
+    .map-container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(0, 100, 0, 0.15) 3px, transparent 3.5px),
+        radial-gradient(circle at 80% 70%, rgba(0, 100, 0, 0.15) 3px, transparent 3.5px);
+      background-size: 70px 70px;
+    }
+    
+    .map-controls {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .map-controls button {
+      padding: 16px 28px;
+      background: linear-gradient(var(--gradient-angle), var(--primary-green), var(--dark-green));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: var(--transition);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+      flex: 1;
+      min-width: 150px;
+      position: relative;
+      overflow: hidden;
+      font-size: 1.1rem;
+    }
+    
+    .map-controls button::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: 0.7s;
+    }
+    
+    .map-controls button:hover::before {
+      left: 100%;
+    }
+    
+    .map-controls button:hover {
+      background: linear-gradient(var(--gradient-angle), var(--secondary-green), var(--primary-green));
+      transform: translateY(-5px);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.3);
+    }
+    
+    .project-card {
+      border: 2px solid var(--border-color);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 25px;
+      background: linear-gradient(to right, #f9fdfa, #f0f9f2);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+    
+    .project-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 8px;
+      height: 100%;
+      background: linear-gradient(to bottom, var(--primary-green), var(--accent-green));
+    }
+    
+    .project-card:hover {
+      border-color: var(--secondary-green);
+      box-shadow: 0 10px 25px rgba(0, 100, 0, 0.3);
+      transform: translateX(8px);
+    }
+    
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    
+    .status-tag {
+      padding: 9px 18px;
+      border-radius: 30px;
+      font-size: 1em;
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .status-active { 
+      background: linear-gradient(to right, #4CAF50, #2E7D32); 
+    }
+    .status-past { 
+      background: linear-gradient(to right, #9E9E9E, #616161); 
+    }
+    .status-planned { 
+      background: linear-gradient(to right, #2196F3, #0D47A1); 
+    }
+    
+    .field-tag {
+      display: inline-block;
+      padding: 7px 16px;
+      border-radius: 30px;
+      font-size: 1em;
+      background: linear-gradient(to right, var(--primary-green), var(--secondary-green));
+      color: white;
+      margin-top: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 35px;
+      margin: 35px 0;
+    }
+    
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: 25px;
+      padding: 35px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(200, 230, 201, 0.7);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+    
+    .stat-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      background: linear-gradient(to right, var(--primary-green), var(--accent-green));
+    }
+    
+    .stat-card:hover {
+      transform: var(--hover-transform);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+    
+    .stat-number {
+      font-size: 3.2em;
+      font-weight: 800;
+      color: var(--primary-green);
+      margin-bottom: 12px;
+      background: linear-gradient(to right, var(--primary-green), var(--secondary-green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .stat-label {
+      font-size: 1.3rem;
+      color: var(--text-light);
+      font-weight: 600;
+    }
+    
+    .card-container {
+      perspective: 2500px;
+      height: 300px;
+      margin-bottom: 30px;
+    }
+    
+    .card {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.5);
+      cursor: pointer;
+      border-radius: 25px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(200, 230, 201, 0.6);
+    }
+    
+    .card.flipped {
+      transform: rotateY(180deg);
+    }
+    
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 25px;
+      padding: 35px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    
+    .card-front {
+      background: linear-gradient(var(--gradient-angle), #e8f8ec 0%, #d1f0d5 100%);
+      border: 2px solid #a5d6a7;
+    }
+    
+    .card-back {
+      background: linear-gradient(var(--gradient-angle), #e3f2fd 0%, #bbdefb 100%);
+      border: 2px solid #90caf9;
+      transform: rotateY(180deg);
+    }
+    
+    .search-container {
+      background: white;
+      padding: 40px;
+      border-radius: 25px;
+      box-shadow: var(--shadow);
+      margin-bottom: 35px;
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(10px);
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 20px;
+      border: 2px solid var(--border-color);
+      border-radius: 15px;
+      font-size: 19px;
+      margin-bottom: 30px;
+      transition: var(--transition);
+      background: #f9fdfa;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: var(--secondary-green);
+      box-shadow: 0 0 0 5px rgba(0, 128, 64, 0.25);
+    }
+    
+    .filter-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin-bottom: 25px;
+    }
+    
+    .filter-button {
+      padding: 15px 25px;
+      background-color: #f0faf2;
+      border: 2px solid var(--border-color);
+      border-radius: 35px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: var(--transition);
+      flex: 1;
+      min-width: 140px;
+      text-align: center;
+      font-size: 1.05rem;
+    }
+    
+    .filter-button:hover {
+      background-color: #e0f5e5;
+    }
+    
+    .filter-button.active {
+      background: linear-gradient(to right, var(--primary-green), var(--secondary-green));
+      color: white;
+      border-color: var(--primary-green);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+    
+    .version-selector {
+      position: fixed;
+      bottom: 35px;
+      right: 35px;
+      background: white;
+      padding: 35px;
+      border-radius: 25px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+      z-index: 1000;
+      border: 1px solid var(--border-color);
+      max-width: 340px;
+      backdrop-filter: blur(10px);
+    }
+    
+    .version-selector h3 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: var(--primary-green);
+      display: flex;
+      align-items: center;
+      position: relative;
+      padding-left: 40px;
+      font-size: 1.4rem;
+    }
+    
+    .version-selector h3::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--accent-green);
+      font-size: 2.5rem;
+    }
+    
+    .version-links {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    
+    .version-link {
+      padding: 18px 28px;
+      background: linear-gradient(to right, var(--primary-green), var(--secondary-green));
+      color: white;
+      text-decoration: none;
+      border-radius: 15px;
+      text-align: center;
+      font-weight: 600;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      font-size: 1.1rem;
+    }
+    
+    .version-link::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      transition: 0.8s;
+    }
+    
+    .version-link:hover::before {
+      left: 100%;
+    }
+    
+    .version-link:hover {
+      background: linear-gradient(to right, var(--secondary-green), var(--accent-green));
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    
+    .highlight {
+      animation: highlight 2.2s ease;
+    }
+    
+    @keyframes highlight {
+      0% { background-color: rgba(144, 238, 144, 0.5); }
+      100% { background-color: transparent; }
+    }
+    
+    .project-card.highlight {
+      animation: highlight 2.2s ease;
+    }
+    
+    .card.highlight {
+      animation: highlight 2.2s ease;
+    }
+    
+    /* Animation for component cards when loaded */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .component-card {
+      animation: fadeInUp 1s ease forwards;
+    }
+    
+    /* Staggered animation delays */
+    .component-card:nth-child(1) { animation-delay: 0.15s; }
+    .component-card:nth-child(2) { animation-delay: 0.3s; }
+    .component-card:nth-child(3) { animation-delay: 0.45s; }
+    .component-card:nth-child(4) { animation-delay: 0.6s; }
+    .component-card:nth-child(5) { animation-delay: 0.75s; }
+    .component-card:nth-child(6) { animation-delay: 0.9s; }
+    .component-card:nth-child(7) { animation-delay: 1.05s; }
+    
+    /* Enhanced flip animation */
+    .card {
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Carpathian Citizen Science Platform</h1>
+      <p>Version 5: Ultimate UI with Advanced Effects and Animations</p>
+    </header>
+
+    <!-- Map Section -->
+    <div class="component-container">
+      <div class="component-card">
+        <h2 class="component-title">Map Section</h2>
+        <div class="map-container">
+          <p>Ultimate Map Visualization with Advanced Effects</p>
+        </div>
+        <div class="map-controls">
+          <button>Street View</button>
+          <button>Satellite View</button>
+        </div>
+        <p>Shows project locations with ultimate markers and interactive features</p>
+      </div>
+
+      <!-- Map Sidebar -->
+      <div class="component-card">
+        <h2 class="component-title">Map Sidebar</h2>
+        <div class="search-container">
+          <input type="text" class="search-input" placeholder="Search projects...">
+          <div class="filter-container">
+            <button class="filter-button active">All Status</button>
+            <button class="filter-button">Active</button>
+            <button class="filter-button">Past</button>
+          </div>
+        </div>
+        <h3>Projects List</h3>
+        <div class="project-card">
+          <div class="project-header">
+            <h4>Carpathian Forest Monitoring</h4>
+            <span class="status-tag status-active">Active</span>
+          </div>
+          <p><strong>Field:</strong> <span class="field-tag">Biodiversity</span></p>
+          <p>Location: Romania</p>
+        </div>
+        <div class="project-card">
+          <div class="project-header">
+            <h4>Danube Water Quality Study</h4>
+            <span class="status-tag status-past">Past</span>
+          </div>
+          <p><strong>Field:</strong> <span class="field-tag">Water</span></p>
+          <p>Location: Serbia</p>
+        </div>
+      </div>
+
+      <!-- Map Sidebar Project Card -->
+      <div class="component-card">
+        <h2 class="component-title">Map Sidebar Project Card</h2>
+        <div class="project-card">
+          <div class="project-header">
+            <h4>Carpathian Forest Monitoring</h4>
+            <span class="status-tag status-active">Active</span>
+          </div>
+          <p><strong>Field:</strong> <span class="field-tag">Biodiversity</span></p>
+          <p><strong>Contact:</strong> Dr. Maria Popescu</p>
+          <p><strong>Duration:</strong> 2023-2025</p>
+          <p>Monitoring forest health and biodiversity in the Carpathian Mountains.</p>
+        </div>
+      </div>
+
+      <!-- Search Details Section -->
+      <div class="component-card">
+        <h2 class="component-title">Search Details Section</h2>
+        <div class="search-container">
+          <input type="text" class="search-input" placeholder="Search projects...">
+          <div class="filter-container">
+            <button class="filter-button active">Projects</button>
+            <button class="filter-button">Experts</button>
+          </div>
+          <div class="filter-container">
+            <button class="filter-button">All Status</button>
+            <button class="filter-button">Biodiversity</button>
+            <button class="filter-button">Water</button>
+          </div>
+          <button style="background: linear-gradient(to right, #f44336, #d32f2f); color: white; padding: 16px 28px; border: none; border-radius: 15px; cursor: pointer; font-weight: 600; width: 100%; font-size: 1.1rem;">Clear Filters</button>
+        </div>
+      </div>
+
+      <!-- Stats Section -->
+      <div class="component-card">
+        <h2 class="component-title">Stats Section</h2>
+        <div class="stats-container">
+          <div class="stat-card">
+            <div class="stat-number">158</div>
+            <div class="stat-label">Total Projects</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">64</div>
+            <div class="stat-label">Active Projects</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">11</div>
+            <div class="stat-label">Countries</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">118</div>
+            <div class="stat-label">Experts</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flip Card -->
+      <div class="component-card">
+        <h2 class="component-title">Flip Card</h2>
+        <div class="card-container">
+          <div class="card">
+            <div class="card-face card-front">
+              <h3>Project Card Front</h3>
+              <p>Carpathian Forest Monitoring</p>
+              <p>Active • Biodiversity</p>
+            </div>
+            <div class="card-face card-back">
+              <h3>Project Card Back</h3>
+              <p>Details about the project...</p>
+              <p>Click to flip back</p>
+            </div>
+          </div>
+        </div>
+        <button onclick="this.parentElement.previousElementSibling.querySelector('.card').classList.toggle('flipped'); this.parentElement.previousElementSibling.querySelector('.card').classList.add('highlight'); setTimeout(() => this.parentElement.previousElementSibling.querySelector('.card').classList.remove('highlight'), 2200);">Flip Card</button>
+      </div>
+
+      <!-- Project/Expert Card -->
+      <div class="component-card">
+        <h2 class="component-title">Project/Expert Card</h2>
+        <div class="card-container">
+          <div class="card">
+            <div class="card-face card-front">
+              <h3>Expert Card Front</h3>
+              <p>Dr. Elena Vasilescu</p>
+              <p>University of Bucharest</p>
+              <p>Specializes in biodiversity conservation</p>
+            </div>
+            <div class="card-face card-back">
+              <h3>Expert Card Back</h3>
+              <p>Research focus: Ecosystem services</p>
+              <p>45 publications • 12 projects</p>
+              <p>EU Horizon 2020 funded</p>
+            </div>
+          </div>
+        </div>
+        <button onclick="this.parentElement.querySelector('.card').classList.toggle('flipped'); this.parentElement.querySelector('.card').classList.add('highlight'); setTimeout(() => this.parentElement.querySelector('.card').classList.remove('highlight'), 2200);">Flip Card</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="version-selector">
+    <h3>Version Selector</h3>
+    <div class="version-links">
+      <a href="version1.html" class="version-link">Version 1</a>
+      <a href="version2.html" class="version-link">Version 2</a>
+      <a href="version3.html" class="version-link">Version 3</a>
+      <a href="version4.html" class="version-link">Version 4</a>
+      <a href="index.html" class="version-link">Version 5</a>
+    </div>
+  </div>
+
+  <script>
+    // Advanced card flip functionality with ultimate animations
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('click', () => {
+        card.classList.toggle('flipped');
+        card.classList.add('highlight');
+        setTimeout(() => {
+          card.classList.remove('highlight');
+        }, 2200);
+      });
+    });
+    
+    // Add ripple effect to buttons
+    document.querySelectorAll('button').forEach(button => {
+      button.addEventListener('click', function(e) {
+        // Create ripple element
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        
+        // Position ripple at click location
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size/2;
+        const y = e.clientY - rect.top - size/2;
+        
+        // Style ripple
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        
+        // Add to button
+        this.appendChild(ripple);
+        
+        // Remove after animation
+        setTimeout(() => {
+          ripple.remove();
+        }, 600);
+      });
+    });
+    
+    // Add animation to project cards on hover
+    document.querySelectorAll('.project-card').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.style.transform = 'translateX(10px)';
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'translateX(0)';
+      });
+    });
+    
+    // Add subtle floating animation to all component cards
+    document.querySelectorAll('.component-card').forEach((card, index) => {
+      // Add individual delays for a wave effect
+      card.style.animationDelay = `${index * 0.1}s`;
+    });
+  </script>
+  
+  <style>
+    /* Ripple effect styles */
+    button {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.7);
+      transform: scale(0);
+      animation: ripple-animation 0.6s linear;
+      pointer-events: none;
+    }
+    
+    @keyframes ripple-animation {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+  </style>
+</body>
+</html>

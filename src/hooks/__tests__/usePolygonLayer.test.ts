@@ -10,7 +10,7 @@ vi.mock('@/store/appStore', () => ({ useAppStore: vi.fn() }));
 describe('usePolygonLayer', () => {
   const mockProjects = [
     { id: 'p1', status: 'active', field: 'Biodiversity', lat: 47.5, lng: 25.0 },
-    { id: 'p2', status: 'planned', field: 'Hydrology', lat: 49.0, lng: 20.0 },
+    { id: 'p2', status: 'planned', field: 'Water', lat: 49.0, lng: 20.0 },
   ];
 
   it('returns polygons for all projects when no filters active', () => {

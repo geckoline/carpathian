@@ -5,8 +5,8 @@ import { getPolygonStyle } from '@/utils/polygonUtils';
 describe('ProjectPolygon logic', () => {
   it('calculates correct style for active project', () => {
     const style = getPolygonStyle('active', 'biodiversity');
-    expect(style.fillColor).toBe('#006633');
-    expect(style.color).toBe('#4CAF50');
+    expect(style.fillColor).toBe('#ADFF2F');
+    expect(style.color).toBe('#9ACD32');
   });
 
   it('handles selected state in style', () => {

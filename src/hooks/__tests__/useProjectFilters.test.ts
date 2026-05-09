@@ -9,7 +9,7 @@ vi.mock('@/store/appStore', () => ({
       searchTerm: '',
       statusFilter: 'all',
       fieldFilter: 'all',
-      areaFilter: 'all',
+      countryFilter: 'all',
       activeTab: 'projects',
     },
   })),
@@ -26,6 +26,7 @@ const mockProjects = [
     yearRange: '2021-2025',
     lat: 47,
     lng: 25,
+    country: 'Romania',
   },
   {
     id: 'p2',
@@ -37,7 +38,7 @@ const mockProjects = [
     yearRange: '2024-2028',
     lat: 49,
     lng: 20,
-    area: 'poland',
+    country: 'Poland',
   },
 ];
 
@@ -49,7 +50,7 @@ describe('useProjectFilters', () => {
 
   it('filters by search term (case-insensitive)', () => {
     vi.mocked(useAppStore).mockImplementation((selector) => selector({
-      filters: { searchTerm: 'restore', statusFilter: 'all', fieldFilter: 'all', areaFilter: 'all', activeTab: 'projects' },
+      filters: { searchTerm: 'restore', statusFilter: 'all', fieldFilter: 'all', countryFilter: 'all', activeTab: 'projects' },
     } as any));
     
     const { result } = renderHook(() => useProjectFilters(mockProjects));
@@ -59,7 +60,7 @@ describe('useProjectFilters', () => {
 
   it('filters by status', () => {
     vi.mocked(useAppStore).mockImplementation((selector) => selector({
-      filters: { searchTerm: '', statusFilter: 'active', fieldFilter: 'all', areaFilter: 'all', activeTab: 'projects' },
+      filters: { searchTerm: '', statusFilter: 'active', fieldFilter: 'all', countryFilter: 'all', activeTab: 'projects' },
     } as any));
     
     const { result } = renderHook(() => useProjectFilters(mockProjects));
@@ -73,7 +74,7 @@ describe('useProjectFilters', () => {
         searchTerm: 'poland', 
         statusFilter: 'planned', 
         fieldFilter: 'all', 
-        areaFilter: 'all',
+        countryFilter: 'all',
         activeTab: 'projects',
       },
     } as any));

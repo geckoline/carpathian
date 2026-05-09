@@ -115,9 +115,16 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit }: AddProjectModalPr
             />
             <datalist id="field-options">
               <option value="Biodiversity" />
-              <option value="Hydrology" />
-              <option value="Wildlife" />
-              <option value="Climate" />
+              <option value="Spatial Development" />
+              <option value="Water" />
+              <option value="Agriculture" />
+              <option value="Forest" />
+              <option value="Tourism" />
+              <option value="Cultural Heritage" />
+              <option value="Industry &amp; Energy" />
+              <option value="Environmental Assessment" />
+              <option value="Education &amp; Awareness" />
+              <option value="Climate Change" />
             </datalist>
           </div>
         </div>

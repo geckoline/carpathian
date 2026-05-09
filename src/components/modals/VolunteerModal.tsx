@@ -8,7 +8,7 @@ const volunteerSchema = z.object({
   email: z.string().email('Valid email required'),
   expertise: z.string().min(1, 'Expertise is required'),
   motivation: z.string().min(50, 'Please share at least 50 characters about your motivation'),
-  projectId: z.string().uuid('Invalid project ID'),
+  projectId: z.string().uuid('Invalid project ID').nullable(),
   availability: z.enum(['full-time', 'part-time', 'occasional']),
 });
 
@@ -17,7 +17,7 @@ type VolunteerFormData = z.infer<typeof volunteerSchema>;
 interface VolunteerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  projectId: string;
+  projectId: string | null;
   onSubmit: (data: VolunteerFormData) => Promise<void>;
 }
 

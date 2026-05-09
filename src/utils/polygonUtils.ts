@@ -1,4 +1,3 @@
-// src/utils/polygonUtils.ts
 import type { LatLngTuple } from 'leaflet';
 
 export type PolygonStyle = {
@@ -6,30 +5,52 @@ export type PolygonStyle = {
   fillOpacity: number;
   color: string;
   weight: number;
+  dashArray?: string | null;
 };
 
-const STATUS_COLORS: Record<string, string> = {
+export const STATUS_COLORS: Record<string, string> = {
   active: '#006633',
   past: '#999999',
   planned: '#ff9900',
 };
 
-const FIELD_COLORS: Record<string, string> = {
-  biodiversity: '#4CAF50',
-  hydrology: '#2196F3',
-  wildlife: '#FF9800',
-  climate: '#9C27B0',
-};
-
 export const getPolygonStyle = (status: string, field?: string): PolygonStyle => {
-  const baseFill = STATUS_COLORS[status] || STATUS_COLORS.planned;
-  const stroke = FIELD_COLORS[field?.toLowerCase() || ''] || '#ffffff';
-  return {
-    fillColor: baseFill,
-    fillOpacity: 0.25,
-    color: stroke,
-    weight: 2,
+  const baseStyles: Record<string, PolygonStyle> = {
+    active: { color: '#006633', fillColor: '#006633', fillOpacity: 0.3, weight: 3 },
+    past: { color: '#999999', fillColor: '#999999', fillOpacity: 0.2, weight: 2 },
+    planned: { color: '#ff9900', fillColor: '#ff9900', fillOpacity: 0.25, weight: 3, dashArray: '5, 5' },
   };
+
+  const style = baseStyles[status] || baseStyles.active;
+  const fieldType = field?.toLowerCase() || '';
+
+  const fieldStyles: Record<string, Partial<PolygonStyle>> = {
+    biodiversity: { fillColor: '#ADFF2F', color: '#9ACD32', fillOpacity: 0.35, weight: 2 },
+    hydrology: { fillColor: '#00BFFF', color: '#1E90FF', fillOpacity: 0.35, weight: 2 },
+    wildlife: { fillColor: '#32cd32', color: '#228B22', fillOpacity: 0.25, weight: 2 },
+    climate: { fillColor: '#87CEEB', color: '#4682B4', fillOpacity: 0.3, weight: 2 },
+    water: { fillColor: '#00BFFF', color: '#1E90FF', fillOpacity: 0.35, weight: 2 },
+    forest: { fillColor: '#228B22', color: '#006400', fillOpacity: 0.4, weight: 2 },
+    'spatial development': { fillColor: '#DEB887', color: '#A0522D', fillOpacity: 0.3, weight: 2 },
+    agriculture: { fillColor: '#F4A460', color: '#D2691E', fillOpacity: 0.3, weight: 2 },
+    tourism: { fillColor: '#FF69B4', color: '#DB7093', fillOpacity: 0.3, weight: 2 },
+    'cultural heritage': { fillColor: '#DDA0DD', color: '#BA55D3', fillOpacity: 0.3, weight: 2 },
+    'industry & energy': { fillColor: '#A9A9A9', color: '#808080', fillOpacity: 0.3, weight: 2 },
+    'environmental assessment': { fillColor: '#B0C4DE', color: '#6495ED', fillOpacity: 0.3, weight: 2 },
+    'education & awareness': { fillColor: '#FFD700', color: '#DAA520', fillOpacity: 0.3, weight: 2 },
+    'climate change': { fillColor: '#87CEEB', color: '#4682B4', fillOpacity: 0.3, weight: 2 },
+    air: { fillColor: '#B0E0E6', color: '#87CEEB', fillOpacity: 0.25, weight: 2 },
+    geology: { fillColor: '#CD853F', color: '#8B4513', fillOpacity: 0.3, weight: 2 },
+    pollution: { fillColor: '#DC143C', color: '#8B0000', fillOpacity: 0.3, weight: 2 },
+    consumption: { fillColor: '#FFD700', color: '#FFA500', fillOpacity: 0.3, weight: 2 },
+  };
+
+  const fieldOverride = fieldStyles[fieldType];
+  if (fieldOverride) {
+    return { ...style, ...fieldOverride, dashArray: style.dashArray ?? null };
+  }
+
+  return { ...style, dashArray: style.dashArray ?? null };
 };
 
 export const generateMockPolygon = (lat: number, lng: number, radiusKm = 15, points = 8): LatLngTuple[] => {

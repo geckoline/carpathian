@@ -1,12 +1,14 @@
-// src/hooks/useExpertFilters.ts
 import { useMemo } from 'react';
 import { useAppStore } from '@/store/appStore';
+import { ExpertData } from '@/types/expert';
 
-export const useExpertFilters = () => {
-  const { data, filters } = useAppStore();
+export const useExpertFilters = (experts?: ExpertData[]) => {
+  const store = useAppStore();
+  const data = experts ?? store.data.experts;
+  const filters = store.filters;
 
   const filteredExperts = useMemo(() => {
-    return data.experts.filter((expert) => {
+    return data.filter((expert) => {
       if (filters.fieldFilter !== 'all' && !expert.expertise.some((e) => e.toLowerCase().includes(filters.fieldFilter.toLowerCase()))) {
         return false;
       }
@@ -19,7 +21,7 @@ export const useExpertFilters = () => {
       }
       return true;
     });
-  }, [data.experts, filters.fieldFilter, filters.searchTerm]);
+  }, [data, filters.fieldFilter, filters.searchTerm]);
 
   return { filteredExperts };
 };

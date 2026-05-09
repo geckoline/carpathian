@@ -65,4 +65,11 @@ describe('ExpertCard', () => {
     expect(screen.getByText('42')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /back/i })).toBeInTheDocument();
   });
+
+  it('includes focus-within ring and hover lift utilities', () => {
+    const { container } = render(<ExpertCard {...mockExpert} />);
+    const card = container.querySelector('article');
+    expect(card).toHaveClass(/focus-within:ring-offset-2/);
+    expect(card).toHaveClass(/motion-safe:hover:-translate-y-1/);
+  });
 });

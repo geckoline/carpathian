@@ -1,0 +1,17 @@
+┌──────────────────────────────────────────────┐
+│ 🟦 HEADER (Gradient + Subtle Pattern)             │
+│  Dr. Elena Popescu                           │
+│  [👤 90px Av overlaps border] (right)             │
+├──────────────────────────────────────────────┤
+│ 📄 INFO BLOCK                                │
+│  🏢 Univ. of Bucharest                       │
+│  📍 Romania                                  │
+│  🎓 PhD, Ecology                             │
+│                                              │
+│ 📊 QUICK STATS (Grid)                        │
+│  [Pubs: 42]  [Projects: 15]                  │
+├──────────────────────────────────────────────┤
+│ 🔘 FOOTER                                    │
+  [Mail][LinkedIn] [ResearchGate] [Copy] 
+	[Details ↻]   │
+└──────────────────────────────────────────────┘

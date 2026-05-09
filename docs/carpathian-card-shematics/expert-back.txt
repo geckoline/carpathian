@@ -1,0 +1,12 @@
+┌──────────────────────────────────────────────┐
+│ 🟦 HEADER (Gradient + Subtle Pattern)             │
+│  Dr. Elena Popescu                           │
+│  [👤 90px Av overlaps border] (right)      │
+├──────────────────────────────────────────────┤
+│ 📄 EXPERTISE & BIO                           │
+│  Tags: [Alpine Eco] [Climate Resilience]     │
+│  Full bio text (scrollable if needed)            │
+├──────────────────────────────────────────────┤
+│ 🔘 FOOTER                                    │
+│  [LinkedIn] [ResearchGate] [Copy] [Back ↻]   │
+└──────────────────────────────────────────────┘

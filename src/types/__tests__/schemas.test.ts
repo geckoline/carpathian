@@ -32,6 +32,8 @@ describe('Zod Schemas', () => {
       degree: 'PhD, Ecology',
       bio: 'Leading research on Carpathian biodiversity for over 15 years.',
       expertise: ['Alpine Eco', 'Climate Resilience'],
+      email: 'elena@example.com',
+      linkedin: 'https://linkedin.com/in/elena',
     };
     expect(ExpertSchema.parse(validExpert)).toEqual(validExpert);
   });

@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useAppStore } from '@/store/appStore';
 import { apiService } from '@/services/apiService';
+import { ProjectSchema } from '@/types/project';
+import { ExpertSchema } from '@/types/expert';
 
 export const useDataFetch = () => {
   const { setLoading, setProjects, setExperts, setError } = useAppStore();
@@ -15,8 +17,8 @@ export const useDataFetch = () => {
         apiService.getProjects(),
         apiService.getExperts(),
       ]);
-      setProjects(projects);
-      setExperts(experts);
+      setProjects(projects.map(p => ProjectSchema.parse(p)));
+      setExperts(experts.map(e => ExpertSchema.parse(e)));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
     } finally {

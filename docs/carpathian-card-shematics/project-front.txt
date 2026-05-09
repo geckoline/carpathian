@@ -1,0 +1,17 @@
+┌──────────────────────────────────────────────┐
+│ 🟢 HEADER (Full Gradient)                    │
+│  Carpathian Forest Watch                     │
+│ right corner line 1: [Active] 
+  right corner line 2: [Biodiversity]                     │
+├──────────────────────────────────────────────┤
+│ 🔵 METRICS ROW (3 Chips)                     │
+│  📍 3 Countries  📅 2021-25 
+  • Lead: Dr. E. Popescu (inpage link to expert card; pulse)            │
+│                                              │
+│          │
+│                                              │                  │
+│                                              │
+├──────────────────────────────────────────────┤
+│ 🔘 FOOTER                                    │
+│  [Webiste] [Copy] 		[Details ↻] 
+└──────────────────────────────────────────────┘

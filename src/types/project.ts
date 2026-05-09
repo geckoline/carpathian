@@ -1,5 +1,4 @@
-// src/types/project.ts
-import { z } from 'zod'; 
+import { z } from 'zod';
 
 export const ProjectSchema = z.object({
   id: z.string().uuid(),
@@ -17,6 +16,7 @@ export const ProjectSchema = z.object({
   area: z.string().optional(),
   country: z.string().optional(),
   contact: z.string().optional(),
+  isCitizenScience: z.boolean().optional(),
 });
 
 export type ProjectData = z.infer<typeof ProjectSchema>;

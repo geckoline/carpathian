@@ -8,6 +8,10 @@ vi.mock('@/services/apiService', () => ({
   apiService: {
     getProjects: vi.fn(),
     getExperts: vi.fn(),
+    getProjectsMock: vi.fn(),
+    getExpertsMock: vi.fn(),
+    addProject: vi.fn(),
+    addExpert: vi.fn(),
   },
 }));
 
@@ -18,7 +22,7 @@ describe('useDataFetch', () => {
   });
 
   it('sets loading true, fetches data, then sets loading false', async () => {
-    vi.mocked(apiService.getProjects).mockResolvedValue([{ id: '123e4567-e89b-12d3-a456-426614174000', name: 'Test', status: 'active', field: 'Bio', description: 'A valid test project description here', location: 'Loc', yearRange: '2021-2025', lat: 1, lng: 1 }]);
+    vi.mocked(apiService.getProjects).mockResolvedValue([{ id: '123e4567-e89b-12d3-a456-426614174000', name: 'Test', status: 'active', field: 'Bio', description: 'A valid test project description here', location: 'Loc', yearRange: '2021-2025', lat: 1, lng: 1, isCitizenScience: true }]);
     vi.mocked(apiService.getExperts).mockResolvedValue([]);
 
     renderHook(() => useDataFetch());
@@ -52,13 +56,14 @@ describe('useDataFetch', () => {
     const { result } = renderHook(() => useDataFetch());
     await waitFor(() => expect(useAppStore.getState().data.error).toBeTruthy());
 
-    vi.mocked(apiService.getProjects).mockResolvedValue([{ id: '123e4567-e89b-12d3-a456-426614174000', name: 'Test', status: 'active', field: 'Bio', description: 'A valid test project description here', location: 'Loc', yearRange: '2021-2025', lat: 1, lng: 1 }]);
+    vi.mocked(apiService.getProjects).mockResolvedValue([{ id: '123e4567-e89b-12d3-a456-426614174000', name: 'Test', status: 'active', field: 'Bio', description: 'A valid test project description here', location: 'Loc', yearRange: '2021-2025', lat: 1, lng: 1, isCitizenScience: true }]);
     vi.mocked(apiService.getExperts).mockResolvedValue([]);
 
     act(() => result.current.retry());
 
-    await waitFor(() => expect(useAppStore.getState().data.error).toBeNull());
+    await waitFor(() => expect(useAppStore.getState().data.loading).toBe(false));
     expect(useAppStore.getState().data.projects).toHaveLength(1);
+    expect(useAppStore.getState().data.error).toBeNull();
   });
 
   it('reports isRetrying during fetch', async () => {

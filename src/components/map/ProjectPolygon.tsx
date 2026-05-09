@@ -1,5 +1,6 @@
 import type { LatLngTuple } from 'leaflet';
 import { Polygon, Tooltip } from 'react-leaflet';
+import { useAppStore } from '@/store/appStore';
 
 interface ProjectPolygonProps {
   coords: LatLngTuple[];
@@ -12,29 +13,32 @@ interface ProjectPolygonProps {
 }
 
 export const ProjectPolygon = ({ coords, style, projectId, projectName, isSelected, onMouseOver, onMouseOut }: ProjectPolygonProps) => {
+  const setSelectedProjectId = useAppStore(s => s.setSelectedProjectId);
+
   return (
     <Polygon
       positions={coords}
       pathOptions={{
         ...style,
-        fillOpacity: isSelected ? 0.45 : style.fillOpacity,
-        weight: isSelected ? 3 : style.weight,
+        fillOpacity: isSelected ? 0.6 : style.fillOpacity,
+        weight: isSelected ? 4 : style.weight,
+        color: isSelected ? '#ff9900' : style.color,
       }}
       eventHandlers={{
-        click: () => {
-          const el = document.getElementById(`project-card-${projectId}`);
-          el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        },
+        click: () => setSelectedProjectId(projectId),
         mouseover: onMouseOver,
         mouseout: onMouseOut,
       }}
       aria-label={`Project area: ${projectName}`}
     >
-      <Tooltip direction="center" opacity={1} permanent={false} className="bg-white/90 backdrop-blur rounded px-2 py-1 text-xs font-medium shadow-sm border border-surface-muted">
+      <Tooltip
+        direction="center"
+        opacity={1}
+        permanent={false}
+        className="bg-white/90 backdrop-blur rounded px-2 py-1 text-xs font-medium shadow-sm border border-surface-muted"
+      >
         {projectName}
       </Tooltip>
     </Polygon>
   );
 };
-
-export default ProjectPolygon;

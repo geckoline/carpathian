@@ -3,7 +3,7 @@ import { useAppStore } from '@/store/appStore';
 import { ProjectData } from '@/types/project';
 
 export const useProjectFilters = (projects: ProjectData[]) => {
-  const { searchTerm, statusFilter, fieldFilter, areaFilter, sortKey, sortDirection } = useAppStore((s) => s.filters);
+  const { searchTerm, statusFilter, fieldFilter, countryFilter, sortKey, sortDirection } = useAppStore((s) => s.filters);
 
   const filtered = useMemo(() => {
     let result = projects.filter((project) => {
@@ -15,9 +15,9 @@ export const useProjectFilters = (projects: ProjectData[]) => {
 
       const matchesStatus = statusFilter === 'all' || project.status === statusFilter;
       const matchesField = fieldFilter === 'all' || project.field.toLowerCase() === fieldFilter.toLowerCase();
-      const matchesArea = areaFilter === 'all' || (project.area?.toLowerCase() === areaFilter.toLowerCase());
+      const matchesCountry = countryFilter === 'all' || (project.country?.toLowerCase() === countryFilter.toLowerCase());
 
-      return matchesSearch && matchesStatus && matchesField && matchesArea;
+      return matchesSearch && matchesStatus && matchesField && matchesCountry;
     });
 
     result = [...result].sort((a, b) => {
@@ -28,7 +28,7 @@ export const useProjectFilters = (projects: ProjectData[]) => {
     });
 
     return result;
-  }, [projects, searchTerm, statusFilter, fieldFilter, areaFilter, sortKey, sortDirection]);
+  }, [projects, searchTerm, statusFilter, fieldFilter, countryFilter, sortKey, sortDirection]);
 
   return { filteredProjects: filtered, count: filtered.length };
 };

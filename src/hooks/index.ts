@@ -1,5 +1,6 @@
 // src/hooks/index.ts
 export { useDataFetch } from './useDataFetch';
+export { useRealtimeSync } from './useRealtimeSync';
 export { useProjectFilters } from './useProjectFilters';
 export { useExpertFilters } from './useExpertFilters';
 export { useCardFlip } from './useCardFlip';

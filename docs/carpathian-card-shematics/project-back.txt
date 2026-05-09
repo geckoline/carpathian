@@ -1,0 +1,16 @@
+┌──────────────────────────────────────────────┐
+│ 🟦 HEADER (Solid + Accent Strip)             │
+│  Carpathian Forest Watch                     │
+│  Status: Active | Field: Biodiversity 
+(as front)       │
+├──────────────────────────────────────────────┤
+│  📝 BRIEF DESCRIPTION (Clamped 3 lines)       │
+│  "Monitoring deforestation rates and         │
+│  biodiversity loss across the northern       │
+│  Carpathian mountain range..."                     │
+│                                              │
+               │
+├──────────────────────────────────────────────┤
+│ 🔘 FOOTER                                    │
+│  [Copy] [Back ↻]   │
+└──────────────────────────────────────────────┘

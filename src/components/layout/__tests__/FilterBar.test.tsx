@@ -7,15 +7,21 @@ import { useAppStore, AppState } from '@/store/appStore';
 
 const createMockStore = (overrides: Partial<AppState> = {}) => {
   const base: AppState = {
-    filters: { searchTerm: '', statusFilter: 'all', fieldFilter: 'all', areaFilter: 'all', activeTab: 'projects', sortKey: 'name' as const, sortDirection: 'asc' as const },
+    dataset: 'cs',
+    theme: 'light',
+    isOnline: true,
+    filters: { searchTerm: '', statusFilter: 'all', fieldFilter: 'all', countryFilter: 'all', activeTab: 'projects', sortKey: 'name' as const, sortDirection: 'asc' as const },
     ui: { isMapVisible: true, selectedExpertId: null, selectedProjectId: null, hoveredProjectId: null },
     data: { projects: [], experts: [], loading: false, error: null },
     a11y: { fontSize: 16, highContrast: false, reducedMotion: false },
     draftPolygon: null,
+    setDataset: vi.fn(),
+    setTheme: vi.fn(),
+    setOnlineStatus: vi.fn(),
     setSearchTerm: vi.fn(),
     setStatusFilter: vi.fn(),
     setFieldFilter: vi.fn(),
-    setAreaFilter: vi.fn(),
+    setCountryFilter: vi.fn(),
     setActiveTab: vi.fn(),
     setSortKey: vi.fn(),
     setSortDirection: vi.fn(),
@@ -75,29 +81,10 @@ describe('FilterBar', () => {
     expect(setStatusFilter).toHaveBeenCalledWith('active');
   });
 
-  it('renders sort select and direction toggle', () => {
-    render(<FilterBar />);
-    expect(screen.getByRole('combobox', { name: /sort/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /sort direction/i })).toBeInTheDocument();
-  });
-
-  it('toggles sort direction on button click', async () => {
-    const setSortDirection = vi.fn();
-    vi.mocked(useAppStore).mockImplementation((sel?: (s: AppState) => unknown) => {
-      const store = createMockStore({ setSortDirection });
-      return sel ? sel(store) : store;
-    });
-
-    render(<FilterBar />);
-    const btn = screen.getByRole('button', { name: /sort direction/i });
-    await userEvent.click(btn);
-    expect(setSortDirection).toHaveBeenCalledWith('desc');
-  });
-
   it('shows clear button when filters are active', async () => {
     const clearFilters = vi.fn();
     vi.mocked(useAppStore).mockImplementation((sel?: (s: AppState) => unknown) => {
-      const store = createMockStore({ clearFilters, filters: { searchTerm: 'test', statusFilter: 'all', fieldFilter: 'all', areaFilter: 'all', activeTab: 'projects', sortKey: 'name' as const, sortDirection: 'asc' as const } });
+      const store = createMockStore({ clearFilters, filters: { searchTerm: 'test', statusFilter: 'all', fieldFilter: 'all', countryFilter: 'all', activeTab: 'projects', sortKey: 'name' as const, sortDirection: 'asc' as const } });
       return sel ? sel(store) : store;
     });
 

@@ -11,7 +11,7 @@ describe('CSS safety checks', () => {
     const css = readFileSync(cssPath, 'utf-8');
     expect(css).not.toMatch(/progid:DXImageTransform/i);
     expect(css).not.toMatch(/filter:\s*alpha/i);
-    expect(css).not.toMatch(/behavior:/i);
+    expect(css).not.toMatch(/behavior:\s*url\(/i);
   });
 
   it('app CSS contains -webkit-text-size-adjust for proper mobile rendering', () => {

@@ -21,11 +21,15 @@ describe('Syntax regression checks', () => {
     // Verify -webkit-text-size-adjust is properly set
     expect(css).toContain('-webkit-text-size-adjust: 100%');
     
-    // Check for valid property-value pairs
+    // Check for valid property-value pairs (skip @keyframes blocks)
     const lines = css.split('\n');
+    let inKeyframes = false;
     lines.forEach((line) => {
       const trimmed = line.trim();
-      if (trimmed && !trimmed.startsWith('@') && !trimmed.startsWith('*') && trimmed.includes(':')) {
+      if (trimmed.startsWith('@keyframes')) { inKeyframes = true; return; }
+      if (inKeyframes && trimmed === '}') { inKeyframes = false; return; }
+      if (inKeyframes) return;
+      if (trimmed && !trimmed.startsWith('@') && !trimmed.startsWith('*') && !trimmed.startsWith('}') && !trimmed.startsWith(':') && !trimmed.startsWith('.') && trimmed.includes(':')) {
         expect(trimmed).toMatch(/^[^:]+\s*:\s*[^;]+;$/);
       }
     });

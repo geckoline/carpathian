@@ -7,14 +7,16 @@ import { getPolygonStyle, generateMockPolygon, normalizeCoords } from '../../uti
 describe('polygonUtils', () => {
   it('returns correct style for active biodiversity project', () => {
     const style = getPolygonStyle('active', 'biodiversity');
-    expect(style.fillColor).toBe('#006633');
-    expect(style.color).toBe('#4CAF50');
-    expect(style.fillOpacity).toBe(0.25);
+    expect(style.fillColor).toBe('#ADFF2F');
+    expect(style.color).toBe('#9ACD32');
+    expect(style.fillOpacity).toBe(0.35);
   });
 
-  it('falls back to planned color for unknown status', () => {
+  it('falls back to active style for unknown status', () => {
     const style = getPolygonStyle('unknown');
-    expect(style.fillColor).toBe('#ff9900');
+    expect(style.fillColor).toBe('#006633');
+    expect(style.color).toBe('#006633');
+    expect(style.fillOpacity).toBe(0.3);
   });
 
   it('generates valid mock polygon coordinates', () => {
