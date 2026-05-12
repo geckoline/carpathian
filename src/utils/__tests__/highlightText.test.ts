@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect } from 'vitest';
-import { highlightText } from '../text/highlightText';
+import { highlightText } from '../highlightText';
 
 describe('highlightText', () => {
   it('returns sanitised text when query is empty', () => {
@@ -17,6 +17,12 @@ describe('highlightText', () => {
 
   it('escapes regex special chars', () => {
     const result = highlightText('Test (1) [2]', '(1)');
+    expect(result.__html).toContain('<mark');
+  });
+
+  it('sanitises unmatched HTML content', () => {
+    const result = highlightText('<img src=x onerror=alert(1)>Carpathian', 'Carpathian');
+    expect(result.__html).not.toContain('onerror');
     expect(result.__html).toContain('<mark');
   });
 });

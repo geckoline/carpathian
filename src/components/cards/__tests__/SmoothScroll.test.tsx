@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MapView } from '@/components/map/MapView';
 import { ProjectCard } from '../ProjectCard';
@@ -49,6 +49,8 @@ vi.mock('@/hooks/usePolygonLayer', () => ({
 const mockProject = {
   id: '1', name: 'Alpha Project', status: 'active' as const, field: 'Biodiversity',
   description: 'Monitoring forest health', location: 'Carpathians', yearRange: '2024-2028',
+  leadExpertId: '123e4567-e89b-12d3-a456-426614174001',
+  leadExpertName: 'Dr. Elena Popescu',
   isCitizenScience: true, country: 'Romania',
 };
 
@@ -80,9 +82,34 @@ describe('SmoothScroll', () => {
       </div>
     );
 
+    await screen.findByTestId('cluster-group');
     const btn = screen.getByRole('button', { name: /scroll to card/i });
     await user.click(btn);
 
-    expect(mockScroll).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' });
+    await waitFor(() => {
+      expect(mockScroll).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' });
+    });
+  });
+
+  it('uses auto scroll behavior when reduced motion is enabled', async () => {
+    const user = userEvent.setup();
+    useAppStore.setState((state) => ({
+      ...state,
+      a11y: { ...state.a11y, reducedMotion: true },
+    }));
+
+    render(
+      <div>
+        <MapView />
+        <ProjectCard {...mockProject} />
+      </div>
+    );
+
+    await screen.findByTestId('cluster-group');
+    await user.click(screen.getByRole('button', { name: /scroll to card/i }));
+
+    await waitFor(() => {
+      expect(mockScroll).toHaveBeenCalledWith({ behavior: 'auto', block: 'center' });
+    });
   });
 });

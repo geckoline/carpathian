@@ -5,6 +5,8 @@ import { useAppStore } from '@/store/appStore';
 
 const mockGetProjects = vi.hoisted(() => vi.fn());
 const mockGetExperts = vi.hoisted(() => vi.fn());
+const mockGetMockProjects = vi.hoisted(() => vi.fn());
+const mockGetMockExperts = vi.hoisted(() => vi.fn());
 
 vi.mock('@/services/apiService', () => ({
   apiService: {
@@ -17,6 +19,13 @@ vi.mock('@/services/apiService', () => ({
   },
 }));
 
+vi.mock('@/services/mockApi', () => ({
+  mockApi: {
+    getProjects: mockGetMockProjects,
+    getExperts: mockGetMockExperts,
+  },
+}));
+
 describe('useDataFetch - Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -26,8 +35,8 @@ describe('useDataFetch - Integration', () => {
   });
 
   it('loads data successfully and updates store', async () => {
-    const mockProjects = [{ id: '123e4567-e89b-12d3-a456-426614174000', name: 'Test', status: 'active', field: 'Bio', description: 'A valid test project description for testing', location: 'Loc', yearRange: '2024-2028', lat: 1, lng: 1, isCitizenScience: true }];
     const mockExperts = [{ id: '123e4567-e89b-12d3-a456-426614174001', name: 'Expert', institution: 'Inst', country: 'Country', degree: 'PhD', bio: 'A valid expert bio with enough characters to pass validation.', expertise: ['Skill'], email: 'expert@example.com', linkedin: 'https://linkedin.com/in/expert' }];
+    const mockProjects = [{ id: '123e4567-e89b-12d3-a456-426614174000', name: 'Test', status: 'active', field: 'Bio', description: 'A valid test project description for testing', location: 'Loc', yearRange: '2024-2028', leadExpertId: mockExperts[0].id, leadExpertName: mockExperts[0].name, lat: 1, lng: 1, isCitizenScience: true }];
 
     mockGetProjects.mockResolvedValue(mockProjects);
     mockGetExperts.mockResolvedValue(mockExperts);
@@ -49,17 +58,21 @@ describe('useDataFetch - Integration', () => {
     expect(result.current.retry).toBeDefined();
   });
 
-  it('handles API errors and exposes retry function', async () => {
+  it('falls back on API errors and exposes retry function', async () => {
+    const mockProject = [{ id: '123e4567-e89b-12d3-a456-426614174000', name: 'Fallback', status: 'active', field: 'Bio', description: 'A valid fallback project description', location: 'Loc', yearRange: '2024-2028', leadExpertId: '123e4567-e89b-12d3-a456-426614174001', leadExpertName: 'Fallback Expert', lat: 1, lng: 1, isCitizenScience: true }];
     mockGetProjects.mockRejectedValue(new Error('API down'));
     mockGetExperts.mockResolvedValue([]);
+    mockGetMockProjects.mockResolvedValue(mockProject);
+    mockGetMockExperts.mockResolvedValue([]);
 
     const { result } = renderHook(() => useDataFetch());
 
     await waitFor(() => {
-      expect(useAppStore.getState().data.error).toBe('API down');
+      expect(useAppStore.getState().data.projects).toHaveLength(1);
     });
+    expect(useAppStore.getState().data.error).toBeNull();
 
-    mockGetProjects.mockResolvedValueOnce([]);
+    mockGetProjects.mockResolvedValueOnce(mockProject);
     act(() => result.current.retry());
 
     await waitFor(() => {
@@ -76,7 +89,7 @@ describe('useDataFetch - Integration', () => {
     renderHook(() => useDataFetch());
 
     act(() => {
-      resolvePromise!([{ id: '123e4567-e89b-12d3-a456-426614174000', name: 'Test', status: 'active', field: 'Bio', description: 'A valid test project description for testing', location: 'Loc', yearRange: '2024-2028', lat: 1, lng: 1, isCitizenScience: true }]);
+      resolvePromise!([{ id: '123e4567-e89b-12d3-a456-426614174000', name: 'Test', status: 'active', field: 'Bio', description: 'A valid test project description for testing', location: 'Loc', yearRange: '2024-2028', leadExpertId: '123e4567-e89b-12d3-a456-426614174001', leadExpertName: 'Test Expert', lat: 1, lng: 1, isCitizenScience: true }]);
     });
 
     await waitFor(() => {

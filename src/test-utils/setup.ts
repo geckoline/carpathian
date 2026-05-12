@@ -8,7 +8,8 @@ if (typeof ResizeObserver === 'undefined') {
     unobserve() {}
     disconnect() {}
   }
-  (globalThis as any).ResizeObserver = ResizeObserverMock as any;
+  const testGlobals = globalThis as typeof globalThis & { ResizeObserver: typeof ResizeObserver };
+  testGlobals.ResizeObserver = ResizeObserverMock as typeof ResizeObserver;
 }
 
 afterEach(() => {

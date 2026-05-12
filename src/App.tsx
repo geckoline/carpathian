@@ -1,69 +1,62 @@
 import { Suspense, lazy, useState } from 'react';
 import { useAppStore } from '@/store/appStore';
-import { apiService } from '@/services/apiService';
 import { useRealtimeSync } from '@/hooks/useRealtimeSync';
+import { useUrlSync } from '@/hooks/useUrlSync';
+import { useApplyAccessibility } from '@/hooks/useApplyAccessibility';
 import { useProjectFilters } from '@/hooks/useProjectFilters';
 import { useExpertFilters } from '@/hooks/useExpertFilters';
+import { useProjectSubmission, type StatusMessage } from '@/hooks/useProjectSubmission';
+import { useVolunteerSubscription } from '@/hooks/useVolunteerSubscription';
 import { ProjectCard } from '@/components/cards/ProjectCard';
 import { ExpertCard } from '@/components/cards/ExpertCard';
 import StatsSection from '@/components/layout/StatsSection';
+import FilterBar from '@/components/layout/FilterBar';
 import MapSidebar from '@/components/map/MapSidebar';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import AccessibilityControls from '@/components/layout/AccessibilityControls';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
-import { AddProjectModal } from '@/components/modals/AddProjectModal';
-import { VolunteerModal } from '@/components/modals/VolunteerModal';
+import { getDatasetExperts, getDatasetProjects } from '@/utils/datasetScope';
 
 const MapView = lazy(() => import('@/components/map/MapView'));
+const AddProjectModal = lazy(() => import('@/components/modals/AddProjectModal'));
+const VolunteerModal = lazy(() => import('@/components/modals/VolunteerModal'));
 
 export default function App() {
   useRealtimeSync();
+  useUrlSync();
+  useApplyAccessibility();
   const {
-    dataset, isOnline, addProject,
-    filters, data, setActiveTab, setDataset,
+    dataset, isOnline,
+    filters, data, setActiveTab, setDataset, clearFilters,
   } = useAppStore();
 
-  const csProjects = data.projects.filter(p => p.isCitizenScience);
-  const csExperts = data.experts.filter(e => e.isCitizenScience ?? false);
-  const projectsToFilter = dataset === 'cs' ? csProjects : data.projects;
-  const expertsToFilter = dataset === 'cs' ? csExperts : data.experts;
+  const projectsToFilter = getDatasetProjects(dataset, data.projects);
+  const expertsToFilter = getDatasetExperts(dataset, data.projects, data.experts);
   const { filteredProjects } = useProjectFilters(projectsToFilter);
   const { filteredExperts } = useExpertFilters(expertsToFilter);
   const isLoading = data.loading && data.projects.length === 0 && !data.error;
 
   const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
-  const [volunteerProjectId, setVolunteerProjectId] = useState<string | null>(null);
-
-  const handleAddProject = async (formData: any) => {
-    if (!isOnline) return;
-    try {
-      await apiService.addProject({ ...formData, lat: formData.lat ?? 47.5, lng: formData.lng ?? 25.0 });
-      addProject(formData);
-      setIsAddProjectOpen(false);
-    } catch (err) {
-      console.error('Failed to add project:', err);
-    }
-  };
-
-  const handleVolunteer = async (formData: any) => {
-    if (!isOnline) return;
-    try {
-      await apiService.addExpert({
-        name: formData.name,
-        institution: formData.organization || 'Independent',
-        country: formData.country || 'Demo Region',
-        degree: 'Volunteer',
-        bio: formData.motivation,
-        expertise: [formData.expertise],
-      });
-      setVolunteerProjectId(null);
-    } catch (err) {
-      console.error('Failed to submit volunteer:', err);
-    }
-  };
+  const [isVolunteerOpen, setIsVolunteerOpen] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
+  const { submitProject } = useProjectSubmission(setStatusMessage);
+  const { submitVolunteerSubscription } = useVolunteerSubscription(setStatusMessage);
 
   const activeProjects = filteredProjects;
   const activeExperts = filteredExperts;
+  const activeItems = filters.activeTab === 'projects' ? activeProjects : activeExperts;
+  const hasActiveFilters = filters.searchTerm !== '' || filters.statusFilter !== 'all' || filters.fieldFilter !== 'all' || filters.countryFilter !== 'all';
+  const emptyState = filters.activeTab === 'projects'
+    ? {
+        title: 'No projects found',
+        description: 'Adjust your filters or add a project to start building the map.',
+      }
+    : {
+        title: dataset === 'cs' ? 'No linked experts found' : 'No experts found',
+        description: dataset === 'cs'
+          ? 'Citizen science experts appear here when they are linked to a CS project by lead expert or contact email.'
+          : 'Adjust your filters to find experts across the Carpathian network.',
+      };
 
   if (data.error) {
     return (
@@ -89,11 +82,25 @@ export default function App() {
       </header>
 
       <div className="px-4 md:px-6 lg:px-8 max-w-7xl mx-auto w-full mb-4">
+        {statusMessage && (
+          <div
+            className={`mb-4 rounded-[var(--radius-panel)] shadow-[var(--shadow-panel)] border px-4 py-3 text-sm ${
+              statusMessage.tone === 'success'
+                ? 'border-green-200 bg-green-50 text-green-800'
+                : statusMessage.tone === 'warning'
+                  ? 'border-amber-200 bg-amber-50 text-amber-800'
+                  : 'border-red-200 bg-red-50 text-red-800'
+            }`}
+            role={statusMessage.tone === 'error' ? 'alert' : 'status'}
+          >
+            {statusMessage.text}
+          </div>
+        )}
         <StatsSection projects={projectsToFilter} experts={expertsToFilter} />
       </div>
 
       <div className="px-4 md:px-6 lg:px-8 max-w-7xl mx-auto w-full mb-4">
-        <div className="flex gap-1 bg-surface-muted rounded-lg p-1 w-fit" role="tablist" aria-label="Dataset selection">
+        <div className="flex gap-1 bg-white/85 rounded-[var(--radius-panel)] p-1 w-fit border border-[var(--color-panel-border)] shadow-[var(--shadow-panel)]" role="tablist" aria-label="Dataset selection">
           <button
             role="tab"
             aria-selected={dataset === 'cs'}
@@ -114,23 +121,26 @@ export default function App() {
       </div>
 
       <section className="px-4 md:px-6 lg:px-8 max-w-7xl mx-auto w-full mb-8">
-        <div className="flex gap-6 h-[70vh] min-h-[500px]">
-          <div className="flex-1 min-w-0 rounded-xl overflow-hidden border border-surface-muted shadow-md relative">
+        <div className="flex flex-col lg:flex-row min-h-[520px] gap-6 lg:h-[70vh] lg:min-h-[500px]">
+          <div className="h-[520px] flex-1 min-w-0 rounded-[var(--radius-panel)] overflow-hidden border border-[var(--color-panel-border)] shadow-[var(--shadow-panel)] relative bg-white sm:h-[560px] lg:h-auto">
             <Suspense fallback={<div className="h-full w-full bg-surface-muted animate-pulse flex items-center justify-center text-text-muted">Loading map...</div>}>
               <MapView projects={projectsToFilter} />
             </Suspense>
           </div>
-          <aside className="w-[380px] flex-shrink-0">
+          <aside className="w-full lg:w-[380px] lg:flex-shrink-0">
             <MapSidebar
               projects={activeProjects}
+              filterProjects={projectsToFilter}
               onAddProject={() => setIsAddProjectOpen(true)}
-              onVolunteer={() => setVolunteerProjectId('volunteer')}
+              onVolunteer={() => setIsVolunteerOpen(true)}
             />
           </aside>
         </div>
       </section>
 
       <section className="px-4 md:px-6 lg:px-8 max-w-7xl mx-auto w-full pb-8">
+        <FilterBar />
+
         <div className="flex gap-2 mb-4" aria-label="View tabs">
           <button onClick={() => setActiveTab('projects')} className={`px-3 py-1 rounded text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-primary-500 ${filters.activeTab === 'projects' ? 'bg-primary-500 text-white' : 'bg-white text-primary-500 border border-primary-500'}`} aria-pressed={filters.activeTab === 'projects'}>Projects</button>
           <button onClick={() => setActiveTab('experts')} className={`px-3 py-1 rounded text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-primary-500 ${filters.activeTab === 'experts' ? 'bg-primary-500 text-white' : 'bg-white text-primary-500 border border-primary-500'}`} aria-pressed={filters.activeTab === 'experts'}>Experts</button>
@@ -142,25 +152,40 @@ export default function App() {
           ) : (
             <>
               {filters.activeTab === 'projects' && activeProjects.map(p => (
-                <ProjectCard key={p.id} {...p} onVolunteer={() => setVolunteerProjectId(p.id)} />
+                <ProjectCard key={p.id} {...p} />
               ))}
               {filters.activeTab === 'experts' && activeExperts.map(e => (
                 <ExpertCard key={e.id} {...e} />
               ))}
             </>
           )}
-          {(!isLoading && (filters.activeTab === 'projects' ? activeProjects : activeExperts).length === 0) && (
-            <div className="col-span-full text-center py-12 text-text-muted">No results match your filters.</div>
+          {(!isLoading && activeItems.length === 0) && (
+            <div className="col-span-full rounded-[var(--radius-panel)] border border-dashed border-[var(--color-panel-border)] bg-white/85 shadow-[var(--shadow-panel)] px-6 py-12 text-center text-text-muted">
+              <h2 className="text-lg font-semibold text-primary-700">{emptyState.title}</h2>
+              <p className="mx-auto mt-2 max-w-xl text-sm">{emptyState.description}</p>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="mt-4 rounded-full border border-primary-500 px-4 py-2 text-sm font-medium text-primary-700 hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
           )}
         </section>
       </section>
 
-      <AddProjectModal isOpen={isAddProjectOpen} onClose={() => setIsAddProjectOpen(false)} onSubmit={handleAddProject} />
-      {volunteerProjectId && volunteerProjectId !== 'volunteer' && (
-        <VolunteerModal isOpen={!!volunteerProjectId} onClose={() => setVolunteerProjectId(null)} projectId={volunteerProjectId} onSubmit={handleVolunteer} />
+      {isAddProjectOpen && (
+        <Suspense fallback={null}>
+          <AddProjectModal isOpen={isAddProjectOpen} onClose={() => setIsAddProjectOpen(false)} onSubmit={async (data) => { await submitProject(data); setIsAddProjectOpen(false); }} isOnline={isOnline} />
+        </Suspense>
       )}
-      {volunteerProjectId === 'volunteer' && (
-        <VolunteerModal isOpen={true} onClose={() => setVolunteerProjectId(null)} projectId={null} onSubmit={handleVolunteer} />
+      {isVolunteerOpen && (
+        <Suspense fallback={null}>
+          <VolunteerModal isOpen={true} onClose={() => setIsVolunteerOpen(false)} onSubmit={async (data) => { await submitVolunteerSubscription(data); setIsVolunteerOpen(false); }} isOnline={isOnline} />
+        </Suspense>
       )}
     </main>
   );

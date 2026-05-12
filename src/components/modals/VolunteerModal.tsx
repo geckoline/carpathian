@@ -1,91 +1,255 @@
-import { useForm, Controller } from 'react-hook-form';
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Modal } from '@/components/common/Modal';
+import { VolunteerSubscriptionSchema, type VolunteerSubscriptionData } from '@/types/volunteer';
+import { getCategoryOptions } from '@/utils/categories';
 
-const volunteerSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Valid email required'),
-  expertise: z.string().min(1, 'Expertise is required'),
-  motivation: z.string().min(50, 'Please share at least 50 characters about your motivation'),
-  projectId: z.string().uuid('Invalid project ID').nullable(),
-  availability: z.enum(['full-time', 'part-time', 'occasional']),
-});
-
-type VolunteerFormData = z.infer<typeof volunteerSchema>;
+export type VolunteerFormData = VolunteerSubscriptionData;
 
 interface VolunteerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  projectId: string | null;
   onSubmit: (data: VolunteerFormData) => Promise<void>;
+  isOnline?: boolean;
 }
 
-export const VolunteerModal = ({ isOpen, onClose, projectId, onSubmit }: VolunteerModalProps) => {
-  const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<VolunteerFormData>({
-    resolver: zodResolver(volunteerSchema),
-    defaultValues: { projectId, availability: 'part-time' },
+const categoryOptions = getCategoryOptions();
+
+export const VolunteerModal = ({ isOpen, onClose, onSubmit, isOnline = true }: VolunteerModalProps) => {
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<VolunteerFormData>({
+    resolver: zodResolver(VolunteerSubscriptionSchema),
+    defaultValues: {
+      fullName: '',
+      email: '',
+      city: '',
+      country: '',
+      latitude: 47.5,
+      longitude: 25,
+      radiusKm: 50,
+      categoryIds: [],
+      note: '',
+      consent: false,
+    },
   });
 
-  const onSubmitForm = async (data: VolunteerFormData) => {
+  const handleSubmitForm = async (data: VolunteerFormData) => {
     try {
-      await onSubmit({ ...data, projectId });
+      setSubmitError(null);
+      await onSubmit(data);
       onClose();
     } catch (err) {
-      // Error handled by parent
+      setSubmitError(err instanceof Error ? err.message : 'Volunteer subscription could not be saved. Please try again.');
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Volunteer Application" size="md">
-      <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4">
-        <div>
-          <label htmlFor="vol-name" className="block text-sm font-medium mb-1">Full Name *</label>
-          <Controller name="name" control={control} render={({ field }) => (
-            <input {...field} id="vol-name" className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.name ? 'border-red-500' : 'border-gray-300'}`} />
-          )} />
-          {errors.name && <p className="text-xs text-red-600 mt-1">{errors.name.message}</p>}
+    <Modal isOpen={isOpen} onClose={onClose} title="Volunteer Project Alerts" size="md">
+      <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-4" noValidate>
+        <p className="text-sm text-text-muted">
+          Subscribe once and we will match you with citizen science projects near your city when they need local participation.
+        </p>
+
+        {!isOnline && (
+          <p className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800" role="alert">
+            You are offline. Volunteer subscriptions are disabled until your connection is restored.
+          </p>
+        )}
+        {submitError && (
+          <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+            {submitError}
+          </p>
+        )}
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <label htmlFor="vol-full-name" className="mb-1 block text-sm font-medium">Full name *</label>
+            <Controller
+              name="fullName"
+              control={control}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  id="vol-full-name"
+                  className={`w-full rounded border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.fullName ? 'border-red-500' : 'border-gray-300'}`}
+                  aria-invalid={!!errors.fullName}
+                />
+              )}
+            />
+            {errors.fullName && <p className="mt-1 text-xs text-red-600">{errors.fullName.message}</p>}
+          </div>
+
+          <div className="sm:col-span-2">
+            <label htmlFor="vol-email" className="mb-1 block text-sm font-medium">Email *</label>
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  id="vol-email"
+                  type="email"
+                  className={`w-full rounded border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
+                  aria-invalid={!!errors.email}
+                />
+              )}
+            />
+            {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="vol-city" className="mb-1 block text-sm font-medium">City *</label>
+            <Controller
+              name="city"
+              control={control}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  id="vol-city"
+                  className={`w-full rounded border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
+                  aria-invalid={!!errors.city}
+                />
+              )}
+            />
+            {errors.city && <p className="mt-1 text-xs text-red-600">{errors.city.message}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="vol-country" className="mb-1 block text-sm font-medium">Country *</label>
+            <Controller
+              name="country"
+              control={control}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  id="vol-country"
+                  className={`w-full rounded border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.country ? 'border-red-500' : 'border-gray-300'}`}
+                  aria-invalid={!!errors.country}
+                />
+              )}
+            />
+            {errors.country && <p className="mt-1 text-xs text-red-600">{errors.country.message}</p>}
+          </div>
         </div>
 
-        <div>
-          <label htmlFor="vol-email" className="block text-sm font-medium mb-1">Email *</label>
-          <Controller name="email" control={control} render={({ field }) => (
-            <input {...field} id="vol-email" type="email" className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.email ? 'border-red-500' : 'border-gray-300'}`} />
-          )} />
-          {errors.email && <p className="text-xs text-red-600 mt-1">{errors.email.message}</p>}
-        </div>
+        <fieldset className="rounded-xl border border-[var(--color-panel-border)] p-3">
+          <legend className="px-1 text-sm font-medium">Matching area *</legend>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div>
+              <label htmlFor="vol-latitude" className="mb-1 block text-xs font-medium text-text-muted">Latitude</label>
+              <Controller
+                name="latitude"
+                control={control}
+                render={({ field }) => (
+                  <input {...field} id="vol-latitude" type="number" step="0.0001" className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                )}
+              />
+            </div>
+            <div>
+              <label htmlFor="vol-longitude" className="mb-1 block text-xs font-medium text-text-muted">Longitude</label>
+              <Controller
+                name="longitude"
+                control={control}
+                render={({ field }) => (
+                  <input {...field} id="vol-longitude" type="number" step="0.0001" className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                )}
+              />
+            </div>
+            <div>
+              <label htmlFor="vol-radius" className="mb-1 block text-xs font-medium text-text-muted">Radius in km</label>
+              <Controller
+                name="radiusKm"
+                control={control}
+                render={({ field }) => (
+                  <input {...field} id="vol-radius" type="number" min={1} max={500} className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                )}
+              />
+            </div>
+          </div>
+          {(errors.latitude || errors.longitude || errors.radiusKm) && (
+            <p className="mt-2 text-xs text-red-600" role="alert">
+              {errors.latitude?.message || errors.longitude?.message || errors.radiusKm?.message}
+            </p>
+          )}
+        </fieldset>
+
+        <fieldset className="rounded-xl border border-[var(--color-panel-border)] p-3">
+          <legend className="px-1 text-sm font-medium">Interested categories *</legend>
+          <Controller
+            name="categoryIds"
+            control={control}
+            render={({ field }) => (
+              <div className="grid gap-2 sm:grid-cols-2">
+                {categoryOptions.map((category) => (
+                  <label key={category.id} className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={field.value.includes(category.id)}
+                      onChange={(event) => {
+                        const next = event.target.checked
+                          ? [...field.value, category.id]
+                          : field.value.filter((id) => id !== category.id);
+                        field.onChange(next);
+                      }}
+                    />
+                    {category.label}
+                  </label>
+                ))}
+              </div>
+            )}
+          />
+          {errors.categoryIds && <p className="mt-2 text-xs text-red-600">{errors.categoryIds.message}</p>}
+        </fieldset>
 
         <div>
-          <label htmlFor="vol-expertise" className="block text-sm font-medium mb-1">Area of Expertise *</label>
-          <Controller name="expertise" control={control} render={({ field }) => (
-            <input {...field} id="vol-expertise" placeholder="e.g., GIS, Field Research" className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.expertise ? 'border-red-500' : 'border-gray-300'}`} />
-          )} />
-          {errors.expertise && <p className="text-xs text-red-600 mt-1">{errors.expertise.message}</p>}
+          <label htmlFor="vol-note" className="mb-1 block text-sm font-medium">Optional note</label>
+          <Controller
+            name="note"
+            control={control}
+            render={({ field }) => (
+              <textarea
+                {...field}
+                id="vol-note"
+                rows={3}
+                placeholder="Availability, languages, or local knowledge you want project teams to know."
+                className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            )}
+          />
         </div>
 
-        <div>
-          <label htmlFor="vol-motivation" className="block text-sm font-medium mb-1">Why do you want to volunteer? *</label>
-          <Controller name="motivation" control={control} render={({ field }) => (
-            <textarea {...field} id="vol-motivation" rows={4} className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.motivation ? 'border-red-500' : 'border-gray-300'}`} />
-          )} />
-          {errors.motivation && <p className="text-xs text-red-600 mt-1">{errors.motivation.message}</p>}
-        </div>
+        <Controller
+          name="consent"
+          control={control}
+          render={({ field }) => (
+            <label className="flex items-start gap-3 rounded-xl bg-primary-50/70 px-3 py-3 text-sm">
+              <input
+                type="checkbox"
+                checked={field.value}
+                onChange={(event) => field.onChange(event.target.checked)}
+                className="mt-1"
+              />
+              <span>
+                I consent to storing my subscription details so project teams can contact me about nearby participatory projects.
+              </span>
+            </label>
+          )}
+        />
+        {errors.consent && <p className="text-xs text-red-600">{errors.consent.message}</p>}
 
-        <div>
-          <label htmlFor="vol-availability" className="block text-sm font-medium mb-1">Availability *</label>
-          <Controller name="availability" control={control} render={({ field }) => (
-            <select {...field} id="vol-availability" className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500">
-              <option value="part-time">Part-time</option>
-              <option value="full-time">Full-time</option>
-              <option value="occasional">Occasional</option>
-            </select>
-          )} />
-        </div>
-
-        <div className="flex justify-end gap-3 pt-4 border-t">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50">Cancel</button>
-          <button type="submit" disabled={isSubmitting} className="px-4 py-2 text-sm bg-primary-500 text-white rounded hover:bg-primary-600 disabled:opacity-50">
-            {isSubmitting ? 'Submitting...' : 'Submit Application'}
+        <div className="flex justify-end gap-3 border-t pt-4">
+          <button type="button" onClick={onClose} className="rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50">Cancel</button>
+          <button
+            type="submit"
+            disabled={isSubmitting || !isOnline}
+            className="rounded bg-primary-500 px-4 py-2 text-sm text-white hover:bg-primary-600 disabled:opacity-50"
+          >
+            {isSubmitting ? 'Subscribing...' : 'Subscribe for alerts'}
           </button>
         </div>
       </form>

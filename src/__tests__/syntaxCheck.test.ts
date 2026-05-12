@@ -29,7 +29,7 @@ describe('Syntax regression checks', () => {
       if (trimmed.startsWith('@keyframes')) { inKeyframes = true; return; }
       if (inKeyframes && trimmed === '}') { inKeyframes = false; return; }
       if (inKeyframes) return;
-      if (trimmed && !trimmed.startsWith('@') && !trimmed.startsWith('*') && !trimmed.startsWith('}') && !trimmed.startsWith(':') && !trimmed.startsWith('.') && trimmed.includes(':')) {
+      if (trimmed && !trimmed.startsWith('@') && !trimmed.startsWith('*') && !trimmed.startsWith('}') && !trimmed.startsWith(':') && !trimmed.startsWith('.') && !trimmed.endsWith(',') && !trimmed.endsWith('{') && trimmed.includes(':')) {
         expect(trimmed).toMatch(/^[^:]+\s*:\s*[^;]+;$/);
       }
     });

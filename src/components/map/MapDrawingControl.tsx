@@ -2,6 +2,26 @@
 import { useEffect, useRef } from 'react';
 import { useMap } from 'react-leaflet';
 import { useAppStore } from '@/store/appStore';
+import type * as Leaflet from 'leaflet';
+
+type LeafletDrawApi = typeof Leaflet & {
+  Control: typeof Leaflet.Control & {
+    Draw?: new (options: unknown) => Leaflet.Control;
+  };
+  Draw?: {
+    Event?: {
+      CREATED?: string;
+    };
+  };
+};
+
+const getOptionalProperty = <T extends object, K extends PropertyKey>(object: T, key: K) => {
+  try {
+    return (object as Record<K, unknown>)[key];
+  } catch {
+    return undefined;
+  }
+};
 
 interface MapDrawingControlProps {
   onPolygonCreated: (coords: [number, number][]) => void;
@@ -10,16 +30,27 @@ interface MapDrawingControlProps {
 export const MapDrawingControl = ({ onPolygonCreated }: MapDrawingControlProps) => {
   const map = useMap();
   const setDraftPolygon = useAppStore(s => s.setDraftPolygon);
-  const drawControlRef = useRef<any>(null);
-  const drawnItemsRef = useRef<any>(null);
+  const drawControlRef = useRef<Leaflet.Control | null>(null);
+  const drawnItemsRef = useRef<Leaflet.FeatureGroup | null>(null);
 
   useEffect(() => {
     if (!map || typeof window === 'undefined') return;
 
     // Dynamic import to avoid server-side issues
     const initDrawControl = async () => {
-      const L = await import('leaflet');
+      const leaflet = await import('leaflet');
       await import('leaflet-draw');
+      const defaultExport = Object.prototype.hasOwnProperty.call(leaflet, 'default')
+        ? (leaflet as typeof leaflet & { default?: unknown }).default
+        : undefined;
+      const L = (defaultExport ?? leaflet) as LeafletDrawApi;
+      const DrawControl = getOptionalProperty(L.Control, 'Draw') as LeafletDrawApi['Control']['Draw'] | undefined;
+      const Draw = getOptionalProperty(L, 'Draw') as LeafletDrawApi['Draw'] | undefined;
+      const drawCreatedEvent = Draw?.Event?.CREATED;
+
+      if (!DrawControl || !drawCreatedEvent) {
+        return undefined;
+      }
       
       // Initialize layer group
       if (!drawnItemsRef.current) {
@@ -49,34 +80,44 @@ export const MapDrawingControl = ({ onPolygonCreated }: MapDrawingControlProps) 
           },
         };
 
-        drawControlRef.current = new (L.Control as any).Draw(options);
+        drawControlRef.current = new DrawControl(options);
         map.addControl(drawControlRef.current);
       }
 
       // Handle created event
-      const onCreated = (e: any) => {
+      const onCreated = (e: { layer: unknown }) => {
         const layer = e.layer;
         if (layer instanceof L.Polygon) {
           const latlngs = layer.getLatLngs()[0] as L.LatLng[];
           const coords: [number, number][] = latlngs.map((pt: L.LatLng) => [pt.lat, pt.lng]);
           setDraftPolygon(coords);
           onPolygonCreated(coords);
-          drawnItemsRef.current?.addLayer(layer);
+          drawnItemsRef.current?.addLayer(layer as Leaflet.Layer);
         }
       };
 
-      map.on((L as any).Draw.Event.CREATED, onCreated);
+      map.on(drawCreatedEvent, onCreated);
 
       return () => {
-        map.off((L as any).Draw.Event.CREATED, onCreated);
+        map.off(drawCreatedEvent, onCreated);
         if (drawControlRef.current) map.removeControl(drawControlRef.current);
       };
     };
 
     let cleanup: (() => void) | undefined;
-    initDrawControl().then((fn) => { cleanup = fn; });
+    let cancelled = false;
+    initDrawControl().then((fn) => {
+      if (cancelled) {
+        fn?.();
+        return;
+      }
+      cleanup = fn;
+    });
     
-    return () => { if (cleanup) cleanup(); };
+    return () => {
+      cancelled = true;
+      cleanup?.();
+    };
   }, [map, onPolygonCreated]);
 
   return null;

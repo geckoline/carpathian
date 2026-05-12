@@ -1,7 +1,10 @@
 import { describe, it, expect } from 'vitest';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import { mockApi } from '../mockApi';
 import { ProjectSchema } from '@/types/project';
 import { ExpertSchema } from '@/types/expert';
+import { getLocalExpertPortraitPath } from '@/components/cards/expertProfileImage';
 
 describe('Mock API - Data Integrity', () => {
   describe('Project Data', () => {
@@ -15,7 +18,7 @@ describe('Mock API - Data Integrity', () => {
         }
       });
 
-      expect(projects).toHaveLength(10);
+      expect(projects).toHaveLength(12);
     });
 
     it('projects have valid geographic coordinates', async () => {
@@ -84,10 +87,19 @@ describe('Mock API - Data Integrity', () => {
         });
       });
     });
+
+    it('each mock expert has a matching local portrait asset', async () => {
+      const experts = await mockApi.getExperts();
+
+      experts.forEach(expert => {
+        const portraitPath = getLocalExpertPortraitPath(expert.id).replace(/^\//, '');
+        expect(existsSync(path.join(process.cwd(), 'public', portraitPath))).toBe(true);
+      });
+    });
   });
 
   describe('Cross-Reference Integrity', () => {
-    it('leadExpertId in projects references existing experts', async () => {
+    it('every project has a leading expert that references an existing expert card', async () => {
       const [projects, experts] = await Promise.all([
         mockApi.getProjects(),
         mockApi.getExperts(),
@@ -96,9 +108,9 @@ describe('Mock API - Data Integrity', () => {
       const expertIds = new Set(experts.map(e => e.id));
 
       projects.forEach(project => {
-        if (project.leadExpertId) {
-          expect(expertIds).toContain(project.leadExpertId);
-        }
+        expect(project.leadExpertId).toBeTruthy();
+        expect(project.leadExpertName).toBeTruthy();
+        expect(expertIds).toContain(project.leadExpertId);
       });
     });
 

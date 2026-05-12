@@ -56,6 +56,16 @@ describe('useExpertFilters', () => {
     expect(result.current.filteredExperts).toHaveLength(1);
   });
 
+  it('filters by fuzzy search term with small typos', () => {
+    mockUseAppStore.mockReturnValue({
+      data: { experts: mockExperts },
+      filters: { fieldFilter: 'all', countryFilter: 'all', searchTerm: 'jagelonian' }
+    });
+    const { result } = renderHook(() => useExpertFilters());
+    expect(result.current.filteredExperts).toHaveLength(1);
+    expect(result.current.filteredExperts[0].name).toBe('Dr. Marek Kowalski');
+  });
+
   it('combines field and search filters', () => {
     mockUseAppStore.mockReturnValue({
       data: { experts: mockExperts },

@@ -1,12 +1,12 @@
 import '@testing-library/jest-dom/vitest';
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, it, expect, vi } from 'vitest';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ExpertCard } from '../ExpertCard';
 import { useCardFlip } from '@/hooks/useCardFlip';
 
 vi.mock('@/store/appStore', () => ({
-  useAppStore: vi.fn((sel: any) => sel({ ui: { selectedExpertId: null } }))
+  useAppStore: vi.fn((sel: any) => sel({ ui: { selectedExpertId: null }, a11y: { reducedMotion: false } }))
 }));
 vi.mock('@/hooks/useCardFlip', () => ({
   useCardFlip: vi.fn(() => ({ isFlipped: false, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() }))
@@ -14,62 +14,152 @@ vi.mock('@/hooks/useCardFlip', () => ({
 
 const mockExpert = {
   id: 'e1', name: 'Dr. Elena Popescu', institution: 'Univ. of Bucharest', country: 'Romania',
-  degree: 'PhD, Ecology', bio: 'Leading research on Carpathian biodiversity. Full bio expands on toggle.',
+  degree: 'PhD, Ecology', headline: 'Cross-border biodiversity lead and mountain systems researcher', expertiseSubtitle: 'Ecology • Restoration • Citizen-science networks', bio: 'Leading research on Carpathian biodiversity. Full bio expands on toggle.',
   expertise: ['Alpine Eco', 'Climate Resilience'], publications: 42, projects: 15,
-  email: 'elena@example.com', linkedin: 'https://linkedin.com/in/elena', scopus: 'https://scopus.com/authid/elena'
+  email: 'elena@example.com', linkedin: 'https://linkedin.com/in/elena', scopus: 'https://scopus.com/authid/elena',
+  googleScholar: 'https://scholar.google.com/citations?user=abc123'
 };
 
 describe('ExpertCard', () => {
-  it('renders front layout with header, info, stats, and two-row footer', () => {
-    render(<ExpertCard {...mockExpert} />);
-    expect(screen.getByText('Dr. Elena Popescu')).toBeInTheDocument();
-    expect(screen.getByTestId('expert-institution')).toHaveTextContent('Univ. of Bucharest');
-    expect(screen.getByTestId('expert-pubs')).toHaveTextContent('42 Pubs');
-    expect(screen.getByTestId('expert-front-linkedin-btn')).toBeInTheDocument();
+  beforeEach(() => {
+    vi.clearAllMocks();
+    if (!navigator.clipboard) {
+      Object.defineProperty(navigator, 'clipboard', {
+        configurable: true,
+        value: { writeText: vi.fn().mockResolvedValue(undefined) },
+      });
+    }
+    vi.mocked(useCardFlip).mockReturnValue({ isFlipped: false, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() });
   });
 
-  it('toggles bio clamp on click', async () => {
-    const user = userEvent.setup();
-    vi.mocked(useCardFlip).mockReturnValue({ isFlipped: true, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() });
-    render(<ExpertCard {...mockExpert} />);
-    
-    const toggleBtn = screen.getByTestId('toggle-bio');
-    expect(toggleBtn).toHaveAttribute('aria-expanded', 'false');
-    await user.click(toggleBtn);
-    
-    await waitFor(() => expect(toggleBtn).toHaveAttribute('aria-expanded', 'true'), { timeout: 200 });
-    expect(toggleBtn).toHaveTextContent('Show less');
+  it('renders the variation c front layout with stronger thematic header, identity, stats, and actions', () => {
+    const { container } = render(<ExpertCard {...mockExpert} />);
+    const front = screen.getByTestId('expert-face-front');
+    expect(within(front).getByText('Dr. Elena Popescu')).toBeInTheDocument();
+    expect(within(front).getByTestId('expert-subtitle')).toHaveTextContent('Cross-border biodiversity lead and mountain systems researcher');
+    expect(within(front).getByTestId('expert-institution')).toHaveTextContent('Univ. of Bucharest');
+    expect(within(front).getByTestId('expert-country')).toHaveTextContent('Romania');
+    expect(within(front).getByTestId('expert-degree')).toHaveTextContent('PhD, Ecology');
+    expect(within(front).getByTestId('expert-pubs')).toHaveTextContent('Publications');
+    expect(within(front).getByTestId('expert-pubs')).toHaveTextContent('42');
+    expect(within(front).getByTestId('expert-projects')).toHaveTextContent('Projects');
+    expect(within(front).getByTestId('expert-projects')).toHaveTextContent('15');
+    expect(within(front).getByTestId('expert-social-row')).toBeInTheDocument();
+    expect(within(front).getByTestId('expert-front-linkedin-btn')).toBeInTheDocument();
+    expect(within(front).getByTestId('expert-front-scopus-btn')).toBeInTheDocument();
+    expect(within(front).getByTestId('expert-front-google-scholar-btn')).toBeInTheDocument();
+    expect(within(front).getByTestId('expert-front-contact-email-btn')).toBeInTheDocument();
+    expect(within(front).getByRole('button', { name: /copy expert link/i })).toBeInTheDocument();
+    expect(within(front).getByRole('button', { name: /view expert details/i })).toBeInTheDocument();
+    expect(container.querySelector('[data-testid="expert-card-stage"]')).toHaveClass('card-flip-stage');
+    expect(within(front).getByTestId('expert-front-header')).toHaveClass('header', 'profile-header');
+    expect(screen.getByTestId('expert-face-back')).toHaveClass('expert-card-backdrop');
   });
 
   it('copies link and stops propagation', async () => {
-    vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
-    const user = userEvent.setup();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    });
     vi.mocked(useCardFlip).mockReturnValue({ isFlipped: false, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() });
     render(<ExpertCard {...mockExpert} />);
-    
-    await user.click(screen.getByTestId('copy-expert-link'));
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringContaining('/expert/e1'));
+
+    within(screen.getByTestId('expert-face-front')).getByTestId('copy-expert-link').click();
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('/expert/e1'));
   });
 
-  it('does not render avatar when avatarUrl is not provided', () => {
-    vi.mocked(useCardFlip).mockReturnValue({ isFlipped: false, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() });
-    const { container } = render(<ExpertCard {...mockExpert} />);
-    expect(container.querySelector('img')).not.toBeInTheDocument();
+  it('uses the id-based local profile picture path on the front face', () => {
+    render(<ExpertCard {...mockExpert} />);
+    expect(within(screen.getByTestId('expert-face-front')).getByRole('img', { name: /dr\. elena popescu portrait/i })).toHaveAttribute('src', '/profile-pictures/e1.jpg');
   });
 
-  it('renders full expert bio, tags, and stats on back side when flipped', () => {
+  it('keeps using the id-based local profile picture path even when avatarUrl is provided', () => {
+    render(<ExpertCard {...mockExpert} avatarUrl="https://example.com/avatar.jpg" />);
+    expect(within(screen.getByTestId('expert-face-front')).getByRole('img', { name: /dr\. elena popescu portrait/i })).toHaveAttribute('src', '/profile-pictures/e1.jpg');
+  });
+
+  it('falls back to generated SVG on image error', () => {
+    render(<ExpertCard {...mockExpert} />);
+    const img = within(screen.getByTestId('expert-face-front')).getByRole('img', { name: /dr\. elena popescu portrait/i });
+    img.dispatchEvent(new Event('error'));
+    expect(img).toHaveAttribute('src', expect.stringContaining('data:image/svg+xml'));
+  });
+
+  it('renders the variation c back layout with expertise subtitle, tags, and full bio', () => {
     vi.mocked(useCardFlip).mockReturnValue({ isFlipped: true, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() });
     render(<ExpertCard {...mockExpert} />);
-    expect(screen.getByText('Leading research on Carpathian biodiversity. Full bio expands on toggle.')).toBeInTheDocument();
-    expect(screen.getByTestId('expert-tags')).toHaveTextContent('Alpine Eco');
-    expect(screen.getByText('42')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /back/i })).toBeInTheDocument();
+    const back = screen.getByTestId('expert-face-back');
+    expect(within(back).getByTestId('expert-back-subtitle')).toHaveTextContent('Ecology • Restoration • Citizen-science networks');
+    expect(within(back).getByText('Leading research on Carpathian biodiversity. Full bio expands on toggle.')).toBeInTheDocument();
+    expect(within(back).getByTestId('expert-tags')).toHaveTextContent('Alpine Eco');
+    expect(within(back).getByRole('link', { name: /linkedin/i })).toBeInTheDocument();
+    expect(within(back).getByRole('button', { name: /back/i })).toBeInTheDocument();
+  });
+
+  it('keeps long bio, many tags, and footer actions reachable on back side', () => {
+    vi.mocked(useCardFlip).mockReturnValue({ isFlipped: true, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() });
+    const { container } = render(
+      <ExpertCard
+        {...mockExpert}
+        bio={'Long expert biography. '.repeat(80)}
+        expertise={['Ecology', 'Hydrology', 'GIS', 'Climate', 'Forestry', 'Policy', 'Wildlife', 'Restoration']}
+      />
+    );
+
+    expect(screen.getByTestId('expert-tags')).toHaveTextContent('Restoration');
+    expect(screen.getByRole('button', { name: /copy expert link/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /back to expert summary/i })).toBeInTheDocument();
+    expect(container.querySelector('[data-testid="expert-bio"]')?.closest('.bio-box')).not.toBeNull();
+  });
+
+  it('flips from card-surface clicks and explicit controls, but not from interactive child actions', async () => {
+    const user = userEvent.setup();
+    const toggle = vi.fn();
+    vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    vi.mocked(useCardFlip).mockReturnValue({ isFlipped: false, isFlipping: false, flip: vi.fn(), toggle, clear: vi.fn() });
+    render(<ExpertCard {...mockExpert} />);
+
+    const linkedin = screen.getByRole('link', { name: /linkedin profile/i });
+    const email = screen.getByRole('link', { name: /send email/i });
+    linkedin.addEventListener('click', (event) => event.preventDefault(), { once: true });
+    email.addEventListener('click', (event) => event.preventDefault(), { once: true });
+
+    await user.click(linkedin);
+    await user.click(email);
+    await user.click(within(screen.getByTestId('expert-face-front')).getByRole('button', { name: /copy expert link/i }));
+    expect(toggle).not.toHaveBeenCalled();
+
+    await user.click(within(screen.getByTestId('expert-face-front')).getByTestId('expert-subtitle'));
+    expect(toggle).toHaveBeenCalledTimes(1);
+
+    await user.click(within(screen.getByTestId('expert-face-front')).getByRole('button', { name: /view expert details/i }));
+    expect(toggle).toHaveBeenCalledTimes(2);
+  });
+
+  it('supports keyboard activation for details and copy controls', async () => {
+    const user = userEvent.setup();
+    const toggle = vi.fn();
+    vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    vi.mocked(useCardFlip).mockReturnValue({ isFlipped: false, isFlipping: false, flip: vi.fn(), toggle, clear: vi.fn() });
+    render(<ExpertCard {...mockExpert} />);
+
+    const front = screen.getByTestId('expert-face-front');
+    within(front).getByRole('button', { name: /copy expert link/i }).focus();
+    await user.keyboard('[Enter]');
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringContaining('/expert/e1'));
+
+    within(front).getByRole('button', { name: /view expert details/i }).focus();
+    await user.keyboard('[Enter]');
+    expect(toggle).toHaveBeenCalledTimes(1);
   });
 
   it('includes focus-within ring and hover lift utilities', () => {
     const { container } = render(<ExpertCard {...mockExpert} />);
     const card = container.querySelector('article');
     expect(card).toHaveClass(/focus-within:ring-offset-2/);
-    expect(card).toHaveClass(/motion-safe:hover:-translate-y-1/);
+    expect(card).toHaveClass('card-interactive-shell');
+    expect(card).toHaveClass(/hover:-translate-y-1/);
+    expect(card).toHaveClass('motion-reduce:transition-none');
   });
 });

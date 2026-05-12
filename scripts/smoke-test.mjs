@@ -5,7 +5,7 @@ import { dirname, join } from 'path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const distDir = join(__dirname, '..', 'dist');
 const BASE_URL = process.env.DEPLOY_URL || 'http://localhost:4173';
-const BUNDLE_LIMIT_KB = 500;
+const BUNDLE_LIMIT_KB = 300;
 
 async function checkRoute(path, expected) {
   try {
@@ -44,7 +44,7 @@ async function run() {
   let passed = 0;
   let failed = 0;
 
-  if (await checkRoute('/', 'Citizen Science Platform')) passed++; else failed++;
+  if (await checkRoute('/', '<div id="citizen-science-root"></div>')) passed++; else failed++;
   if (await checkRoute('/index.html', '<title>Carpathian Citizen Science</title>')) passed++; else failed++;
   if (await checkBundleSize()) passed++; else failed++;
 

@@ -1,16 +1,22 @@
-import React from 'react';
+import DOMPurify from 'dompurify';
 
-export const highlightText = (text: string, searchTerm: string): React.ReactNode => {
-  if (!searchTerm.trim()) return text;
-
+export const highlightText = (text: string, searchTerm: string): { __html: string } => {
+  if (!searchTerm.trim()) {
+    return { __html: DOMPurify.sanitize(text, { ALLOWED_TAGS: [] }) };
+  }
+  
   const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const splitRegex = new RegExp(`(${escaped})`, 'gi');
   const matchRegex = new RegExp(`^${escaped}$`, 'i');
   const parts = text.split(splitRegex);
-
-  return parts.map((part, i) =>
-    matchRegex.test(part)
-      ? React.createElement('mark', { key: i, className: 'bg-yellow-200 px-0.5 rounded' }, part)
-      : part
-  );
+  
+  const html = parts
+    .map((part) => 
+      matchRegex.test(part) 
+        ? `<mark class="bg-yellow-200 px-0.5 rounded">${DOMPurify.sanitize(part)}</mark>` 
+        : DOMPurify.sanitize(part)
+    )
+    .join('');
+    
+  return { __html: html };
 };

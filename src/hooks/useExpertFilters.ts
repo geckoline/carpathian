@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useAppStore } from '@/store/appStore';
 import { ExpertData } from '@/types/expert';
+import { filterExpertsBySearch } from '@/utils/fuzzySearch';
 
 export const useExpertFilters = (experts?: ExpertData[]) => {
   const store = useAppStore();
@@ -8,20 +9,16 @@ export const useExpertFilters = (experts?: ExpertData[]) => {
   const filters = store.filters;
 
   const filteredExperts = useMemo(() => {
-    return data.filter((expert) => {
+    return filterExpertsBySearch(data, filters.searchTerm).filter((expert) => {
       if (filters.fieldFilter !== 'all' && !expert.expertise.some((e) => e.toLowerCase().includes(filters.fieldFilter.toLowerCase()))) {
         return false;
       }
-      if (filters.searchTerm) {
-        const term = filters.searchTerm.toLowerCase();
-        const nameMatch = expert.name.toLowerCase().includes(term);
-        const instMatch = expert.institution.toLowerCase().includes(term);
-        const bioMatch = expert.bio.toLowerCase().includes(term);
-        if (!nameMatch && !instMatch && !bioMatch) return false;
+      if (filters.countryFilter && filters.countryFilter !== 'all' && expert.country.toLowerCase() !== filters.countryFilter.toLowerCase()) {
+        return false;
       }
       return true;
     });
-  }, [data, filters.fieldFilter, filters.searchTerm]);
+  }, [data, filters.countryFilter, filters.fieldFilter, filters.searchTerm]);
 
   return { filteredExperts };
 };

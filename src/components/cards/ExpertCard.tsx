@@ -1,119 +1,223 @@
-import { useState } from 'react';
 import { useAppStore } from '@/store/appStore';
 import { useCardFlip } from '@/hooks/useCardFlip';
-import { Mail, Copy, RotateCw, Building2, MapPin, GraduationCap, ChevronDown, ChevronUp } from 'lucide-react';
+import { getLocalExpertPortraitPath } from './expertProfileImage';
 
-const LinkedInIcon = () => (<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-primary-500 hover:text-primary-600 transition-colors"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>);
-const ScopusIcon = () => (<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-primary-500 hover:text-primary-600 transition-colors"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6zm4 4h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>);
-const GoogleScholarIcon = () => (
-  <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-primary-500 hover:text-primary-600 transition-colors">
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-  </svg>
-);
+const getInitials = (name: string) => {
+  const parts = name.replace(/^dr\.\s*/i, '').trim().split(/\s+/).filter(Boolean);
+  return parts.slice(0, 2).map((part) => part[0]?.toUpperCase()).join('') || '?';
+};
+
+const buildAvatarDataUrl = (name: string) => {
+  const initials = getInitials(name);
+  const seed = Array.from(name).reduce((total, char) => total + char.charCodeAt(0), 0);
+  const palettes = [
+    ['#f3d1b0', '#7bb2a2', '#4f392a'],
+    ['#efd9ad', '#98b7a5', '#553f2e'],
+    ['#edd5bf', '#8fb4c2', '#4b3f35'],
+  ] as const;
+  const [bgStart, bgEnd, hairColor] = palettes[seed % palettes.length];
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+      <defs>
+        <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+          <stop stop-color="${bgStart}"/>
+          <stop offset="1" stop-color="${bgEnd}"/>
+        </linearGradient>
+      </defs>
+      <rect width="180" height="180" fill="url(#bg)"/>
+      <circle cx="90" cy="70" r="34" fill="#f6e6d2"/>
+      <path d="M47 166c10-32 34-48 60-48 27 0 50 16 58 48" fill="#f6e6d2"/>
+      <path d="M54 68c2-17 11-30 24-39 14-10 32-13 47-5 17 7 30 27 24 52-8-9-15-13-22-15-10 10-29 18-53 18-7 0-13 0-18-2-2-3-2-5-2-9z" fill="${hairColor}"/>
+      <text x="90" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#fff">${initials}</text>
+    </svg>
+  `;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+};
+
+const getExpertSummary = (bio: string) => {
+  const normalized = bio.trim();
+  const firstSentence = normalized.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim();
+  if (firstSentence) {
+    return firstSentence;
+  }
+  return normalized.slice(0, 110).trimEnd() + (normalized.length > 110 ? '...' : '');
+};
+
+const getFrontSubtitle = (bio: string) => getExpertSummary(bio);
+const getBackSubtitle = (expertise: string[]) => expertise.slice(0, 3).join(' • ');
 
 export interface ExpertCardProps {
-  id: string; name: string; institution: string; country: string; degree: string;
-  bio: string; expertise: string[]; publications?: number; projects?: number;
-  email?: string; linkedin?: string; scopus?: string; googleScholar?: string; avatarUrl?: string;
+  id: string;
+  name: string;
+  institution: string;
+  country: string;
+  degree?: string;
+  headline?: string;
+  expertiseSubtitle?: string;
+  bio: string;
+  expertise: string[];
+  publications?: number;
+  projects?: number;
+  email?: string;
+  linkedin?: string;
+  scopus?: string;
+  googleScholar?: string;
+  avatarUrl?: string;
 }
 
 export const ExpertCard: React.FC<ExpertCardProps> = ({
-  id, name, institution, country, degree, bio, expertise, publications = 0, projects = 0,
-  email, linkedin, scopus, googleScholar, avatarUrl
+  id,
+  name,
+  institution,
+  country,
+  degree,
+  headline,
+  expertiseSubtitle,
+  bio,
+  expertise,
+  publications = 0,
+  projects = 0,
+  email,
+  linkedin,
+  scopus,
+  googleScholar,
 }) => {
   const { isFlipped, isFlipping, toggle } = useCardFlip({ durationMs: 600 });
-  const [expandedBio, setExpandedBio] = useState(false);
   const selectedExpertId = useAppStore((s) => s.ui.selectedExpertId);
+  const reducedMotion = useAppStore((s) => s.a11y.reducedMotion);
   const isSelected = selectedExpertId === id;
+  const frontSubtitle = headline ?? getFrontSubtitle(bio);
+  const backSubtitle = expertiseSubtitle ?? getBackSubtitle(expertise);
+  const fallbackAvatarUrl = buildAvatarDataUrl(name);
+  const profilePictureSrc = getLocalExpertPortraitPath(id);
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(`${window.location.origin}/expert/${id}`).catch(() => {});
   };
 
+  const handleSurfaceFlip = (e: React.MouseEvent<HTMLElement>) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('button, a, input, textarea, select, [role="button"], [data-no-card-flip="true"]')) {
+      return;
+    }
+    toggle();
+  };
+
+  const renderAvatar = (hidden = false) => (
+    <div className="avatar" aria-hidden={hidden}>
+      <img
+        src={profilePictureSrc}
+        alt={`${name} portrait`}
+        loading="lazy"
+        onError={(event) => {
+          event.currentTarget.src = fallbackAvatarUrl;
+        }}
+      />
+    </div>
+  );
+
   return (
     <article
-      className={`relative w-full h-[440px] rounded-xl overflow-hidden shadow-[var(--shadow-card)] transition-all duration-200
-      ${isSelected ? 'ring-2 ring-primary-500 ring-offset-2 motion-safe:-translate-y-1' : ''}
-      ${isFlipped ? '[transform:rotateY(180deg)] motion-safe:duration-600' : ''}
-      hover:shadow-[var(--shadow-card-hover)] motion-safe:hover:-translate-y-1
-      focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2`}
+      className={`card-interactive-shell relative h-[440px] w-full overflow-hidden rounded-2xl border border-surface-muted/80 shadow-[var(--shadow-card)] motion-reduce:transition-none ${
+        reducedMotion
+          ? 'hover:shadow-[var(--shadow-card)]'
+          : 'transition-all duration-200 [perspective:1600px] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-1'
+      } ${isSelected ? 'ring-2 ring-primary-500 ring-offset-2' : ''} focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2`}
       data-testid={`expert-card-${isFlipped ? 'back' : 'front'}`}
       aria-labelledby={`expert-card-${id}`}
     >
-      {/* FRONT FACE */}
-      {!isFlipped && (
-        <div className="absolute inset-0 [backface-visibility:hidden] flex flex-col bg-white">
-          <header className="relative bg-gradient-to-br from-primary-500 to-primary-700 px-4 py-4 text-white pb-6">
-            <h3 id={`expert-card-${id}`} className="font-semibold text-lg">{name}</h3>
-            {avatarUrl && <img src={avatarUrl} alt={`${name} portrait`} className="absolute right-3 top-2 w-20 h-20 rounded-full border-2 border-white shadow-md object-cover -mt-8 mb-2" loading="lazy" />}
+      <div
+        data-testid="expert-card-stage"
+        className={`card-flip-stage relative motion-reduce:transition-none ${reducedMotion ? '' : 'transition-transform duration-600'} ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}
+      >
+        <section
+          data-testid="expert-face-front"
+          aria-hidden={isFlipped}
+          className={`card-face card expert-front ${isFlipped ? 'pointer-events-none' : ''}`}
+          onClick={handleSurfaceFlip}
+        >
+          <header data-testid="expert-front-header" className="header profile-header">
+            <h3 id={`expert-card-${id}`}>{name}</h3>
+            <p className="expert-subtitle" data-testid="expert-subtitle">{frontSubtitle}</p>
+            {renderAvatar()}
           </header>
-          <div className="flex-1 px-4 py-3 flex flex-col gap-3 text-sm text-gray-700">
-            <div className="grid gap-2">
-              <span className="flex items-center gap-2" data-testid="expert-institution"><Building2 size={16} /> {institution}</span>
-              <span className="flex items-center gap-2" data-testid="expert-location-degree"><MapPin size={16} /> {country} · <GraduationCap size={16} className="ml-1" /> {degree}</span>
+
+          <div className="body">
+            <div className="expert-identity">
+              <div data-testid="expert-institution"><strong>Institution:</strong> {institution}</div>
+              <div data-testid="expert-country"><strong>Country:</strong> {country}</div>
+              <div data-testid="expert-degree"><strong>Degree:</strong> {degree || 'N/A'}</div>
             </div>
-            <div className="grid grid-cols-2 gap-3 mt-2">
-              <div className="bg-surface-muted rounded p-2 text-center" data-testid="expert-pubs"><span className="font-semibold">{publications}</span> Pubs</div>
-              <div className="bg-surface-muted rounded p-2 text-center" data-testid="expert-projects"><span className="font-semibold">{projects}</span> Projects</div>
+            <div className="stat-grid">
+              <div className="stat-card" data-testid="expert-pubs">
+                <strong>Publications</strong>
+                <span>{publications}</span>
+              </div>
+              <div className="stat-card" data-testid="expert-projects">
+                <strong>Projects</strong>
+                <span>{projects}</span>
+              </div>
             </div>
           </div>
-          <footer className="px-4 py-2 border-t border-surface-muted flex flex-col gap-2 text-sm">
-            <div className="flex gap-3 justify-center">
-              {linkedin && <a href={linkedin} target="_blank" rel="noopener noreferrer" className="p-2 rounded hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500 focus-visible:ring-offset-2" data-testid="expert-front-linkedin-btn" aria-label="LinkedIn profile"><LinkedInIcon /></a>}
-              {scopus && <a href={scopus} target="_blank" rel="noopener noreferrer" className="p-2 rounded hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500 focus-visible:ring-offset-2" data-testid="expert-front-scopus-btn" aria-label="Scopus profile"><ScopusIcon /></a>}
-              {googleScholar && <a href={googleScholar} target="_blank" rel="noopener noreferrer" className="p-2 rounded hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500 focus-visible:ring-offset-2" data-testid="expert-front-google-scholar-btn" aria-label="Google Scholar profile"><GoogleScholarIcon /></a>}
-              {email && <a href={`mailto:${email}`} className="p-2 rounded hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500 focus-visible:ring-offset-2" data-testid="expert-front-contact-email-btn" aria-label="Send email"><Mail size={20} /></a>}
-            </div>
-            <div className="flex justify-between items-center">
-              <button onClick={handleCopy} className="p-1.5 rounded hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500 focus-visible:ring-offset-2" data-testid="copy-expert-link" aria-label="Copy expert link"><Copy size={16} /></button>
-              <button onClick={toggle} disabled={isFlipping} className="flex items-center gap-1 text-primary-600 font-medium hover:text-primary-500 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus-visible:ring-offset-2 rounded px-2" data-testid="flip-to-back" aria-label="View expert details">Details <RotateCw size={14} /></button>
-            </div>
-          </footer>
-        </div>
-      )}
 
-      {/* BACK FACE */}
-      {isFlipped && (
-        <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col bg-white">
-          <header className="relative bg-gradient-to-br from-primary-500 to-primary-700 px-4 py-3 text-white">
-            <h3 className="font-semibold text-lg">{name}</h3>
-            <div className="text-xs text-white/90 mt-1">{degree} • {institution}</div>
-            {avatarUrl && <img src={avatarUrl} alt="" className="absolute right-3 top-2 w-16 h-16 rounded-full border-2 border-white shadow-md object-cover -mt-8 mb-2" loading="lazy" aria-hidden="true" />}
-          </header>
-          <div className="flex-1 px-4 py-3 overflow-y-auto space-y-3 text-sm">
-            <div className="flex flex-wrap gap-1.5" data-testid="expert-tags">
-              {expertise.map(tag => <span key={tag} className="px-2 py-0.5 bg-surface-muted text-xs rounded-full text-text-muted border border-gray-200">{tag}</span>)}
+          <div className="footer expert-footer-column">
+            <div className="social-row" data-testid="expert-social-row">
+              {email ? <a href={`mailto:${email}`} className="social-pill" data-testid="expert-front-contact-email-btn" aria-label="Send email">Mail</a> : null}
+              {linkedin ? <a href={linkedin} target="_blank" rel="noopener noreferrer" className="social-pill" data-testid="expert-front-linkedin-btn" aria-label="LinkedIn profile">LinkedIn</a> : null}
+              {scopus ? <a href={scopus} target="_blank" rel="noopener noreferrer" className="social-pill" data-testid="expert-front-scopus-btn" aria-label="Scopus profile">Scopus</a> : null}
+              {googleScholar ? <a href={googleScholar} target="_blank" rel="noopener noreferrer" className="social-pill" data-testid="expert-front-google-scholar-btn" aria-label="Google Scholar profile">Scholar</a> : null}
             </div>
-            <div>
-              <p className={`text-gray-700 transition-all ${expandedBio ? 'line-clamp-none' : 'line-clamp-4'}`} data-testid="expert-bio">{bio}</p>
-              <button onClick={(e) => { e.stopPropagation(); setExpandedBio(p => !p); }} className="mt-1 text-xs text-primary-500 hover:underline flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-primary-500 focus-visible:ring-offset-2 rounded px-1" data-testid="toggle-bio" aria-expanded={expandedBio}>
-                {expandedBio ? <ChevronUp size={12} /> : <ChevronDown size={12} />} {expandedBio ? 'Show less' : 'Read more'}
+            <div className="footer-actions footer-actions-spread">
+              <button type="button" onClick={handleCopy} className="button outline" data-testid="copy-expert-link" aria-label="Copy expert link">
+                Copy
+              </button>
+              <button type="button" onClick={toggle} disabled={isFlipping} className="button" data-testid="flip-to-back" aria-label="View expert details">
+                Details ↻
               </button>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-surface-muted rounded p-2 text-center">
-                <span className="font-bold text-lg text-primary-600">{publications}</span>
-                <div className="text-xs text-text-muted">Publications</div>
-              </div>
-              <div className="bg-surface-muted rounded p-2 text-center">
-                <span className="font-bold text-lg text-primary-600">{projects}</span>
-                <div className="text-xs text-text-muted">Projects</div>
-              </div>
+          </div>
+        </section>
+
+        <section
+          data-testid="expert-face-back"
+          aria-hidden={!isFlipped}
+          className={`card-face card card-face-back expert-back expert-card-backdrop ${!isFlipped ? 'pointer-events-none' : ''}`}
+          onClick={handleSurfaceFlip}
+        >
+          <header className="header profile-header">
+            <h3>{name}</h3>
+            <p className="expert-subtitle" data-testid="expert-back-subtitle">{backSubtitle}</p>
+            {renderAvatar(true)}
+          </header>
+
+          <div className="body expert-back-body" data-testid="expert-back-scroll">
+            <div className="tag-row" data-testid="expert-tags">
+              {expertise.map((tag) => (
+                <span key={tag} className="tag">{tag}</span>
+              ))}
             </div>
-            <div className="flex gap-2 pt-2 border-t border-surface-muted">
-              {email && <a href={`mailto:${email}`} className="p-2 rounded hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500 focus-visible:ring-offset-2" aria-label="Email"><Mail size={18} /></a>}
-              {linkedin && <a href={linkedin} target="_blank" rel="noopener noreferrer" className="p-2 rounded hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500 focus-visible:ring-offset-2" aria-label="LinkedIn"><LinkedInIcon /></a>}
-              {scopus && <a href={scopus} target="_blank" rel="noopener noreferrer" className="p-2 rounded hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500 focus-visible:ring-offset-2" aria-label="Scopus"><ScopusIcon /></a>}
-              {googleScholar && <a href={googleScholar} target="_blank" rel="noopener noreferrer" className="p-2 rounded hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500 focus-visible:ring-offset-2" aria-label="Google Scholar"><GoogleScholarIcon /></a>}
+            <div className="bio-box">
+              <p data-testid="expert-bio">{bio}</p>
             </div>
           </div>
-          <footer className="px-4 py-2 border-t border-surface-muted flex justify-between items-center text-sm mt-auto">
-            <button onClick={handleCopy} className="p-1.5 rounded hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500 focus-visible:ring-offset-2" data-testid="copy-expert-back-link" aria-label="Copy expert link"><Copy size={16} /></button>
-            <button onClick={toggle} disabled={isFlipping} className="flex items-center gap-1 text-primary-600 font-medium hover:text-primary-500 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus-visible:ring-offset-2 rounded px-2" data-testid="flip-to-front" aria-label="Back to expert summary"><RotateCw size={14} /> Back</button>
-          </footer>
-        </div>
-      )}
+
+          <div className="footer">
+            <div className="footer-actions">
+              {linkedin ? <a href={linkedin} target="_blank" rel="noopener noreferrer" className="button outline" aria-label="LinkedIn">LinkedIn</a> : null}
+              {scopus ? <a href={scopus} target="_blank" rel="noopener noreferrer" className="button outline" aria-label="Scopus">Scopus</a> : null}
+              <button type="button" onClick={handleCopy} className="button outline" data-testid="copy-expert-back-link" aria-label="Copy expert link">
+                Copy
+              </button>
+            </div>
+            <div className="footer-actions">
+              <button type="button" onClick={toggle} disabled={isFlipping} className="button" data-testid="flip-to-front" aria-label="Back to expert summary">
+                Back ↻
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
     </article>
   );
 };

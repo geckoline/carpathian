@@ -12,6 +12,8 @@ describe('App Store - Data Flow Integration', () => {
       description: 'A properly formatted description with sufficient length',
       location: 'Carpathians',
       yearRange: '2024-2028',
+      leadExpertId: '123e4567-e89b-12d3-a456-426614174001',
+      leadExpertName: 'Dr. Elena Popescu',
       lat: 47.5,
       lng: 25.0,
     });
@@ -24,7 +26,12 @@ describe('App Store - Data Flow Integration', () => {
   });
 
   it('addProject generates missing fields with defaults', () => {
-    const partial = { name: 'New Project', field: 'Climate Change' };
+    const partial = {
+      name: 'New Project',
+      field: 'Climate Change',
+      leadExpertId: '123e4567-e89b-12d3-a456-426614174001',
+      leadExpertName: 'Dr. Elena Popescu',
+    };
 
     useAppStore.getState().addProject(partial);
 
@@ -36,6 +43,7 @@ describe('App Store - Data Flow Integration', () => {
     expect(added.lat).toBe(47.5);
     expect(added.lng).toBe(25.0);
     expect(added.yearRange).toMatch(/^\d{4}-\d{4}$/);
+    expect(added.leadExpertName).toBe('Dr. Elena Popescu');
   });
 
   it('filters work correctly with loaded data', () => {

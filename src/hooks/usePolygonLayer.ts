@@ -1,8 +1,9 @@
-// src/hooks/usePolygonLayer.ts
 import { useMemo } from 'react';
 import type { LatLngTuple } from 'leaflet';
 import { useAppStore } from '@/store/appStore';
-import { generateMockPolygon, getPolygonStyle, normalizeCoords } from '@/utils/polygonUtils';
+import { getPolygonStyle, generateMockPolygon, normalizeCoords } from '@/utils/polygonUtils';
+import { getPolygonCoords } from '@/utils/geometryUtils';
+import type { ProjectData } from '@/types/project';
 
 export type PolygonLayerItem = {
   projectId: string;
@@ -11,24 +12,27 @@ export type PolygonLayerItem = {
   isSelected: boolean;
 };
 
-export const usePolygonLayer = (): PolygonLayerItem[] => {
-  const { data, filters, ui: { selectedProjectId } } = useAppStore();
+export const usePolygonLayer = (projects?: ProjectData[]): PolygonLayerItem[] => {
+  const { data, ui: { selectedProjectId } } = useAppStore();
+  const sourceProjects = projects ?? data.projects;
 
   return useMemo(() => {
-    return data.projects
-      .filter(p => {
-        const matchesStatus = filters.statusFilter === 'all' || p.status === filters.statusFilter;
-        const matchesField = filters.fieldFilter === 'all' || p.field.toLowerCase() === filters.fieldFilter.toLowerCase();
-        return matchesStatus && matchesField;
-      })
-      .map(project => {
-        const rawCoords = generateMockPolygon(project.lat, project.lng, 12, 6);
-        return {
-          projectId: project.id,
-          coords: normalizeCoords(rawCoords),
-          style: getPolygonStyle(project.status, project.field),
-          isSelected: selectedProjectId === project.id,
-        };
-      });
-  }, [data.projects, filters.statusFilter, filters.fieldFilter, selectedProjectId]);
+    if (!selectedProjectId) return [];
+
+    const project = sourceProjects.find(p => p.id === selectedProjectId);
+    if (!project) return [];
+
+    const parsedCoords = getPolygonCoords(project.location);
+
+    const coords = parsedCoords ?? normalizeCoords(
+      generateMockPolygon(project.lat, project.lng, 12, 6)
+    );
+
+    return [{
+      projectId: project.id,
+      coords,
+      style: getPolygonStyle(project.status, project.field),
+      isSelected: true,
+    }];
+  }, [sourceProjects, selectedProjectId]);
 };

@@ -16,6 +16,14 @@ describe('Modal', () => {
     expect(screen.getByText('Content')).toBeInTheDocument();
   });
 
+  it('renders in a top-layer modal portal with map-safe z-index', () => {
+    render(<Modal isOpen={true} onClose={vi.fn()} title="Test"><p>Content</p></Modal>);
+    const dialog = screen.getByRole('dialog');
+    expect(dialog.parentElement).toBe(document.body);
+    expect(dialog).toHaveAttribute('data-testid', 'modal-overlay');
+    expect(dialog).toHaveClass('z-[4000]');
+  });
+
   it('calls onClose on ESC key', async () => {
     const onClose = vi.fn();
     const user = userEvent.setup();

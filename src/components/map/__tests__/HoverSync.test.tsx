@@ -55,6 +55,8 @@ vi.mock('@/hooks/usePolygonLayer', () => ({
 const mockProject = {
   id: '1', name: 'Test Project', status: 'active' as const, field: 'Biodiversity',
   description: 'A test project', location: 'Test Location', yearRange: '2024-2028',
+  leadExpertId: '123e4567-e89b-12d3-a456-426614174001',
+  leadExpertName: 'Dr. Elena Popescu',
 };
 
 describe('HoverSync', () => {

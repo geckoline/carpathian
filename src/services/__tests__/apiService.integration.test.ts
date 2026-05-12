@@ -15,6 +15,8 @@ describe('apiService - Mock Fallback', () => {
     description: 'A valid test description with enough characters',
     location: 'Test Location',
     yearRange: '2024-2028',
+    leadExpertId: '123e4567-e89b-12d3-a456-426614174001',
+    leadExpertName: 'Test Expert',
     lat: 47.5,
     lng: 25.0,
     isCitizenScience: true,

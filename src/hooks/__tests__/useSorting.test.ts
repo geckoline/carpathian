@@ -11,6 +11,8 @@ const makeProject = (overrides: Partial<ProjectData>): ProjectData => ({
   description: 'A test project with enough description text',
   location: 'Test Location',
   yearRange: '2023-2025',
+  leadExpertId: '123e4567-e89b-12d3-a456-426614174001',
+  leadExpertName: 'Dr. Elena Popescu',
   lat: 45,
   lng: 25,
   ...overrides,

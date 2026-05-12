@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 interface ModalProps {
@@ -49,21 +50,24 @@ export const Modal = ({ isOpen, onClose, title, children, size = 'md' }: ModalPr
   }, [onClose]);
 
   if (!isOpen) return null;
-
-  return (
+  const modal = (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      data-testid="modal-overlay"
+      className="fixed inset-0 z-[4000] flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
       onKeyDown={handleKeyDown}
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
     >
-      <div ref={contentRef} className={`bg-white rounded-xl shadow-xl w-full ${sizes[size]} max-h-[90vh] overflow-y-auto`}>
-        <header className="flex justify-between items-center p-4 border-b">
+      <div
+        ref={contentRef}
+        className={`relative z-[4010] max-h-[90vh] w-full ${sizes[size]} overflow-y-auto rounded-xl bg-white shadow-[0_24px_80px_rgba(0,0,0,0.35)]`}
+      >
+        <header className="flex items-center justify-between border-b p-4">
           <h2 id="modal-title" className="text-lg font-semibold text-primary-700">{title}</h2>
-          <button onClick={onClose} className="p-1 rounded hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500" aria-label="Close modal">
+          <button onClick={onClose} className="rounded p-1 hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500" aria-label="Close modal">
             <X size={20} />
           </button>
         </header>
@@ -71,6 +75,8 @@ export const Modal = ({ isOpen, onClose, title, children, size = 'md' }: ModalPr
       </div>
     </div>
   );
+
+  return createPortal(modal, document.body);
 };
 
 export default Modal;

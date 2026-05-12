@@ -1,0 +1,956 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carpathian Flipcard Comparison: Variation B vs C</title>
+    <style>
+      :root {
+        --bg: #f3f5ef;
+        --panel: rgba(255, 255, 255, 0.78);
+        --surface: #ffffff;
+        --surface-soft: #f5f7f2;
+        --surface-muted: #e6ebe2;
+        --text: #1f2a21;
+        --text-soft: #536057;
+        --green-900: #123524;
+        --green-800: #1b4d35;
+        --green-700: #236748;
+        --green-600: #2f7f57;
+        --green-500: #3f9967;
+        --green-200: #c9e3d1;
+        --gold-500: #c6a85a;
+        --gold-300: #e8d5a0;
+        --shadow-card: 0 22px 45px rgba(20, 38, 24, 0.12);
+        --shadow-strong: 0 28px 70px rgba(18, 36, 24, 0.22);
+        --radius-xl: 26px;
+        --radius-lg: 18px;
+        --radius-md: 14px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Inter", "Segoe UI", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(199, 224, 205, 0.72), transparent 28%),
+          radial-gradient(circle at bottom right, rgba(212, 198, 154, 0.25), transparent 24%),
+          linear-gradient(180deg, #f8faf6 0%, var(--bg) 100%);
+      }
+
+      .page {
+        width: min(1440px, calc(100vw - 48px));
+        margin: 0 auto;
+        padding: 32px 0 56px;
+      }
+
+      .hero {
+        margin-bottom: 28px;
+        padding: 28px 30px;
+        border-radius: 28px;
+        background: var(--panel);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        box-shadow: 0 18px 45px rgba(24, 43, 28, 0.08);
+      }
+
+      .hero h1 {
+        margin: 0 0 10px;
+        font-size: clamp(1.8rem, 2.6vw, 2.8rem);
+        line-height: 1.05;
+      }
+
+      .hero p {
+        margin: 0;
+        max-width: 900px;
+        font-size: 1rem;
+        line-height: 1.65;
+        color: var(--text-soft);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+        align-items: start;
+      }
+
+      .variation {
+        padding: 24px;
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.74);
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        box-shadow: 0 20px 50px rgba(24, 43, 28, 0.08);
+      }
+
+      .variation h2 {
+        margin: 0 0 8px;
+        font-size: 1.55rem;
+      }
+
+      .variation p {
+        margin: 0;
+        color: var(--text-soft);
+        line-height: 1.6;
+      }
+
+      .chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 16px 0 20px;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.7);
+        color: var(--text-soft);
+        font-size: 0.84rem;
+        border: 1px solid rgba(35, 72, 47, 0.08);
+      }
+
+      .stack {
+        display: grid;
+        gap: 18px;
+      }
+
+      .stack-title {
+        margin: 10px 0 2px;
+        font-size: 0.92rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-soft);
+      }
+
+      .card {
+        position: relative;
+        min-height: 360px;
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        background: var(--surface);
+      }
+
+      .card .header {
+        position: relative;
+        padding: 20px 22px 18px;
+        color: white;
+      }
+
+      .card .body {
+        padding: 18px 22px;
+      }
+
+      .card .footer {
+        margin-top: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 14px 18px 18px;
+      }
+
+      .card .footer-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .button,
+      .icon-button {
+        border: none;
+        border-radius: 999px;
+        cursor: default;
+        font: inherit;
+      }
+
+      .button {
+        padding: 10px 14px;
+        background: #edf4ef;
+        color: var(--green-800);
+        font-weight: 600;
+      }
+
+      .button.primary {
+        background: var(--green-700);
+        color: white;
+      }
+
+      .button.outline {
+        background: transparent;
+        border: 1px solid rgba(31, 42, 33, 0.12);
+        color: var(--text);
+      }
+
+      .button.linkish {
+        background: rgba(255, 255, 255, 0.18);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+      }
+
+      .icon-button {
+        width: 40px;
+        height: 40px;
+        display: inline-grid;
+        place-items: center;
+        background: #edf4ef;
+        color: var(--green-800);
+        font-weight: 700;
+      }
+
+      .meta-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .meta-chip {
+        min-height: 58px;
+        padding: 12px 14px;
+        border-radius: var(--radius-md);
+        background: #f4f7f3;
+        border: 1px solid rgba(31, 42, 33, 0.07);
+      }
+
+      .meta-chip strong,
+      .stat-card strong {
+        display: block;
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-soft);
+        margin-bottom: 6px;
+      }
+
+      .meta-chip span {
+        display: block;
+        font-size: 0.95rem;
+        line-height: 1.35;
+        color: var(--text);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+
+      .eyebrow.active {
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: #f6fff8;
+      }
+
+      .eyebrow.field {
+        background: rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.92);
+      }
+
+      .title-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+      }
+
+      .title-row h3 {
+        margin: 10px 0 0;
+        font-size: 1.35rem;
+        line-height: 1.15;
+        max-width: 65%;
+      }
+
+      .title-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-end;
+      }
+
+      .lead-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: var(--green-700);
+      }
+
+      .lead-link .pulse {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: #4dc98d;
+        box-shadow: 0 0 0 8px rgba(77, 201, 141, 0.14);
+      }
+
+      .summary {
+        margin: 0;
+        color: var(--text-soft);
+        line-height: 1.6;
+      }
+
+      .back-summary {
+        padding: 14px 16px;
+        border-radius: var(--radius-lg);
+        background: linear-gradient(180deg, #f6f9f5 0%, #eef3ee 100%);
+        border: 1px solid rgba(31, 42, 33, 0.06);
+      }
+
+      .back-summary p {
+        margin: 0;
+        color: var(--text-soft);
+        line-height: 1.65;
+      }
+
+      .detail-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .detail-item {
+        display: grid;
+        grid-template-columns: 110px 1fr;
+        gap: 10px;
+        font-size: 0.94rem;
+      }
+
+      .detail-item strong {
+        color: var(--text-soft);
+      }
+
+      .profile-header {
+        min-height: 124px;
+        padding-right: 130px;
+      }
+
+      .avatar {
+        position: absolute;
+        right: 22px;
+        top: 18px;
+        width: 94px;
+        height: 94px;
+        border-radius: 50%;
+        border: 4px solid rgba(255, 255, 255, 0.88);
+        overflow: hidden;
+        box-shadow: 0 16px 34px rgba(9, 28, 18, 0.24);
+        background: #d7dfd4;
+      }
+
+      .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .expert-subtitle {
+        margin: 10px 0 0;
+        font-size: 0.94rem;
+        color: rgba(255, 255, 255, 0.84);
+      }
+
+      .expert-identity {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .expert-identity div {
+        color: var(--text);
+        font-size: 0.96rem;
+      }
+
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .stat-card {
+        padding: 14px 16px;
+        border-radius: var(--radius-md);
+        background: #f5f8f4;
+        border: 1px solid rgba(31, 42, 33, 0.07);
+      }
+
+      .stat-card span {
+        display: block;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--green-800);
+      }
+
+      .tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .tag {
+        padding: 8px 10px;
+        border-radius: 999px;
+        background: #f0f4ef;
+        border: 1px solid rgba(31, 42, 33, 0.08);
+        color: var(--text-soft);
+        font-size: 0.82rem;
+        font-weight: 600;
+      }
+
+      .bio-box {
+        max-height: 136px;
+        overflow: auto;
+        padding-right: 6px;
+      }
+
+      .bio-box p {
+        margin: 0;
+        line-height: 1.65;
+        color: var(--text-soft);
+      }
+
+      .social-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .social-pill {
+        padding: 9px 12px;
+        border-radius: 999px;
+        background: #eef3ee;
+        color: var(--green-800);
+        font-size: 0.84rem;
+        font-weight: 700;
+      }
+
+      .note {
+        margin-top: 22px;
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: rgba(238, 244, 236, 0.86);
+        color: var(--text-soft);
+        line-height: 1.6;
+        font-size: 0.94rem;
+      }
+
+      .variation-b .card {
+        box-shadow: var(--shadow-card);
+      }
+
+      .variation-b .project-front .header,
+      .variation-b .project-back .header,
+      .variation-b .expert-front .header,
+      .variation-b .expert-back .header {
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 46%),
+          linear-gradient(140deg, var(--green-800) 0%, var(--green-600) 62%, #62b17e 100%);
+      }
+
+      .variation-b .project-front,
+      .variation-b .project-back {
+        min-height: 352px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .variation-b .expert-front,
+      .variation-b .expert-back {
+        min-height: 418px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .variation-c {
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(246, 243, 235, 0.76));
+      }
+
+      .variation-c .card {
+        box-shadow: var(--shadow-strong);
+      }
+
+      .variation-c .project-front .header {
+        background:
+          radial-gradient(circle at top right, rgba(255, 220, 128, 0.38), transparent 24%),
+          linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 44%),
+          linear-gradient(145deg, #15432f 0%, #1e5f42 40%, #3f8f63 72%, #b6a466 100%);
+      }
+
+      .variation-c .project-back .header {
+        background:
+          repeating-linear-gradient(
+            120deg,
+            rgba(255, 255, 255, 0.07) 0 14px,
+            transparent 14px 28px
+          ),
+          linear-gradient(145deg, #1d5338 0%, #2c704d 66%, #bea15d 100%);
+      }
+
+      .variation-c .expert-front .header,
+      .variation-c .expert-back .header {
+        background:
+          radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.18), transparent 28%),
+          radial-gradient(circle at 84% 18%, rgba(239, 208, 129, 0.24), transparent 20%),
+          linear-gradient(145deg, #133d2d 0%, #1f664c 48%, #2e8b69 82%, #d0b367 100%);
+      }
+
+      .variation-c .project-front .meta-chip,
+      .variation-c .project-back .back-summary,
+      .variation-c .stat-card,
+      .variation-c .tag,
+      .variation-c .social-pill {
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 245, 236, 0.95));
+      }
+
+      .variation-c .button.primary {
+        background: linear-gradient(135deg, #20593d 0%, #2f7f57 100%);
+      }
+
+      .variation-c .avatar {
+        border-color: rgba(255, 247, 229, 0.92);
+        box-shadow: 0 18px 38px rgba(8, 24, 15, 0.34);
+      }
+
+      @media (max-width: 1100px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .page {
+          width: min(100vw - 24px, 1440px);
+          padding-top: 20px;
+        }
+
+        .hero,
+        .variation {
+          padding: 18px;
+        }
+
+        .meta-grid,
+        .stat-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .title-row {
+          flex-direction: column;
+        }
+
+        .title-row h3 {
+          max-width: none;
+        }
+
+        .title-stack {
+          align-items: flex-start;
+        }
+
+        .profile-header {
+          padding-right: 22px;
+          padding-top: 120px;
+        }
+
+        .avatar {
+          left: 22px;
+          right: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <h1>Flipcard Comparison: Variation B vs Variation C</h1>
+        <p>
+          This mockup compares the two strongest directions for the refactored Carpathian cards.
+          Variation B follows the schematic docs closely and aims for a clean editorial hierarchy.
+          Variation C pushes further into themed surfaces, richer gradients, and a more expressive presentation.
+        </p>
+      </section>
+
+      <section class="layout">
+        <article class="variation variation-b">
+          <h2>Variation B: Editorial Schematic</h2>
+          <p>
+            Cleaner, more maintainable, and closer to the target schematics. Strong information hierarchy,
+            bigger expert portrait treatment, and a clearer front/back relationship without becoming overly decorative.
+          </p>
+
+          <div class="chip-row">
+            <span class="chip">Recommended default</span>
+            <span class="chip">Medium implementation effort</span>
+            <span class="chip">Best KISS / UX balance</span>
+          </div>
+
+          <div class="stack">
+            <div class="stack-title">Project Front</div>
+            <section class="card project-front">
+              <div class="header">
+                <div class="title-row">
+                  <div>
+                    <div class="eyebrow active">Active</div>
+                    <h3>Carpathian Pollinator Watch</h3>
+                  </div>
+                  <div class="title-stack">
+                    <div class="eyebrow field">Biodiversity</div>
+                  </div>
+                </div>
+              </div>
+              <div class="body">
+                <div class="meta-grid">
+                  <div class="meta-chip">
+                    <strong>Location</strong>
+                    <span>Romania, Ukraine, Slovakia</span>
+                  </div>
+                  <div class="meta-chip">
+                    <strong>Years</strong>
+                    <span>2021-2026</span>
+                  </div>
+                  <div class="meta-chip">
+                    <strong>Lead Expert</strong>
+                    <span class="lead-link"><span class="pulse"></span>Dr. Elena Popescu</span>
+                  </div>
+                </div>
+                <p class="summary" style="margin-top: 16px;">
+                  Citizen scientists document alpine pollinators and habitat pressure across the Carpathian arc.
+                  The front face stays concise and scannable instead of turning into a mini article.
+                </p>
+              </div>
+              <div class="footer">
+                <div class="footer-actions">
+                  <button class="button outline">Website</button>
+                  <button class="button outline">Copy</button>
+                </div>
+                <div class="footer-actions">
+                  <button class="button primary">Volunteer</button>
+                  <button class="button">Details ↻</button>
+                </div>
+              </div>
+            </section>
+
+            <div class="stack-title">Project Back</div>
+            <section class="card project-back">
+              <div class="header">
+                <div class="title-row">
+                  <div>
+                    <div class="eyebrow active">Active</div>
+                    <h3>Carpathian Pollinator Watch</h3>
+                  </div>
+                  <div class="title-stack">
+                    <div class="eyebrow field">Biodiversity</div>
+                  </div>
+                </div>
+              </div>
+              <div class="body" style="display: grid; gap: 16px;">
+                <div class="back-summary">
+                  <p>
+                    A scroll-safe details surface with enough metadata to justify the flip.
+                    The back should feel like a deliberate second layer, not just the same card plus a paragraph.
+                  </p>
+                </div>
+                <div class="detail-list">
+                  <div class="detail-item"><strong>Contact</strong><span>citizen-science@carpathian.org</span></div>
+                  <div class="detail-item"><strong>Focus</strong><span>Pollinators, meadow corridors, climate resilience</span></div>
+                  <div class="detail-item"><strong>Outputs</strong><span>Observations, map layers, volunteer field reports</span></div>
+                </div>
+              </div>
+              <div class="footer">
+                <div class="footer-actions">
+                  <button class="button outline">Copy</button>
+                </div>
+                <div class="footer-actions">
+                  <button class="button">Back ↻</button>
+                </div>
+              </div>
+            </section>
+
+            <div class="stack-title">Expert Front</div>
+            <section class="card expert-front">
+              <div class="header profile-header">
+                <h3 style="margin: 0; font-size: 1.4rem;">Dr. Elena Popescu</h3>
+                <p class="expert-subtitle">Lead ecologist for cross-border biodiversity monitoring</p>
+                <div class="avatar">
+                  <img
+                    alt="Portrait of Dr. Elena Popescu"
+                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><defs><linearGradient id='bg' x1='0' x2='1' y1='0' y2='1'><stop stop-color='%23efd9ad'/><stop offset='1' stop-color='%2398b7a5'/></linearGradient></defs><rect width='180' height='180' fill='url(%23bg)'/><circle cx='90' cy='72' r='34' fill='%23f7ead1'/><path d='M52 164c7-31 32-49 58-49s51 18 58 49' fill='%23f7ead1'/><path d='M55 70c4-21 19-37 36-43 22-9 44 2 54 23 3 8 4 18 1 28-7-10-15-15-22-18-9 10-28 17-50 17-7 0-13-1-19-3 0-1 0-2 0-4z' fill='%23553f2e'/></svg>"
+                  />
+                </div>
+              </div>
+              <div class="body">
+                <div class="expert-identity">
+                  <div><strong>Institution:</strong> University of Bucharest</div>
+                  <div><strong>Country:</strong> Romania</div>
+                  <div><strong>Degree:</strong> PhD, Ecology</div>
+                </div>
+                <div class="stat-grid">
+                  <div class="stat-card">
+                    <strong>Publications</strong>
+                    <span>42</span>
+                  </div>
+                  <div class="stat-card">
+                    <strong>Projects</strong>
+                    <span>15</span>
+                  </div>
+                </div>
+              </div>
+              <div class="footer" style="flex-direction: column; align-items: stretch;">
+                <div class="social-row">
+                  <span class="social-pill">Mail</span>
+                  <span class="social-pill">LinkedIn</span>
+                  <span class="social-pill">Scopus</span>
+                  <span class="social-pill">Scholar</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; gap: 12px;">
+                  <button class="button outline">Copy</button>
+                  <button class="button">Details ↻</button>
+                </div>
+              </div>
+            </section>
+
+            <div class="stack-title">Expert Back</div>
+            <section class="card expert-back">
+              <div class="header profile-header">
+                <h3 style="margin: 0; font-size: 1.4rem;">Dr. Elena Popescu</h3>
+                <p class="expert-subtitle">Biodiversity • Climate resilience • Alpine ecology</p>
+                <div class="avatar">
+                  <img
+                    alt="Portrait of Dr. Elena Popescu"
+                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><defs><linearGradient id='bg' x1='0' x2='1' y1='0' y2='1'><stop stop-color='%23efd9ad'/><stop offset='1' stop-color='%2398b7a5'/></linearGradient></defs><rect width='180' height='180' fill='url(%23bg)'/><circle cx='90' cy='72' r='34' fill='%23f7ead1'/><path d='M52 164c7-31 32-49 58-49s51 18 58 49' fill='%23f7ead1'/><path d='M55 70c4-21 19-37 36-43 22-9 44 2 54 23 3 8 4 18 1 28-7-10-15-15-22-18-9 10-28 17-50 17-7 0-13-1-19-3 0-1 0-2 0-4z' fill='%23553f2e'/></svg>"
+                  />
+                </div>
+              </div>
+              <div class="body" style="display: grid; gap: 16px;">
+                <div class="tag-row">
+                  <span class="tag">Alpine ecology</span>
+                  <span class="tag">Climate resilience</span>
+                  <span class="tag">Pollinators</span>
+                  <span class="tag">Citizen science</span>
+                </div>
+                <div class="bio-box">
+                  <p>
+                    Elena coordinates a distributed monitoring network that connects universities,
+                    NGOs, and volunteer observers. The back face prioritizes expertise and a readable
+                    full bio while keeping the footer actions permanently reachable.
+                  </p>
+                </div>
+              </div>
+              <div class="footer">
+                <div class="footer-actions">
+                  <button class="button outline">LinkedIn</button>
+                  <button class="button outline">Scopus</button>
+                  <button class="button outline">Copy</button>
+                </div>
+                <div class="footer-actions">
+                  <button class="button">Back ↻</button>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="note">
+            Variation B is the strongest baseline if the goal is to ship a polished, information-rich card family
+            without creating a large styling system or pulling too much legacy behavior back into the refactor.
+          </div>
+        </article>
+
+        <article class="variation variation-c">
+          <h2>Variation C: Thematic Showcase</h2>
+          <p>
+            A more expressive, design-forward version with stronger gradients, decorative depth,
+            and more visible theme treatment by field or expertise cluster.
+          </p>
+
+          <div class="chip-row">
+            <span class="chip">Highest visual impact</span>
+            <span class="chip">Higher implementation risk</span>
+            <span class="chip">Best if B still feels too restrained</span>
+          </div>
+
+          <div class="stack">
+            <div class="stack-title">Project Front</div>
+            <section class="card project-front">
+              <div class="header">
+                <div class="title-row">
+                  <div>
+                    <div class="eyebrow active">Active</div>
+                    <h3>Carpathian Pollinator Watch</h3>
+                  </div>
+                  <div class="title-stack">
+                    <div class="eyebrow field">Biodiversity</div>
+                  </div>
+                </div>
+              </div>
+              <div class="body">
+                <div class="meta-grid">
+                  <div class="meta-chip">
+                    <strong>Region</strong>
+                    <span>3-country mountain corridor</span>
+                  </div>
+                  <div class="meta-chip">
+                    <strong>Timeline</strong>
+                    <span>2021-2026</span>
+                  </div>
+                  <div class="meta-chip">
+                    <strong>Lead</strong>
+                    <span class="lead-link"><span class="pulse"></span>Dr. Elena Popescu</span>
+                  </div>
+                </div>
+                <p class="summary" style="margin-top: 16px;">
+                  Same content model as Variation B, but with a more atmospheric surface and stronger visual drama.
+                  This version leans closer to the old backup’s personality.
+                </p>
+              </div>
+              <div class="footer">
+                <div class="footer-actions">
+                  <button class="button outline">Website</button>
+                  <button class="button outline">Copy</button>
+                </div>
+                <div class="footer-actions">
+                  <button class="button primary">Volunteer</button>
+                  <button class="button">Details ↻</button>
+                </div>
+              </div>
+            </section>
+
+            <div class="stack-title">Project Back</div>
+            <section class="card project-back">
+              <div class="header">
+                <div class="title-row">
+                  <div>
+                    <div class="eyebrow active">Active</div>
+                    <h3>Carpathian Pollinator Watch</h3>
+                  </div>
+                  <div class="title-stack">
+                    <div class="eyebrow field">Biodiversity</div>
+                  </div>
+                </div>
+              </div>
+              <div class="body" style="display: grid; gap: 16px;">
+                <div class="back-summary">
+                  <p>
+                    The back becomes more premium and exhibit-like, but the risk is that styling starts to compete
+                    with readability unless spacing and contrast stay disciplined.
+                  </p>
+                </div>
+                <div class="detail-list">
+                  <div class="detail-item"><strong>Contact</strong><span>citizen-science@carpathian.org</span></div>
+                  <div class="detail-item"><strong>Focus</strong><span>Pollinators, habitat fragmentation, community mapping</span></div>
+                  <div class="detail-item"><strong>Outputs</strong><span>Atlas layers, species reports, volunteer participation metrics</span></div>
+                </div>
+              </div>
+              <div class="footer">
+                <div class="footer-actions">
+                  <button class="button outline">Copy</button>
+                </div>
+                <div class="footer-actions">
+                  <button class="button">Back ↻</button>
+                </div>
+              </div>
+            </section>
+
+            <div class="stack-title">Expert Front</div>
+            <section class="card expert-front">
+              <div class="header profile-header">
+                <h3 style="margin: 0; font-size: 1.42rem;">Dr. Elena Popescu</h3>
+                <p class="expert-subtitle">Cross-border biodiversity lead and mountain systems researcher</p>
+                <div class="avatar">
+                  <img
+                    alt="Portrait of Dr. Elena Popescu"
+                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><defs><linearGradient id='bg' x1='0' x2='1' y1='0' y2='1'><stop stop-color='%23f3d1b0'/><stop offset='1' stop-color='%237bb2a2'/></linearGradient></defs><rect width='180' height='180' fill='url(%23bg)'/><circle cx='90' cy='70' r='34' fill='%23f6e6d2'/><path d='M47 166c10-32 34-48 60-48 27 0 50 16 58 48' fill='%23f6e6d2'/><path d='M54 68c2-17 11-30 24-39 14-10 32-13 47-5 17 7 30 27 24 52-8-9-15-13-22-15-10 10-29 18-53 18-7 0-13 0-18-2-2-3-2-5-2-9z' fill='%234f392a'/></svg>"
+                  />
+                </div>
+              </div>
+              <div class="body">
+                <div class="expert-identity">
+                  <div><strong>Institution:</strong> University of Bucharest</div>
+                  <div><strong>Country:</strong> Romania</div>
+                  <div><strong>Degree:</strong> PhD, Ecology</div>
+                </div>
+                <div class="stat-grid">
+                  <div class="stat-card">
+                    <strong>Publications</strong>
+                    <span>42</span>
+                  </div>
+                  <div class="stat-card">
+                    <strong>Projects</strong>
+                    <span>15</span>
+                  </div>
+                </div>
+              </div>
+              <div class="footer" style="flex-direction: column; align-items: stretch;">
+                <div class="social-row">
+                  <span class="social-pill">Mail</span>
+                  <span class="social-pill">LinkedIn</span>
+                  <span class="social-pill">Scopus</span>
+                  <span class="social-pill">Scholar</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; gap: 12px;">
+                  <button class="button outline">Copy</button>
+                  <button class="button">Details ↻</button>
+                </div>
+              </div>
+            </section>
+
+            <div class="stack-title">Expert Back</div>
+            <section class="card expert-back">
+              <div class="header profile-header">
+                <h3 style="margin: 0; font-size: 1.42rem;">Dr. Elena Popescu</h3>
+                <p class="expert-subtitle">Ecology • Restoration • Citizen-science networks</p>
+                <div class="avatar">
+                  <img
+                    alt="Portrait of Dr. Elena Popescu"
+                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><defs><linearGradient id='bg' x1='0' x2='1' y1='0' y2='1'><stop stop-color='%23f3d1b0'/><stop offset='1' stop-color='%237bb2a2'/></linearGradient></defs><rect width='180' height='180' fill='url(%23bg)'/><circle cx='90' cy='70' r='34' fill='%23f6e6d2'/><path d='M47 166c10-32 34-48 60-48 27 0 50 16 58 48' fill='%23f6e6d2'/><path d='M54 68c2-17 11-30 24-39 14-10 32-13 47-5 17 7 30 27 24 52-8-9-15-13-22-15-10 10-29 18-53 18-7 0-13 0-18-2-2-3-2-5-2-9z' fill='%234f392a'/></svg>"
+                  />
+                </div>
+              </div>
+              <div class="body" style="display: grid; gap: 16px;">
+                <div class="tag-row">
+                  <span class="tag">Alpine ecology</span>
+                  <span class="tag">Restoration</span>
+                  <span class="tag">Species corridors</span>
+                  <span class="tag">Volunteer networks</span>
+                </div>
+                <div class="bio-box">
+                  <p>
+                    This version is deliberately more dramatic. It can look excellent if the rest of the app is upgraded
+                    to match, but it is also easier to overshoot and create a style island if the surrounding layout stays quieter.
+                  </p>
+                </div>
+              </div>
+              <div class="footer">
+                <div class="footer-actions">
+                  <button class="button outline">LinkedIn</button>
+                  <button class="button outline">Scopus</button>
+                  <button class="button outline">Copy</button>
+                </div>
+                <div class="footer-actions">
+                  <button class="button">Back ↻</button>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="note">
+            Variation C is the right next step only if Variation B still feels too restrained after implementation.
+            It should be treated as an upgrade path, not the starting point.
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

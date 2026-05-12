@@ -36,6 +36,8 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks(id: string) {
           if (id.includes('node_modules/react') || id.includes('node_modules/zustand')) return 'vendor';
+          if (id.includes('node_modules/leaflet-draw')) return 'leaflet-draw';
+          if (id.includes('node_modules/leaflet.markercluster') || id.includes('node_modules/react-leaflet-markercluster')) return 'leaflet-cluster';
           if (id.includes('node_modules/leaflet')) return 'leaflet';
           if (id.includes('node_modules/react-hook-form') || id.includes('node_modules/zod') || id.includes('@hookform')) return 'forms';
           if (id.includes('node_modules/clsx') || id.includes('node_modules/tailwind-merge') || id.includes('node_modules/dompurify')) return 'utils';

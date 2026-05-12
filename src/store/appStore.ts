@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import type { ProjectData } from '@/types/project';
 import type { ExpertData } from '@/types/expert';
+import { getCategoryLabel, normalizeCategoryId } from '@/utils/categories';
 
 export type DatasetMode = 'cs' | 'all';
 export type ThemeMode = 'light' | 'dark' | 'reduced';
@@ -95,13 +96,19 @@ export const useAppStore = create<AppState>()(
     setError: (error) => set((s) => { s.data.error = error; }),
     setA11y: (updates) => set((s) => { Object.assign(s.a11y, updates); }),
     addProject: (project) => set((s) => {
+      if (!project.leadExpertId || !project.leadExpertName) {
+        throw new Error('Every project must include a leading expert that exists in the expert dataset.');
+      }
+      const categoryId = normalizeCategoryId(project.categoryId ?? project.field) ?? 'biodiversity';
       const complete = {
         id: project.id || crypto.randomUUID(),
         name: project.name || 'Untitled',
         status: project.status || 'planned',
-        field: project.field || 'General',
+        categoryId,
+        field: getCategoryLabel(categoryId),
         description: project.description || '',
-        location: project.location || 'Unknown',
+        location: project.location || `geometry('POINT(${project.lng || 25.0} ${project.lat || 47.5})', 4326)`,
+        displayLocation: project.displayLocation || project.location || 'Unknown',
         yearRange: project.yearRange || `${new Date().getFullYear()}-${new Date().getFullYear() + 4}`,
         lat: project.lat || 47.5,
         lng: project.lng || 25.0,

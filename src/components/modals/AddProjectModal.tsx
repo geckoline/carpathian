@@ -1,44 +1,53 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Modal } from '@/components/common/Modal';
 import { MapDrawingWrapper } from '@/components/map/MapDrawingWrapper';
 import { useAppStore } from '@/store/appStore';
+import { getCategoryOptions } from '@/utils/categories';
 
 const projectSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters').max(200),
   status: z.enum(['active', 'past', 'planned']),
   field: z.string().min(1, 'Field is required'),
+  leadExpertId: z.string().uuid('Choose a leading expert from the expert database'),
   description: z.string().min(20, 'Description must be at least 20 characters').max(2000),
   location: z.string().min(1, 'Location is required'),
   yearRange: z.string().regex(/^\d{4}-\d{4}$/, 'Format: YYYY-YYYY'),
   areaCoords: z.array(z.tuple([z.number(), z.number()])).min(3, 'Polygon needs ≥3 points').optional(),
 });
 
-type ProjectFormData = z.infer<typeof projectSchema>;
+export type ProjectFormData = z.infer<typeof projectSchema>;
+
+const categoryOptions = getCategoryOptions();
 
 interface AddProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: ProjectFormData) => Promise<void>;
+  isOnline?: boolean;
 }
 
-export const AddProjectModal = ({ isOpen, onClose, onSubmit }: AddProjectModalProps) => {
+export const AddProjectModal = ({ isOpen, onClose, onSubmit, isOnline = true }: AddProjectModalProps) => {
   const draftPolygon = useAppStore(s => s.draftPolygon);
   const setDraftPolygon = useAppStore(s => s.setDraftPolygon);
+  const experts = useAppStore(s => s.data.experts);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const { 
     control, 
     handleSubmit, 
     formState: { errors, isSubmitting },
     setValue,
+    watch,
   } = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       name: '',
       status: 'planned',
-      field: '',
+      field: 'biodiversity',
+      leadExpertId: experts[0]?.id ?? '',
       description: '',
       location: '',
       yearRange: `${new Date().getFullYear()}-${new Date().getFullYear() + 4}`,
@@ -49,18 +58,38 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit }: AddProjectModalPr
     if (draftPolygon) setValue('areaCoords', draftPolygon);
   }, [draftPolygon, setValue]);
 
+  useEffect(() => {
+    if (!watch('leadExpertId') && experts[0]?.id) {
+      setValue('leadExpertId', experts[0].id, { shouldValidate: true });
+    }
+  }, [experts, setValue, watch]);
+
+  const areaCoords = watch('areaCoords');
+
+  const handlePolygonCreated = (coords: [number, number][]) => {
+    setValue('areaCoords', coords, { shouldDirty: true, shouldValidate: true });
+    setDraftPolygon(coords);
+  };
+
+  const handleClearPolygon = () => {
+    setValue('areaCoords', undefined, { shouldDirty: true, shouldValidate: true });
+    setDraftPolygon(null);
+  };
+
   const handleClose = () => {
+    setSubmitError(null);
     setDraftPolygon(null);
     onClose();
   };
 
   const handleSubmitForm = async (data: ProjectFormData) => {
     try {
+      setSubmitError(null);
       await onSubmit({ ...data, areaCoords: draftPolygon || data.areaCoords });
       setDraftPolygon(null);
       onClose();
-    } catch (err: any) {
-      console.error('Form submission failed:', err);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Project could not be saved. Please try again.');
     }
   };
 
@@ -68,6 +97,16 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit }: AddProjectModalPr
     <Modal isOpen={isOpen} onClose={handleClose} title="Add New Project" size="lg">
       {/* ✅ Added noValidate to prevent jsdom native validation from blocking submission */}
       <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-4" noValidate>
+        {!isOnline && (
+          <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2" role="alert">
+            You are offline. Project submissions are disabled until your connection is restored.
+          </p>
+        )}
+        {submitError && (
+          <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2" role="alert">
+            {submitError}
+          </p>
+        )}
         {/* Name */}
         <div>
           <label htmlFor="add-project-name" className="block text-sm font-medium mb-1">Project Name *</label>
@@ -110,23 +149,47 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit }: AddProjectModalPr
               name="field"
               control={control}
               render={({ field }) => (
-                <input {...field} id="add-project-field" data-testid="add-project-field-input" list="field-options" className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                <select {...field} id="add-project-field" data-testid="add-project-field-input" className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500">
+                  {categoryOptions.map((category) => (
+                    <option key={category.id} value={category.id}>{category.label}</option>
+                  ))}
+                </select>
               )}
             />
-            <datalist id="field-options">
-              <option value="Biodiversity" />
-              <option value="Spatial Development" />
-              <option value="Water" />
-              <option value="Agriculture" />
-              <option value="Forest" />
-              <option value="Tourism" />
-              <option value="Cultural Heritage" />
-              <option value="Industry &amp; Energy" />
-              <option value="Environmental Assessment" />
-              <option value="Education &amp; Awareness" />
-              <option value="Climate Change" />
-            </datalist>
           </div>
+        </div>
+
+        <div>
+          <label htmlFor="add-project-lead-expert" className="block text-sm font-medium mb-1">Leading Expert *</label>
+          <Controller
+            name="leadExpertId"
+            control={control}
+            render={({ field }) => (
+              <select
+                {...field}
+                id="add-project-lead-expert"
+                className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+                  errors.leadExpertId ? 'border-red-500' : 'border-gray-300'
+                }`}
+                aria-invalid={!!errors.leadExpertId}
+                disabled={experts.length === 0}
+              >
+                {experts.length === 0 ? (
+                  <option value="">Add an expert before adding a project</option>
+                ) : (
+                  experts.map((expert) => (
+                    <option key={expert.id} value={expert.id}>
+                      {expert.name} · {expert.institution}
+                    </option>
+                  ))
+                )}
+              </select>
+            )}
+          />
+          <p className="mt-1 text-xs text-text-muted">
+            The leading expert must already exist as an expert card in the database.
+          </p>
+          {errors.leadExpertId && <p className="text-xs text-red-600 mt-1">{errors.leadExpertId.message}</p>}
         </div>
 
         {/* Description */}
@@ -174,13 +237,27 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit }: AddProjectModalPr
           <label className="block text-sm font-medium mb-1">Project Area (Optional)</label>
           <div className="h-64 border border-gray-300 rounded overflow-hidden">
             <MapDrawingWrapper 
-              onPolygonCreated={(coords) => setValue('areaCoords', coords)} 
-              areaCoords={undefined} 
+              onPolygonCreated={handlePolygonCreated}
+              areaCoords={areaCoords}
             />
           </div>
-          <p className="text-xs text-text-muted mt-1">
-            Use the polygon tool to draw the project area
-          </p>
+          <div className="mt-1 flex items-center justify-between gap-3">
+            <p className="text-xs text-text-muted">
+              {areaCoords?.length ? `${areaCoords.length} area points selected` : 'Use the polygon tool to draw the project area'}
+            </p>
+            {areaCoords?.length ? (
+              <button
+                type="button"
+                onClick={handleClearPolygon}
+                className="text-xs font-medium text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 rounded px-2 py-1"
+              >
+                Clear project area
+              </button>
+            ) : null}
+          </div>
+          {errors.areaCoords && (
+            <p className="text-xs text-red-600 mt-1" role="alert">{errors.areaCoords.message}</p>
+          )}
         </div>
 
         {/* Actions */}
@@ -188,7 +265,7 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit }: AddProjectModalPr
           <button type="button" onClick={handleClose} className="px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50">Cancel</button>
           <button 
             type="submit" 
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isOnline || experts.length === 0}
             data-testid="add-project-submit"
             className="px-4 py-2 text-sm bg-primary-500 text-white rounded hover:bg-primary-600 disabled:opacity-50"
           >

@@ -24,6 +24,10 @@ describe('mockApi data integrity', () => {
     projects.forEach(p => {
       expect(p.id).toBeDefined();
       expect(p.name.length).toBeGreaterThan(0);
+      expect(p.regionLabel?.length).toBeGreaterThan(0);
+      expect(p.cardSummary?.length).toBeGreaterThan(0);
+      expect(p.focusSummary?.length).toBeGreaterThan(0);
+      expect(p.outputsSummary?.length).toBeGreaterThan(0);
       expect(p.lat).toBeGreaterThanOrEqual(-90);
       expect(p.lat).toBeLessThanOrEqual(90);
       expect(p.lng).toBeGreaterThanOrEqual(-180);
@@ -37,6 +41,8 @@ describe('mockApi data integrity', () => {
     experts.forEach(e => {
       expect(e.id).toBeDefined();
       expect(e.name.length).toBeGreaterThan(0);
+      expect(e.headline?.length).toBeGreaterThan(0);
+      expect(e.expertiseSubtitle?.length).toBeGreaterThan(0);
       expect(e.email || e.linkedin || e.scopus).toBeDefined();
     });
   });

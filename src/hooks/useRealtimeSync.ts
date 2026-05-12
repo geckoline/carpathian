@@ -1,21 +1,6 @@
 import { useEffect } from 'react';
 import { useAppStore } from '@/store/appStore';
-import { apiService } from '@/services/apiService';
-import { mockApi } from '@/services/mockApi';
-
-async function fetchWithFallback<T>(
-  fetch: () => Promise<T>,
-  fallback: () => Promise<T>,
-  isEmpty: (data: T) => boolean
-): Promise<T> {
-  try {
-    const data = await fetch();
-    if (isEmpty(data)) return fallback();
-    return data;
-  } catch {
-    return fallback();
-  }
-}
+import { loadAppData } from '@/services/loadAppData';
 
 export const useRealtimeSync = () => {
   const { setProjects, setExperts, setLoading, setError } = useAppStore();
@@ -24,19 +9,8 @@ export const useRealtimeSync = () => {
     let cancelled = false;
     setLoading(true);
 
-    Promise.all([
-      fetchWithFallback(
-        () => apiService.getProjects(),
-        () => mockApi.getProjects(),
-        (d) => d.length === 0
-      ),
-      fetchWithFallback(
-        () => apiService.getExperts(),
-        () => mockApi.getExperts(),
-        (d) => d.length === 0
-      ),
-    ])
-      .then(([projects, experts]) => {
+    loadAppData()
+      .then(({ projects, experts }) => {
         if (cancelled) return;
         setProjects(projects);
         setExperts(experts);

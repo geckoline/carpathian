@@ -29,6 +29,6 @@ declare module '*.css' {
 }
 
 declare module 'leaflet-draw' {
-  const L: any;
+  const L: typeof import('leaflet');
   export default L;
 }

@@ -65,6 +65,27 @@ export const generateMockPolygon = (lat: number, lng: number, radiusKm = 15, poi
   return coords;
 };
 
+const IRREGULARITY_OFFSETS = [0.0, 0.5, -0.3, 0.7, -0.5, 0.3, -0.7, 0.5, -0.2, 0.4];
+
+export const generateRealisticPolygonWKT = (lat: number, lng: number, seed: number, baseRadiusKm = 15): string => {
+  const earthRadius = 6378;
+  const radius = baseRadiusKm + (seed % 5) * 3;
+  const numPoints = 8 + (seed % 3);
+  const points: string[] = [];
+
+  for (let i = 0; i < numPoints; i++) {
+    const angle = (2 * Math.PI * i) / numPoints + IRREGULARITY_OFFSETS[i % IRREGULARITY_OFFSETS.length] * 0.08;
+    const variation = 0.75 + ((IRREGULARITY_OFFSETS[i % IRREGULARITY_OFFSETS.length] + 1) * 0.15);
+    const r = radius * variation;
+    const dlat = (r / earthRadius) * Math.cos(angle) * (180 / Math.PI);
+    const dlng = (r / (earthRadius * Math.cos((Math.PI * lat) / 180))) * Math.sin(angle) * (180 / Math.PI);
+    points.push(`${(lng + dlng).toFixed(4)} ${(lat + dlat).toFixed(4)}`);
+  }
+  points.push(points[0]);
+
+  return `geometry('POLYGON((${points.join(', ')}))', 4326)`;
+};
+
 export const normalizeCoords = (coords: LatLngTuple[]): LatLngTuple[] => {
   return coords
     .filter(([lat, lng]) => lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180)

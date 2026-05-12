@@ -2,28 +2,22 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { useDataFetch } from '../useDataFetch';
 import { useAppStore } from '@/store/appStore';
-import { apiService } from '@/services/apiService';
+import { loadAppData } from '@/services/loadAppData';
 
-vi.mock('@/services/apiService', () => ({
-  apiService: {
-    getProjects: vi.fn(),
-    getExperts: vi.fn(),
-    getProjectsMock: vi.fn(),
-    getExpertsMock: vi.fn(),
-    addProject: vi.fn(),
-    addExpert: vi.fn(),
-  },
+vi.mock('@/services/loadAppData', () => ({
+  loadAppData: vi.fn(),
 }));
 
 describe('useDataFetch', () => {
+  const project = { id: '123e4567-e89b-12d3-a456-426614174000', name: 'Test', status: 'active' as const, field: 'Bio', description: 'A valid test project description here', location: 'Loc', yearRange: '2021-2025', leadExpertId: '123e4567-e89b-12d3-a456-426614174001', leadExpertName: 'Test Expert', lat: 1, lng: 1, isCitizenScience: true };
+
   beforeEach(() => {
     vi.clearAllMocks();
     useAppStore.setState({ data: { projects: [], experts: [], loading: false, error: null } });
   });
 
   it('sets loading true, fetches data, then sets loading false', async () => {
-    vi.mocked(apiService.getProjects).mockResolvedValue([{ id: '123e4567-e89b-12d3-a456-426614174000', name: 'Test', status: 'active', field: 'Bio', description: 'A valid test project description here', location: 'Loc', yearRange: '2021-2025', lat: 1, lng: 1, isCitizenScience: true }]);
-    vi.mocked(apiService.getExperts).mockResolvedValue([]);
+    vi.mocked(loadAppData).mockResolvedValue({ projects: [project], experts: [] });
 
     renderHook(() => useDataFetch());
 
@@ -38,8 +32,7 @@ describe('useDataFetch', () => {
   });
 
   it('sets error state on fetch failure', async () => {
-    vi.mocked(apiService.getProjects).mockRejectedValue(new Error('Network error'));
-    vi.mocked(apiService.getExperts).mockResolvedValue([]);
+    vi.mocked(loadAppData).mockRejectedValue(new Error('Network error'));
 
     renderHook(() => useDataFetch());
 
@@ -50,14 +43,12 @@ describe('useDataFetch', () => {
   });
 
   it('exposes retry function that re-fetches', async () => {
-    vi.mocked(apiService.getProjects).mockRejectedValueOnce(new Error('First fail'));
-    vi.mocked(apiService.getExperts).mockResolvedValue([]);
+    vi.mocked(loadAppData).mockRejectedValueOnce(new Error('First fail'));
 
     const { result } = renderHook(() => useDataFetch());
     await waitFor(() => expect(useAppStore.getState().data.error).toBeTruthy());
 
-    vi.mocked(apiService.getProjects).mockResolvedValue([{ id: '123e4567-e89b-12d3-a456-426614174000', name: 'Test', status: 'active', field: 'Bio', description: 'A valid test project description here', location: 'Loc', yearRange: '2021-2025', lat: 1, lng: 1, isCitizenScience: true }]);
-    vi.mocked(apiService.getExperts).mockResolvedValue([]);
+    vi.mocked(loadAppData).mockResolvedValue({ projects: [project], experts: [] });
 
     act(() => result.current.retry());
 
@@ -67,8 +58,7 @@ describe('useDataFetch', () => {
   });
 
   it('reports isRetrying during fetch', async () => {
-    vi.mocked(apiService.getProjects).mockResolvedValue([]);
-    vi.mocked(apiService.getExperts).mockResolvedValue([]);
+    vi.mocked(loadAppData).mockResolvedValue({ projects: [], experts: [] });
 
     const { result } = renderHook(() => useDataFetch());
     expect(result.current.isRetrying).toBe(true);

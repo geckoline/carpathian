@@ -1,18 +1,84 @@
 import { ProjectData, ProjectSchema } from '@/types/project';
 import { ExpertData, ExpertSchema } from '@/types/expert';
+import { generateRealisticPolygonWKT } from '@/utils/polygonUtils';
+import { getCategoryLabel, normalizeCategoryId } from '@/utils/categories';
 
-const mockProjects: ProjectData[] = [
-  { id: '123e4567-e89b-12d3-a456-426614174000', name: 'Carpathian Forest Watch', status: 'active', field: 'Biodiversity', description: 'Monitoring deforestation rates and biodiversity loss across the northern Carpathian mountain range.', location: '3 Countries', yearRange: '2021-2025', leadExpertId: '123e4567-e89b-12d3-a456-426614174001', leadExpertName: 'Dr. E. Popescu', website: 'https://example.com/project', lat: 47.5, lng: 25.0, area: 'carpathians', country: 'Romania', contact: 'info@carpathian.org', isCitizenScience: true },
-  { id: '123e4567-e89b-12d3-a456-426614174002', name: 'Alpine River Restoration', status: 'planned', field: 'Water', description: 'Restoring natural flow regimes and riparian habitats in high-altitude catchments.', location: 'Slovakia', yearRange: '2024-2027', lat: 49.0, lng: 20.0, area: 'tatras', country: 'Slovakia', isCitizenScience: true },
-  { id: '123e4567-e89b-12d3-a456-426614174003', name: 'Bear Corridor Mapping', status: 'active', field: 'Biodiversity', description: 'Tracking brown bear movement corridors to mitigate human-wildlife conflict.', location: 'Romania', yearRange: '2022-2026', leadExpertId: '123e4567-e89b-12d3-a456-426614174004', leadExpertName: 'Dr. A. Ionescu', lat: 46.5, lng: 25.5, area: 'carpathians', country: 'Romania', isCitizenScience: true },
-  { id: '123e4567-e89b-12d3-a456-426614174005', name: 'Meadow Pollinator Survey', status: 'active', field: 'Biodiversity', description: 'Documenting pollinator species diversity in Carpathian alpine meadows.', location: 'Poland', yearRange: '2023-2026', leadExpertId: '123e4567-e89b-12d3-a456-426614174006', leadExpertName: 'Dr. M. Kowalski', lat: 49.3, lng: 20.1, area: 'tatras', country: 'Poland', isCitizenScience: true },
-  { id: '123e4567-e89b-12d3-a456-426614174007', name: 'Soil Carbon Assessment', status: 'past', field: 'Climate Change', description: 'Measuring soil organic carbon stocks across elevation gradients.', location: 'Ukraine', yearRange: '2019-2023', lat: 48.3, lng: 24.5, area: 'carpathians', country: 'Ukraine', isCitizenScience: true },
-  { id: '123e4567-e89b-12d3-a456-426614174008', name: 'Wolf Pack Dynamics', status: 'active', field: 'Biodiversity', description: 'Long-term study of wolf pack territory shifts and prey interactions.', location: 'Romania', yearRange: '2021-2025', leadExpertId: '123e4567-e89b-12d3-a456-426614174009', leadExpertName: 'Dr. L. Munteanu', lat: 46.8, lng: 25.8, area: 'carpathians', country: 'Romania', isCitizenScience: true },
-  { id: '123e4567-e89b-12d3-a456-426614174010', name: 'Glacial Lake Monitoring', status: 'planned', field: 'Water', description: 'Tracking glacial lake formation and outburst flood risks in high peaks.', location: 'Slovakia', yearRange: '2025-2028', lat: 49.2, lng: 20.2, area: 'tatras', country: 'Slovakia', isCitizenScience: true },
-  { id: '123e4567-e89b-12d3-a456-426614174011', name: 'Traditional Land Use Archive', status: 'active', field: 'Agriculture', description: 'Preserving indigenous knowledge of sustainable land management practices.', location: 'Romania', yearRange: '2022-2025', leadExpertId: '123e4567-e89b-12d3-a456-426614174001', leadExpertName: 'Dr. E. Popescu', lat: 47.0, lng: 25.3, area: 'carpathians', country: 'Romania', isCitizenScience: true },
-  { id: '123e4567-e89b-12d3-a456-426614174012', name: 'Raptor Migration Study', status: 'past', field: 'Biodiversity', description: 'Mapping seasonal raptor flyways and identifying critical stopover sites.', location: '3 Countries', yearRange: '2018-2022', lat: 47.8, lng: 23.5, area: 'carpathians', country: 'Romania', isCitizenScience: true },
-  { id: '123e4567-e89b-12d3-a456-426614174013', name: 'Peatland Restoration Pilot', status: 'planned', field: 'Biodiversity', description: 'Experimental rewetting of degraded peatlands to restore carbon sinks.', location: 'Ukraine', yearRange: '2025-2028', lat: 48.5, lng: 24.0, area: 'carpathians', country: 'Ukraine', isCitizenScience: true },
-];
+const fieldFocusFallbacks: Record<string, string> = {
+  biodiversity: 'Species recovery, habitat connectivity, cross-border monitoring',
+  water: 'Catchment resilience, river restoration, community observations',
+  'climate change': 'Climate resilience, long-term observations, adaptation planning',
+  agriculture: 'Traditional land use, cultural landscapes, sustainable stewardship',
+};
+
+const fieldOutputsFallbacks: Record<string, string> = {
+  biodiversity: 'Atlas layers, species reports, volunteer field reports',
+  water: 'Hydrology layers, restoration briefs, monitoring dashboards',
+  'climate change': 'Scenario briefs, observation logs, resilience indicators',
+  agriculture: 'Practice archives, oral histories, landscape stewardship guides',
+};
+
+const getProjectRegionLabel = (displayLocation?: string) => {
+  if (displayLocation === '3 Countries') return '3-country mountain corridor';
+  return displayLocation ?? 'Carpathian region';
+};
+
+const getProjectCardSummary = (project: Pick<ProjectData, 'field' | 'description' | 'displayLocation' | 'name'>) => {
+  const firstSentence = project.description.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim();
+  if (project.field === 'Biodiversity') {
+    return `Citizen scientists and researchers track mountain biodiversity across ${getProjectRegionLabel(project.displayLocation).toLowerCase()}.`;
+  }
+  if (project.field === 'Water') {
+    return `A field-ready restoration initiative connecting local observations with mountain water stewardship in ${getProjectRegionLabel(project.displayLocation)}.`;
+  }
+  if (project.field === 'Climate Change') {
+    return `A climate-facing monitoring program turning distributed mountain observations into practical resilience signals.`;
+  }
+  return firstSentence ?? `${project.name} translates cross-border fieldwork into accessible project intelligence.`;
+};
+
+const getProjectFocusSummary = (project: Pick<ProjectData, 'field'>) =>
+  fieldFocusFallbacks[project.field.toLowerCase()] ?? `${project.field}, mountain resilience, community mapping`;
+
+const getProjectOutputsSummary = (project: Pick<ProjectData, 'field'>) =>
+  fieldOutputsFallbacks[project.field.toLowerCase()] ?? 'Map layers, field reports, participation metrics';
+
+const getExpertHeadline = (expert: Pick<ExpertData, 'expertise' | 'country'>) => {
+  const [primary = 'Mountain systems', secondary = 'cross-border research'] = expert.expertise;
+  return `${primary} lead and ${secondary.toLowerCase()} researcher`;
+};
+
+const getExpertiseSubtitle = (expert: Pick<ExpertData, 'expertise'>) =>
+  expert.expertise.slice(0, 4).join(' • ');
+
+const mockProjects: ProjectData[] = (() => {
+  const raw = [
+    { id: '123e4567-e89b-12d3-a456-426614174000', name: 'Carpathian Forest Watch', status: 'active' as const, field: 'Biodiversity', description: 'Monitoring deforestation rates and biodiversity loss across the northern Carpathian mountain range.', yearRange: '2021-2025', leadExpertId: '123e4567-e89b-12d3-a456-426614174001', leadExpertName: 'Dr. E. Popescu', website: 'https://example.com/project', lat: 47.5, lng: 25.0, area: 'carpathians', country: 'Romania', contact: 'info@carpathian.org', isCitizenScience: true, displayLocation: '3 Countries' },
+    { id: '123e4567-e89b-12d3-a456-426614174002', name: 'Alpine River Restoration', status: 'planned' as const, field: 'Water', description: 'Restoring natural flow regimes and riparian habitats in high-altitude catchments.', yearRange: '2024-2027', lat: 49.0, lng: 20.0, area: 'tatras', country: 'Slovakia', isCitizenScience: true, displayLocation: 'Slovakia', leadExpertId: '123e4567-e89b-12d3-a456-426614174014', leadExpertName: 'Dr. Jan Novak' },
+    { id: '123e4567-e89b-12d3-a456-426614174003', name: 'Bear Corridor Mapping', status: 'active' as const, field: 'Biodiversity', description: 'Tracking brown bear movement corridors to mitigate human-wildlife conflict.', yearRange: '2022-2026', leadExpertId: '123e4567-e89b-12d3-a456-426614174004', leadExpertName: 'Dr. A. Ionescu', lat: 46.5, lng: 25.5, area: 'carpathians', country: 'Romania', isCitizenScience: true, displayLocation: 'Romania' },
+    { id: '123e4567-e89b-12d3-a456-426614174005', name: 'Meadow Pollinator Survey', status: 'active' as const, field: 'Biodiversity', description: 'Documenting pollinator species diversity in Carpathian alpine meadows.', yearRange: '2023-2026', leadExpertId: '123e4567-e89b-12d3-a456-426614174006', leadExpertName: 'Dr. M. Kowalski', lat: 49.3, lng: 20.1, area: 'tatras', country: 'Poland', isCitizenScience: true, displayLocation: 'Poland' },
+    { id: '123e4567-e89b-12d3-a456-426614174007', name: 'Soil Carbon Assessment', status: 'past' as const, field: 'Climate Change', description: 'Measuring soil organic carbon stocks across elevation gradients.', yearRange: '2019-2023', lat: 48.3, lng: 24.5, area: 'carpathians', country: 'Ukraine', isCitizenScience: true, displayLocation: 'Ukraine', leadExpertId: '123e4567-e89b-12d3-a456-426614174015', leadExpertName: 'Dr. Olena Shevchenko' },
+    { id: '123e4567-e89b-12d3-a456-426614174008', name: 'Wolf Pack Dynamics', status: 'active' as const, field: 'Biodiversity', description: 'Long-term study of wolf pack territory shifts and prey interactions.', yearRange: '2021-2025', leadExpertId: '123e4567-e89b-12d3-a456-426614174009', leadExpertName: 'Dr. L. Munteanu', lat: 46.8, lng: 25.8, area: 'carpathians', country: 'Romania', isCitizenScience: true, displayLocation: 'Romania' },
+    { id: '123e4567-e89b-12d3-a456-426614174010', name: 'Glacial Lake Monitoring', status: 'planned' as const, field: 'Water', description: 'Tracking glacial lake formation and outburst flood risks in high peaks.', yearRange: '2025-2028', lat: 49.2, lng: 20.2, area: 'tatras', country: 'Slovakia', isCitizenScience: true, displayLocation: 'Slovakia', leadExpertId: '123e4567-e89b-12d3-a456-426614174026', leadExpertName: 'Dr. Martin Chovan' },
+    { id: '123e4567-e89b-12d3-a456-426614174011', name: 'Traditional Land Use Archive', status: 'active' as const, field: 'Agriculture', description: 'Preserving indigenous knowledge of sustainable land management practices.', yearRange: '2022-2025', leadExpertId: '123e4567-e89b-12d3-a456-426614174001', leadExpertName: 'Dr. E. Popescu', lat: 47.0, lng: 25.3, area: 'carpathians', country: 'Romania', isCitizenScience: true, displayLocation: 'Romania' },
+    { id: '123e4567-e89b-12d3-a456-426614174012', name: 'Raptor Migration Study', status: 'past' as const, field: 'Biodiversity', description: 'Mapping seasonal raptor flyways and identifying critical stopover sites.', yearRange: '2018-2022', lat: 47.8, lng: 23.5, area: 'carpathians', country: 'Romania', isCitizenScience: true, displayLocation: '3 Countries', leadExpertId: '123e4567-e89b-12d3-a456-426614174017', leadExpertName: 'Dr. Maria Horvath' },
+    { id: '123e4567-e89b-12d3-a456-426614174013', name: 'Peatland Restoration Pilot', status: 'planned' as const, field: 'Biodiversity', description: 'Experimental rewetting of degraded peatlands to restore carbon sinks.', yearRange: '2025-2028', lat: 48.5, lng: 24.0, area: 'carpathians', country: 'Ukraine', isCitizenScience: true, displayLocation: 'Ukraine', leadExpertId: '123e4567-e89b-12d3-a456-426614174027', leadExpertName: 'Dr. Yuliya Boyko' },
+    { id: '123e4567-e89b-12d3-a456-426614174052', name: 'Carpathian Climate Policy Observatory', status: 'active' as const, field: 'Climate Change', description: 'Synthesizing regional climate adaptation evidence for policy and protected-area planning.', yearRange: '2020-2026', lat: 48.2, lng: 16.4, area: 'vienna', country: 'Austria', isCitizenScience: false, displayLocation: 'Austria', leadExpertId: '123e4567-e89b-12d3-a456-426614174016', leadExpertName: 'Prof. Stefan Weber', linkedExpertIds: ['123e4567-e89b-12d3-a456-426614174040'] },
+    { id: '123e4567-e89b-12d3-a456-426614174053', name: 'Transboundary Land Use Foresight', status: 'planned' as const, field: 'Spatial Planning', description: 'Combining remote sensing and policy scenarios to understand future Carpathian land-use pressure.', yearRange: '2026-2029', lat: 48.1, lng: 25.9, area: 'chernivtsi', country: 'Ukraine', isCitizenScience: false, displayLocation: 'Ukraine', leadExpertId: '123e4567-e89b-12d3-a456-426614174018', leadExpertName: 'Dr. Viktor Petrenko', linkedExpertIds: ['123e4567-e89b-12d3-a456-426614174029'] },
+  ];
+  return raw.map((p, i) => {
+    const categoryId = normalizeCategoryId(p.field) ?? 'biodiversity';
+    const normalized = { ...p, categoryId, field: getCategoryLabel(categoryId) };
+    return {
+      ...normalized,
+      linkedExpertIds: [...new Set([p.leadExpertId, ...('linkedExpertIds' in p ? p.linkedExpertIds ?? [] : [])])],
+      regionLabel: getProjectRegionLabel(p.displayLocation),
+      cardSummary: getProjectCardSummary(normalized),
+      focusSummary: getProjectFocusSummary(normalized),
+      outputsSummary: getProjectOutputsSummary(normalized),
+      location: generateRealisticPolygonWKT(p.lat, p.lng, i),
+    };
+  });
+})();
 
 const mockExperts: ExpertData[] = [
   { id: '123e4567-e89b-12d3-a456-426614174001', name: 'Dr. Elena Popescu', institution: 'Univ. of Bucharest', country: 'Romania', degree: 'PhD, Ecology', bio: 'Leading research on Carpathian biodiversity for over 15 years.', expertise: ['Alpine Eco', 'Climate Resilience'], publications: 42, projects: 15, isCitizenScience: true, email: 'elena@example.com', linkedin: 'https://linkedin.com/in/elena', scopus: 'https://scopus.com/authid/elena', googleScholar: 'https://scholar.google.com/citations?user=abc123' },
@@ -57,8 +123,11 @@ const mockExperts: ExpertData[] = [
   { id: '123e4567-e89b-12d3-a456-426614174049', name: 'Dr. Krzysztof Nowicki', institution: 'Univ. of Szczecin', country: 'Poland', degree: 'PhD, Physical Geography', bio: 'Documents geomorphological changes in proglacial environments.', expertise: ['Glacial Geomorphology', 'Periglacial Processes'], publications: 33, projects: 11, isCitizenScience: true, email: 'krzysztof@example.com', linkedin: 'https://linkedin.com/in/krzysztof', scopus: 'https://scopus.com/authid/krzysztof', googleScholar: 'https://scholar.google.com/citations?user=krzysztof' },
   { id: '123e4567-e89b-12d3-a456-426614174050', name: 'Dr. Ovidiu Matei', institution: 'Univ. of Constanta', country: 'Romania', degree: 'PhD, Ecology', bio: 'Studies trophic interactions and food web dynamics in alpine ecosystems.', expertise: ['Food Web Ecology', 'Trophic Dynamics'], publications: 18, projects: 6, isCitizenScience: true, email: 'ovidiu@example.com', linkedin: 'https://linkedin.com/in/ovidiu', scopus: 'https://scopus.com/authid/ovidiu', googleScholar: 'https://scholar.google.com/citations?user=ovidiu' },
   { id: '123e4567-e89b-12d3-a456-426614174051', name: 'Dr. Alzbeta Tothova', institution: 'Slovak Hydrometeorological Inst.', country: 'Slovakia', degree: 'PhD, Climatology', bio: 'Analyzes long-term climate trends and extreme event frequency in the Tatra mountains.', expertise: ['Climate Trends', 'Extreme Event Analysis'], publications: 20, projects: 7, isCitizenScience: true, email: 'alzbeta@example.com', linkedin: 'https://linkedin.com/in/alzbeta', scopus: 'https://scopus.com/authid/alzbeta', googleScholar: 'https://scholar.google.com/citations?user=alzbeta' },
-
-];
+].map((expert) => ({
+  ...expert,
+  headline: getExpertHeadline(expert),
+  expertiseSubtitle: getExpertiseSubtitle(expert),
+}));
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
