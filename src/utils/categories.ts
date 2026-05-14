@@ -80,3 +80,11 @@ export const getCategoryLabel = (value: string | null | undefined, fallback = 'B
 };
 
 export const getCategoryOptions = () => [...CANONICAL_CATEGORIES].sort((a, b) => a.sortOrder - b.sortOrder);
+
+export const CATEGORY_FALLBACK: CategoryId = 'biodiversity';
+
+export const normalizeCategoryWithFallback = (
+  categoryId?: string | null,
+  field?: string | null,
+  fallback: CategoryId = CATEGORY_FALLBACK,
+): CategoryId => normalizeCategoryId(categoryId ?? field) ?? fallback;

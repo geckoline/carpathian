@@ -2,11 +2,10 @@ import { useCallback } from 'react';
 import type { ProjectFormData } from '@/components/modals/AddProjectModal';
 import { apiService } from '@/services/apiService';
 import { useAppStore } from '@/store/appStore';
-import { getCategoryLabel, normalizeCategoryId } from '@/utils/categories';
+import { getCategoryLabel, normalizeCategoryWithFallback } from '@/utils/categories';
+import { DEFAULT_CENTER } from '@/utils/constants';
 
 export type StatusMessage = { tone: 'success' | 'warning' | 'error'; text: string };
-
-const DEFAULT_CENTER = { lat: 47.5, lng: 25 };
 
 const toGeometryWkt = (areaCoords?: [number, number][]) => {
   if (!areaCoords || areaCoords.length < 3) {
@@ -28,7 +27,7 @@ export const useProjectSubmission = (setStatusMessage: (message: StatusMessage) 
       throw new Error('You are offline. Project submissions are disabled until your connection is restored.');
     }
 
-    const categoryId = normalizeCategoryId(formData.field) ?? 'biodiversity';
+    const categoryId = normalizeCategoryWithFallback(formData.field);
     const leadExpert = experts.find((expert) => expert.id === formData.leadExpertId);
     if (!leadExpert) {
       throw new Error('Select an existing leading expert before submitting the project.');

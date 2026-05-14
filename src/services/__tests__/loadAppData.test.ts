@@ -86,10 +86,27 @@ describe('loadAppData', () => {
     expect(result.experts).toEqual([expert]);
   });
 
-  it('rejects invalid loaded data before it reaches app state', async () => {
-    vi.mocked(apiService.getProjects).mockResolvedValue([{ id: 'bad', name: '' } as any]);
+  it('skips invalid items and loads valid ones gracefully', async () => {
+    vi.mocked(apiService.getProjects).mockResolvedValue([
+      { id: 'bad', name: '' } as any,
+      project,
+    ]);
     vi.mocked(apiService.getExperts).mockResolvedValue([expert]);
 
-    await expect(loadAppData()).rejects.toThrow();
+    const result = await loadAppData();
+
+    expect(result.projects).toHaveLength(1);
+    expect(result.projects[0].id).toBe(project.id);
+    expect(result.experts).toHaveLength(1);
+  });
+
+  it('returns empty arrays when all items are invalid', async () => {
+    vi.mocked(apiService.getProjects).mockResolvedValue([{ id: 'bad', name: '' } as any]);
+    vi.mocked(apiService.getExperts).mockResolvedValue([{} as any]);
+
+    const result = await loadAppData();
+
+    expect(result.projects).toHaveLength(0);
+    expect(result.experts).toHaveLength(0);
   });
 });

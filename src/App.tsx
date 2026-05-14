@@ -1,4 +1,4 @@
-import { Suspense, lazy, useState } from 'react';
+import { Suspense, lazy, useState, useMemo } from 'react';
 import { useAppStore } from '@/store/appStore';
 import { useRealtimeSync } from '@/hooks/useRealtimeSync';
 import { useUrlSync } from '@/hooks/useUrlSync';
@@ -7,6 +7,7 @@ import { useProjectFilters } from '@/hooks/useProjectFilters';
 import { useExpertFilters } from '@/hooks/useExpertFilters';
 import { useProjectSubmission, type StatusMessage } from '@/hooks/useProjectSubmission';
 import { useVolunteerSubscription } from '@/hooks/useVolunteerSubscription';
+import { useModal } from '@/hooks/useModal';
 import { ProjectCard } from '@/components/cards/ProjectCard';
 import { ExpertCard } from '@/components/cards/ExpertCard';
 import StatsSection from '@/components/layout/StatsSection';
@@ -31,15 +32,21 @@ export default function App() {
     filters, data, setActiveTab, setDataset, clearFilters,
   } = useAppStore();
 
-  const projectsToFilter = getDatasetProjects(dataset, data.projects);
-  const expertsToFilter = getDatasetExperts(dataset, data.projects, data.experts);
+  const projectsToFilter = useMemo(
+    () => getDatasetProjects(dataset, data.projects),
+    [dataset, data.projects]
+  );
+  const expertsToFilter = useMemo(
+    () => getDatasetExperts(dataset, data.projects, data.experts),
+    [dataset, data.projects, data.experts]
+  );
   const { filteredProjects } = useProjectFilters(projectsToFilter);
   const { filteredExperts } = useExpertFilters(expertsToFilter);
   const isLoading = data.loading && data.projects.length === 0 && !data.error;
 
-  const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
-  const [isAddExpertOpen, setIsAddExpertOpen] = useState(false);
-  const [isVolunteerOpen, setIsVolunteerOpen] = useState(false);
+  const addProjectModal = useModal();
+  const addExpertModal = useModal();
+  const volunteerModal = useModal();
   const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
   const { submitProject } = useProjectSubmission(setStatusMessage);
   const { submitVolunteerSubscription } = useVolunteerSubscription(setStatusMessage);
@@ -134,9 +141,9 @@ export default function App() {
             <MapSidebar
               projects={activeProjects}
               filterProjects={projectsToFilter}
-              onAddProject={() => setIsAddProjectOpen(true)}
-              onAddExpert={() => setIsAddExpertOpen(true)}
-              onVolunteer={() => setIsVolunteerOpen(true)}
+              onAddProject={addProjectModal.open}
+              onAddExpert={addExpertModal.open}
+              onVolunteer={volunteerModal.open}
             />
           </aside>
         </div>
@@ -181,16 +188,16 @@ export default function App() {
         </section>
       </section>
 
-      {isAddProjectOpen && (
+      {addProjectModal.isOpen && (
         <Suspense fallback={null}>
-          <AddProjectModal isOpen={isAddProjectOpen} onClose={() => setIsAddProjectOpen(false)} onSubmit={async (data) => { await submitProject(data); setIsAddProjectOpen(false); }} isOnline={isOnline} />
+          <AddProjectModal isOpen={addProjectModal.isOpen} onClose={addProjectModal.close} onSubmit={async (data) => { await submitProject(data); addProjectModal.close(); }} isOnline={isOnline} />
         </Suspense>
       )}
-      {isAddExpertOpen && (
+      {addExpertModal.isOpen && (
         <Suspense fallback={null}>
           <AddExpertModal
-            isOpen={isAddExpertOpen}
-            onClose={() => setIsAddExpertOpen(false)}
+            isOpen={addExpertModal.isOpen}
+            onClose={addExpertModal.close}
             onSubmit={async (data) => {
               addExpert({
                 id: crypto.randomUUID(),
@@ -209,15 +216,15 @@ export default function App() {
                 importMetadata: { source: 'manual', importedAt: new Date().toISOString() },
               });
               setStatusMessage({ tone: 'success', text: 'Expert added successfully.' });
-              setIsAddExpertOpen(false);
+              addExpertModal.close();
             }}
             isOnline={isOnline}
           />
         </Suspense>
       )}
-      {isVolunteerOpen && (
+      {volunteerModal.isOpen && (
         <Suspense fallback={null}>
-          <VolunteerModal isOpen={true} onClose={() => setIsVolunteerOpen(false)} onSubmit={async (data) => { await submitVolunteerSubscription(data); setIsVolunteerOpen(false); }} isOnline={isOnline} />
+          <VolunteerModal isOpen={volunteerModal.isOpen} onClose={volunteerModal.close} onSubmit={async (data) => { await submitVolunteerSubscription(data); volunteerModal.close(); }} isOnline={isOnline} />
         </Suspense>
       )}
     </main>

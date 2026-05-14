@@ -4,9 +4,9 @@ import { ExpertData } from '@/types/expert';
 import { filterExpertsBySearch } from '@/utils/fuzzySearch';
 
 export const useExpertFilters = (experts?: ExpertData[]) => {
-  const store = useAppStore();
-  const data = experts ?? store.data.experts;
-  const filters = store.filters;
+  const storeExperts = useAppStore(s => s.data.experts);
+  const filters = useAppStore(s => s.filters);
+  const data = experts ?? storeExperts;
 
   const filteredExperts = useMemo(() => {
     return filterExpertsBySearch(data, filters.searchTerm).filter((expert) => {

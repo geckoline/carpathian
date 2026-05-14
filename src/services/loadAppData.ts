@@ -22,6 +22,19 @@ const fetchWithFallback = async <T>(
   }
 };
 
+const parseItems = <T>(items: unknown[], schema: { safeParse: (data: unknown) => { success: boolean; data?: T; error?: unknown } }, label: string): T[] => {
+  const valid: T[] = [];
+  for (const item of items) {
+    const result = schema.safeParse(item);
+    if (result.success) {
+      valid.push(result.data!);
+    } else {
+      console.warn(`[loadAppData] Skipping invalid ${label}:`, result.error);
+    }
+  }
+  return valid;
+};
+
 export const loadAppData = async (): Promise<AppData> => {
   const [projects, experts] = await Promise.all([
     fetchWithFallback(() => apiService.getProjects(), () => mockApi.getProjects()),
@@ -29,7 +42,7 @@ export const loadAppData = async (): Promise<AppData> => {
   ]);
 
   return {
-    projects: projects.map((project) => ProjectSchema.parse(project)),
-    experts: experts.map((expert) => ExpertSchema.parse(expert)),
+    projects: parseItems(projects, ProjectSchema, 'project'),
+    experts: parseItems(experts, ExpertSchema, 'expert'),
   };
 };

@@ -11,7 +11,7 @@ import type {
   VolunteerSubscriptionInsert,
 } from '@/types/database';
 import type { VolunteerSubscriptionData } from '@/types/volunteer';
-import { getCategoryLabel, normalizeCategoryId } from '@/utils/categories';
+import { getCategoryLabel, normalizeCategoryId, normalizeCategoryWithFallback } from '@/utils/categories';
 import { mockApi } from './mockApi';
 
 const optionalString = (value: unknown): string | undefined => {
@@ -49,7 +49,7 @@ const parseYearRange = (yearRange: string | undefined) => {
 };
 
 export const toProjectData = (project: AppProjectRow): ProjectData => {
-  const categoryId = normalizeCategoryId(project.category_id ?? project.field) ?? 'biodiversity';
+  const categoryId = normalizeCategoryWithFallback(project.category_id, project.field);
   const field = getCategoryLabel(categoryId);
   const description = optionalString(project.description) ?? 'Project description will be added soon.';
   const displayLocation = optionalString(project.display_location) ?? optionalString(project.region_label) ?? optionalString(project.country);
@@ -126,7 +126,7 @@ export const apiService = {
   },
 
   async addProject(project: Partial<ProjectData>) {
-    const categoryId = normalizeCategoryId(project.categoryId ?? project.field) ?? 'biodiversity';
+    const categoryId = normalizeCategoryWithFallback(project.categoryId, project.field);
     const { startYear, endYear } = parseYearRange(project.yearRange);
     const leadExpertId = requiredString(project.leadExpertId, 'leadExpertId');
     const insert: ProjectInsert = {

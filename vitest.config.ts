@@ -28,7 +28,14 @@ export default defineConfig({
     exclude: ['node_modules', 'dist', '**/carpathian-citizen-science-react18 Kopie/**'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'lcov'],
+      reportsDirectory: './reports/coverage',
+      thresholds: {
+        statements: 80,
+        branches: 75,
+        functions: 80,
+        lines: 80,
+      },
     },
   },
 });

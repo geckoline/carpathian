@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import type { ProjectData } from '@/types/project';
 import type { ExpertData, ExpertFormData } from '@/types/expert';
-import { getCategoryLabel, normalizeCategoryId } from '@/utils/categories';
+import { getCategoryLabel, normalizeCategoryWithFallback } from '@/utils/categories';
 
 export type DatasetMode = 'cs' | 'all';
 export type ThemeMode = 'light' | 'dark' | 'reduced';
@@ -121,7 +121,7 @@ export const useAppStore = create<AppState>()(
       if (!project.leadExpertId || !project.leadExpertName) {
         throw new Error('Every project must include a leading expert that exists in the expert dataset.');
       }
-      const categoryId = normalizeCategoryId(project.categoryId ?? project.field) ?? 'biodiversity';
+      const categoryId = normalizeCategoryWithFallback(project.categoryId, project.field);
       const complete = {
         id: project.id || crypto.randomUUID(),
         name: project.name || 'Untitled',

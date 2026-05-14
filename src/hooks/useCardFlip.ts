@@ -10,7 +10,6 @@ export const useCardFlip = ({ durationMs = 600, onFlip }: UseCardFlipOptions = {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
   const timerRef = useRef<number | null>(null);
-  const isFlippingRef = useRef(false);
 
   const clearTimer = useCallback(() => {
     if (timerRef.current !== null) {
@@ -20,7 +19,7 @@ export const useCardFlip = ({ durationMs = 600, onFlip }: UseCardFlipOptions = {
   }, []);
 
   const toggle = useCallback(() => {
-    if (isFlippingRef.current) return;
+    if (isFlipping) return;
     
     setIsFlipped((prev) => {
       const next = !prev;
@@ -29,15 +28,13 @@ export const useCardFlip = ({ durationMs = 600, onFlip }: UseCardFlipOptions = {
     });
     
     setIsFlipping(true);
-    isFlippingRef.current = true;
     
     clearTimer();
     timerRef.current = window.setTimeout(() => {
       setIsFlipping(false);
-      isFlippingRef.current = false;
       timerRef.current = null;
     }, durationMs);
-  }, [durationMs, onFlip, clearTimer]);
+  }, [durationMs, onFlip, clearTimer, isFlipping]);
 
   useEffect(() => {
     return () => clearTimer();

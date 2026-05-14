@@ -1,0 +1,532 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for src/services/mockApi.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/services</a> mockApi.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">85.45% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>47/55</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">75% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>24/32</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">80% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>16/20</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">95.12% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>39/41</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line high'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a>
+<a name='L149'></a><a href='#L149'>149</a>
+<a name='L150'></a><a href='#L150'>150</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">80x</span>
+<span class="cline-any cline-yes">64x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">48x</span>
+<span class="cline-any cline-yes">48x</span>
+<span class="cline-any cline-yes">24x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">24x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">48x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">48x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">168x</span>
+<span class="cline-any cline-yes">168x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">168x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">168x</span>
+<span class="cline-any cline-yes">168x</span>
+<span class="cline-any cline-yes">168x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">48x</span>
+<span class="cline-any cline-yes">48x</span>
+<span class="cline-any cline-yes">48x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">168x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">72x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">336x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { ProjectData, ProjectSchema } from '@/types/project';
+import { ExpertData, ExpertSchema } from '@/types/expert';
+import { generateRealisticPolygonWKT } from '@/utils/polygonUtils';
+import { getCategoryLabel, normalizeCategoryId } from '@/utils/categories';
+&nbsp;
+const fieldFocusFallbacks: Record&lt;string, string&gt; = {
+  biodiversity: 'Species recovery, habitat connectivity, cross-border monitoring',
+  water: 'Catchment resilience, river restoration, community observations',
+  'climate change': 'Climate resilience, long-term observations, adaptation planning',
+  agriculture: 'Traditional land use, cultural landscapes, sustainable stewardship',
+};
+&nbsp;
+const fieldOutputsFallbacks: Record&lt;string, string&gt; = {
+  biodiversity: 'Atlas layers, species reports, volunteer field reports',
+  water: 'Hydrology layers, restoration briefs, monitoring dashboards',
+  'climate change': 'Scenario briefs, observation logs, resilience indicators',
+  agriculture: 'Practice archives, oral histories, landscape stewardship guides',
+};
+&nbsp;
+const getProjectRegionLabel = (displayLocation?: string) =&gt; {
+  if (displayLocation === '3 Countries') return '3-country mountain corridor';
+  return displayLocation ?? <span class="branch-1 cbranch-no" title="branch not covered" >'Carpathian region';</span>
+};
+&nbsp;
+const getProjectCardSummary = (project: Pick&lt;ProjectData, 'field' | 'description' | 'displayLocation' | 'name'&gt;) =&gt; {
+  const firstSentence = project.description.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim();
+  if (project.field === 'Biodiversity') {
+    return `Citizen scientists and researchers track mountain biodiversity across ${getProjectRegionLabel(project.displayLocation).toLowerCase()}.`;
+  }
+  if (project.field === 'Water') {
+    return `A field-ready restoration initiative connecting local observations with mountain water stewardship in ${getProjectRegionLabel(project.displayLocation)}.`;
+  }
+  if (project.field === 'Climate Change') {
+    return `A climate-facing monitoring program turning distributed mountain observations into practical resilience signals.`;
+  }
+  return firstSentence ?? <span class="branch-1 cbranch-no" title="branch not covered" >`${project.name} translates cross-border fieldwork into accessible project intelligence.`;</span>
+};
+&nbsp;
+const getProjectFocusSummary = (project: Pick&lt;ProjectData, 'field'&gt;) =&gt;
+  fieldFocusFallbacks[project.field.toLowerCase()] ?? `${project.field}, mountain resilience, community mapping`;
+&nbsp;
+const getProjectOutputsSummary = (project: Pick&lt;ProjectData, 'field'&gt;) =&gt;
+  fieldOutputsFallbacks[project.field.toLowerCase()] ?? 'Map layers, field reports, participation metrics';
+&nbsp;
+const getExpertHeadline = (expert: Pick&lt;ExpertData, 'expertise' | 'country'&gt;) =&gt; {
+  const [primary = 'Mountain systems', secondary = 'cross-border research'] = expert.expertise;
+  return `${primary} lead and ${secondary.toLowerCase()} researcher`;
+};
+&nbsp;
+const getExpertiseSubtitle = (expert: Pick&lt;ExpertData, 'expertise'&gt;) =&gt;
+  expert.expertise.slice(0, 4).join(' • ');
+&nbsp;
+const getMockOrcid = (index: number) =&gt; {
+  const middle = String(1800 + index).padStart(4, '0');
+  const tail = String(1000 + index).padStart(4, '0');
+  return `https://orcid.org/0000-0002-${middle}-${tail}`;
+};
+&nbsp;
+const mockProjects: ProjectData[] = (() =&gt; {
+  const raw = [
+    { id: '123e4567-e89b-12d3-a456-426614174000', name: 'Carpathian Forest Watch', status: 'active' as const, field: 'Biodiversity', description: 'Monitoring deforestation rates and biodiversity loss across the northern Carpathian mountain range.', yearRange: '2021-2025', leadExpertId: '123e4567-e89b-12d3-a456-426614174001', leadExpertName: 'Dr. E. Popescu', website: 'https://example.com/project', lat: 47.5, lng: 25.0, area: 'carpathians', country: 'Romania', contact: 'info@carpathian.org', isCitizenScience: true, displayLocation: '3 Countries' },
+    { id: '123e4567-e89b-12d3-a456-426614174002', name: 'Alpine River Restoration', status: 'planned' as const, field: 'Water', description: 'Restoring natural flow regimes and riparian habitats in high-altitude catchments.', yearRange: '2024-2027', lat: 49.0, lng: 20.0, area: 'tatras', country: 'Slovakia', isCitizenScience: true, displayLocation: 'Slovakia', leadExpertId: '123e4567-e89b-12d3-a456-426614174014', leadExpertName: 'Dr. Jan Novak' },
+    { id: '123e4567-e89b-12d3-a456-426614174003', name: 'Bear Corridor Mapping', status: 'active' as const, field: 'Biodiversity', description: 'Tracking brown bear movement corridors to mitigate human-wildlife conflict.', yearRange: '2022-2026', leadExpertId: '123e4567-e89b-12d3-a456-426614174004', leadExpertName: 'Dr. A. Ionescu', lat: 46.5, lng: 25.5, area: 'carpathians', country: 'Romania', isCitizenScience: true, displayLocation: 'Romania' },
+    { id: '123e4567-e89b-12d3-a456-426614174005', name: 'Meadow Pollinator Survey', status: 'active' as const, field: 'Biodiversity', description: 'Documenting pollinator species diversity in Carpathian alpine meadows.', yearRange: '2023-2026', leadExpertId: '123e4567-e89b-12d3-a456-426614174006', leadExpertName: 'Dr. M. Kowalski', lat: 49.3, lng: 20.1, area: 'tatras', country: 'Poland', isCitizenScience: true, displayLocation: 'Poland' },
+    { id: '123e4567-e89b-12d3-a456-426614174007', name: 'Soil Carbon Assessment', status: 'past' as const, field: 'Climate Change', description: 'Measuring soil organic carbon stocks across elevation gradients.', yearRange: '2019-2023', lat: 48.3, lng: 24.5, area: 'carpathians', country: 'Ukraine', isCitizenScience: true, displayLocation: 'Ukraine', leadExpertId: '123e4567-e89b-12d3-a456-426614174015', leadExpertName: 'Dr. Olena Shevchenko' },
+    { id: '123e4567-e89b-12d3-a456-426614174008', name: 'Wolf Pack Dynamics', status: 'active' as const, field: 'Biodiversity', description: 'Long-term study of wolf pack territory shifts and prey interactions.', yearRange: '2021-2025', leadExpertId: '123e4567-e89b-12d3-a456-426614174009', leadExpertName: 'Dr. L. Munteanu', lat: 46.8, lng: 25.8, area: 'carpathians', country: 'Romania', isCitizenScience: true, displayLocation: 'Romania' },
+    { id: '123e4567-e89b-12d3-a456-426614174010', name: 'Glacial Lake Monitoring', status: 'planned' as const, field: 'Water', description: 'Tracking glacial lake formation and outburst flood risks in high peaks.', yearRange: '2025-2028', lat: 49.2, lng: 20.2, area: 'tatras', country: 'Slovakia', isCitizenScience: true, displayLocation: 'Slovakia', leadExpertId: '123e4567-e89b-12d3-a456-426614174026', leadExpertName: 'Dr. Martin Chovan' },
+    { id: '123e4567-e89b-12d3-a456-426614174011', name: 'Traditional Land Use Archive', status: 'active' as const, field: 'Agriculture', description: 'Preserving indigenous knowledge of sustainable land management practices.', yearRange: '2022-2025', leadExpertId: '123e4567-e89b-12d3-a456-426614174001', leadExpertName: 'Dr. E. Popescu', lat: 47.0, lng: 25.3, area: 'carpathians', country: 'Romania', isCitizenScience: true, displayLocation: 'Romania' },
+    { id: '123e4567-e89b-12d3-a456-426614174012', name: 'Raptor Migration Study', status: 'past' as const, field: 'Biodiversity', description: 'Mapping seasonal raptor flyways and identifying critical stopover sites.', yearRange: '2018-2022', lat: 47.8, lng: 23.5, area: 'carpathians', country: 'Romania', isCitizenScience: true, displayLocation: '3 Countries', leadExpertId: '123e4567-e89b-12d3-a456-426614174017', leadExpertName: 'Dr. Maria Horvath' },
+    { id: '123e4567-e89b-12d3-a456-426614174013', name: 'Peatland Restoration Pilot', status: 'planned' as const, field: 'Biodiversity', description: 'Experimental rewetting of degraded peatlands to restore carbon sinks.', yearRange: '2025-2028', lat: 48.5, lng: 24.0, area: 'carpathians', country: 'Ukraine', isCitizenScience: true, displayLocation: 'Ukraine', leadExpertId: '123e4567-e89b-12d3-a456-426614174027', leadExpertName: 'Dr. Yuliya Boyko' },
+    { id: '123e4567-e89b-12d3-a456-426614174052', name: 'Carpathian Climate Policy Observatory', status: 'active' as const, field: 'Climate Change', description: 'Synthesizing regional climate adaptation evidence for policy and protected-area planning.', yearRange: '2020-2026', lat: 48.2, lng: 16.4, area: 'vienna', country: 'Austria', isCitizenScience: false, displayLocation: 'Austria', leadExpertId: '123e4567-e89b-12d3-a456-426614174016', leadExpertName: 'Prof. Stefan Weber', linkedExpertIds: ['123e4567-e89b-12d3-a456-426614174040'] },
+    { id: '123e4567-e89b-12d3-a456-426614174053', name: 'Transboundary Land Use Foresight', status: 'planned' as const, field: 'Spatial Planning', description: 'Combining remote sensing and policy scenarios to understand future Carpathian land-use pressure.', yearRange: '2026-2029', lat: 48.1, lng: 25.9, area: 'chernivtsi', country: 'Ukraine', isCitizenScience: false, displayLocation: 'Ukraine', leadExpertId: '123e4567-e89b-12d3-a456-426614174018', leadExpertName: 'Dr. Viktor Petrenko', linkedExpertIds: ['123e4567-e89b-12d3-a456-426614174029'] },
+  ];
+  return raw.map((p, i) =&gt; {
+    const categoryId = normalizeCategoryId(p.field) ?? <span class="branch-1 cbranch-no" title="branch not covered" >'biodiversity';</span>
+    const normalized = { ...p, categoryId, field: getCategoryLabel(categoryId) };
+    return {
+      ...normalized,
+      linkedExpertIds: [...new Set([p.leadExpertId, ...('linkedExpertIds' in p ? p.linkedExpertIds ?? <span class="branch-1 cbranch-no" title="branch not covered" >[] </span>: [])])],
+      regionLabel: getProjectRegionLabel(p.displayLocation),
+      cardSummary: getProjectCardSummary(normalized),
+      focusSummary: getProjectFocusSummary(normalized),
+      outputsSummary: getProjectOutputsSummary(normalized),
+      location: generateRealisticPolygonWKT(p.lat, p.lng, i),
+    };
+  });
+})();
+&nbsp;
+const mockExpertSeeds: ExpertData[] = [
+  { id: '123e4567-e89b-12d3-a456-426614174001', name: 'Dr. Elena Popescu', institution: 'Univ. of Bucharest', country: 'Romania', degree: 'PhD, Ecology', bio: 'Leading research on Carpathian biodiversity for over 15 years.', expertise: ['Alpine Eco', 'Climate Resilience'], publications: 42, projects: 15, isCitizenScience: true, email: 'elena@example.com', linkedin: 'https://linkedin.com/in/elena', scopus: 'https://scopus.com/authid/elena', googleScholar: 'https://scholar.google.com/citations?user=abc123' },
+  { id: '123e4567-e89b-12d3-a456-426614174004', name: 'Dr. Andrei Ionescu', institution: 'Transylvania Univ.', country: 'Romania', degree: 'PhD, Zoology', bio: 'Specialist in large carnivore ecology and corridor conservation.', expertise: ['Wildlife Tracking', 'GIS'], publications: 28, projects: 9, isCitizenScience: true, email: 'andrei@example.com', linkedin: 'https://linkedin.com/in/andrei', scopus: 'https://scopus.com/authid/andrei', googleScholar: 'https://scholar.google.com/citations?user=andrei' },
+  { id: '123e4567-e89b-12d3-a456-426614174006', name: 'Dr. Marek Kowalski', institution: 'Jagiellonian Univ.', country: 'Poland', degree: 'PhD, Entomology', bio: 'Expert in pollinator ecology with focus on high-altitude meadow ecosystems.', expertise: ['Pollination Networks', 'Statistical Modeling'], publications: 35, projects: 12, isCitizenScience: true, email: 'marek@example.com', linkedin: 'https://linkedin.com/in/marek', scopus: 'https://scopus.com/authid/marek', googleScholar: 'https://scholar.google.com/citations?user=marek' },
+  { id: '123e4567-e89b-12d3-a456-426614174009', name: 'Dr. Laura Munteanu', institution: 'Carpathian Wildlife Inst.', country: 'Romania', degree: 'PhD, Behavioral Ecology', bio: 'Studies wolf pack dynamics and apex predator impacts on trophic cascades.', expertise: ['Predator Ecology', 'GPS Tracking'], publications: 19, projects: 7, isCitizenScience: true, email: 'laura@example.com', linkedin: 'https://linkedin.com/in/laura', scopus: 'https://scopus.com/authid/laura', googleScholar: 'https://scholar.google.com/citations?user=laura' },
+  { id: '123e4567-e89b-12d3-a456-426614174014', name: 'Dr. Jan Novak', institution: 'Slovak Academy of Sciences', country: 'Slovakia', degree: 'PhD, Hydrology', bio: 'Researches alpine hydrology and river restoration in mountainous catchments.', expertise: ['Hydrological Modeling', 'River Ecology'], publications: 31, projects: 11, isCitizenScience: true, email: 'jan@example.com', linkedin: 'https://linkedin.com/in/jan', scopus: 'https://scopus.com/authid/jan', googleScholar: 'https://scholar.google.com/citations?user=jan' },
+  { id: '123e4567-e89b-12d3-a456-426614174015', name: 'Dr. Olena Shevchenko', institution: 'Lviv National Univ.', country: 'Ukraine', degree: 'PhD, Soil Science', bio: 'Specializes in soil carbon cycling and peatland restoration techniques.', expertise: ['Soil Chemistry', 'Carbon Sequestration'], publications: 24, projects: 8, isCitizenScience: true, email: 'olena@example.com', linkedin: 'https://linkedin.com/in/olena', scopus: 'https://scopus.com/authid/olena', googleScholar: 'https://scholar.google.com/citations?user=olena' },
+  { id: '123e4567-e89b-12d3-a456-426614174016', name: 'Prof. Stefan Weber', institution: 'Vienna Institute of Technology', country: 'Austria', degree: 'Dr., Environmental Science', bio: 'Leads interdisciplinary teams on climate resilience and adaptation strategies.', expertise: ['Climate Modeling', 'Policy Analysis'], publications: 56, projects: 20, isCitizenScience: true, email: 'stefan@example.com', linkedin: 'https://linkedin.com/in/stefan', scopus: 'https://scopus.com/authid/stefan', googleScholar: 'https://scholar.google.com/citations?user=stefan' },
+  { id: '123e4567-e89b-12d3-a456-426614174017', name: 'Dr. Maria Horvath', institution: 'Budapest Univ.', country: 'Hungary', degree: 'PhD, Ornithology', bio: 'Tracks migratory raptor populations and conservation of breeding habitats.', expertise: ['Avian Ecology', 'Satellite Telemetry'], publications: 22, projects: 10, isCitizenScience: true, email: 'maria@example.com', linkedin: 'https://linkedin.com/in/maria', scopus: 'https://scopus.com/authid/maria', googleScholar: 'https://scholar.google.com/citations?user=maria' },
+  { id: '123e4567-e89b-12d3-a456-426614174018', name: 'Dr. Viktor Petrenko', institution: 'Chernivtsi Univ.', country: 'Ukraine', degree: 'PhD, Geography', bio: 'Maps land use changes and traditional ecological knowledge in mountain regions.', expertise: ['Remote Sensing', 'Ethnoecology'], publications: 17, projects: 6, isCitizenScience: true, email: 'viktor@example.com', linkedin: 'https://linkedin.com/in/viktor', scopus: 'https://scopus.com/authid/viktor', googleScholar: 'https://scholar.google.com/citations?user=viktor' },
+  { id: '123e4567-e89b-12d3-a456-426614174019', name: 'Dr. Anna Nowak', institution: 'Warsaw Univ. of Life Sciences', country: 'Poland', degree: 'PhD, Conservation Biology', bio: 'Focuses on endangered species conservation and habitat connectivity planning.', expertise: ['Conservation Planning', 'Population Genetics'], publications: 29, projects: 13, isCitizenScience: true, email: 'anna@example.com', linkedin: 'https://linkedin.com/in/anna', scopus: 'https://scopus.com/authid/anna', googleScholar: 'https://scholar.google.com/citations?user=anna' },
+  { id: '123e4567-e89b-12d3-a456-426614174020', name: 'Dr. Alexandru Radu', institution: 'Univ. of Cluj', country: 'Romania', degree: 'PhD, Botany', bio: 'Studies alpine plant communities and their response to climate change.', expertise: ['Plant Ecology', 'Climate Change'], publications: 31, projects: 10, isCitizenScience: true, email: 'alex@example.com', linkedin: 'https://linkedin.com/in/alex', scopus: 'https://scopus.com/authid/alex', googleScholar: 'https://scholar.google.com/citations?user=alex' },
+  { id: '123e4567-e89b-12d3-a456-426614174021', name: 'Dr. Zofia Kaminska', institution: 'Polish Academy of Sciences', country: 'Poland', degree: 'PhD, Hydrology', bio: 'Expert in mountain hydrology and water resource management.', expertise: ['Hydrological Modeling', 'Water Quality'], publications: 38, projects: 14, isCitizenScience: true, email: 'zofia@example.com', linkedin: 'https://linkedin.com/in/zofia', scopus: 'https://scopus.com/authid/zofia', googleScholar: 'https://scholar.google.com/citations?user=zofia' },
+  { id: '123e4567-e89b-12d3-a456-426614174022', name: 'Dr. Ion Moldovan', institution: 'Babes-Bolyai Univ.', country: 'Romania', degree: 'PhD, Wildlife Biology', bio: 'Researches large mammal behavior and human-wildlife coexistence strategies.', expertise: ['Mammalogy', 'Conservation'], publications: 25, projects: 8, isCitizenScience: true, email: 'ion@example.com', linkedin: 'https://linkedin.com/in/ion', scopus: 'https://scopus.com/authid/ion', googleScholar: 'https://scholar.google.com/citations?user=ion' },
+  { id: '123e4567-e89b-12d3-a456-426614174023', name: 'Dr. Katarzyna Lewandowska', institution: 'Univ. of Warsaw', country: 'Poland', degree: 'PhD, Entomology', bio: 'Specializes in alpine pollinator networks and plant-insect interactions.', expertise: ['Pollinator Ecology', 'Network Analysis'], publications: 33, projects: 11, isCitizenScience: true, email: 'kasia@example.com', linkedin: 'https://linkedin.com/in/kasia', scopus: 'https://scopus.com/authid/kasia', googleScholar: 'https://scholar.google.com/citations?user=kasia' },
+  { id: '123e4567-e89b-12d3-a456-426614174024', name: 'Dr. Peter Szabo', institution: 'Slovak Technical Univ.', country: 'Slovakia', degree: 'PhD, Environmental Engineering', bio: 'Focuses on river restoration techniques and sediment transport modeling.', expertise: ['River Engineering', 'Sediment Dynamics'], publications: 27, projects: 9, isCitizenScience: true, email: 'peter@example.com', linkedin: 'https://linkedin.com/in/peter', scopus: 'https://scopus.com/authid/peter', googleScholar: 'https://scholar.google.com/citations?user=peter' },
+  { id: '123e4567-e89b-12d3-a456-426614174025', name: 'Dr. Ana-Maria Dumitrescu', institution: 'Univ. of Bucharest', country: 'Romania', degree: 'PhD, Soil Microbiology', bio: 'Investigates soil microbial communities in Carpathian peatlands.', expertise: ['Soil Microbiology', 'Biogeochemistry'], publications: 21, projects: 7, isCitizenScience: true, email: 'ana@example.com', linkedin: 'https://linkedin.com/in/ana', scopus: 'https://scopus.com/authid/ana', googleScholar: 'https://scholar.google.com/citations?user=ana' },
+  { id: '123e4567-e89b-12d3-a456-426614174026', name: 'Dr. Martin Chovan', institution: 'Univ. of Presov', country: 'Slovakia', degree: 'PhD, Geography', bio: 'Maps glacial lake distribution and assesses outburst flood hazards.', expertise: ['Glacial Geomorphology', 'Remote Sensing'], publications: 19, projects: 6, isCitizenScience: true, email: 'martin@example.com', linkedin: 'https://linkedin.com/in/martin', scopus: 'https://scopus.com/authid/martin', googleScholar: 'https://scholar.google.com/citations?user=martin' },
+  { id: '123e4567-e89b-12d3-a456-426614174027', name: 'Dr. Yuliya Boyko', institution: 'Carpathian National Park', country: 'Ukraine', degree: 'PhD, Conservation Biology', bio: 'Manages peatland restoration projects in Ukrainian Carpathians.', expertise: ['Peatland Restoration', 'Conservation Mgmt'], publications: 14, projects: 5, isCitizenScience: true, email: 'yuliya@example.com', linkedin: 'https://linkedin.com/in/yuliya', scopus: 'https://scopus.com/authid/yuliya', googleScholar: 'https://scholar.google.com/citations?user=yuliya' },
+  { id: '123e4567-e89b-12d3-a456-426614174028', name: 'Dr. Tomasz Wroblewski', institution: 'Univ. of Wroclaw', country: 'Poland', degree: 'PhD, Climatology', bio: 'Studies microclimatic gradients in mountain ecosystems.', expertise: ['Climatology', 'Microclimate Modeling'], publications: 36, projects: 12, isCitizenScience: true, email: 'tomasz@example.com', linkedin: 'https://linkedin.com/in/tomasz', scopus: 'https://scopus.com/authid/tomasz', googleScholar: 'https://scholar.google.com/citations?user=tomasz' },
+  { id: '123e4567-e89b-12d3-a456-426614174029', name: 'Dr. Sorin Pop', institution: 'Technical Univ. of Cluj', country: 'Romania', degree: 'PhD, Informatics', bio: 'Develops GIS tools and spatial analysis methods for conservation planning.', expertise: ['GIS Development', 'Spatial Analysis'], publications: 45, projects: 16, isCitizenScience: true, email: 'sorin@example.com', linkedin: 'https://linkedin.com/in/sorin', scopus: 'https://scopus.com/authid/sorin', googleScholar: 'https://scholar.google.com/citations?user=sorin' },
+  { id: '123e4567-e89b-12d3-a456-426614174030', name: 'Dr. Eva Hornakova', institution: 'Slovak Academy of Sciences', country: 'Slovakia', degree: 'PhD, Limnology', bio: 'Researches high-altitude lake ecosystems and acidification recovery.', expertise: ['Lake Ecology', 'Water Chemistry'], publications: 29, projects: 10, isCitizenScience: true, email: 'eva@example.com', linkedin: 'https://linkedin.com/in/eva', scopus: 'https://scopus.com/authid/eva', googleScholar: 'https://scholar.google.com/citations?user=eva' },
+  { id: '123e4567-e89b-12d3-a456-426614174031', name: 'Dr. Radu Iftimie', institution: 'Univ. of Suceava', country: 'Romania', degree: 'PhD, Forestry', bio: 'Studies forest dynamics and natural regeneration in primeval Carpathian forests.', expertise: ['Forest Ecology', 'Dendrochronology'], publications: 23, projects: 8, isCitizenScience: true, email: 'radu@example.com', linkedin: 'https://linkedin.com/in/radu', scopus: 'https://scopus.com/authid/radu', googleScholar: 'https://scholar.google.com/citations?user=radu' },
+  { id: '123e4567-e89b-12d3-a456-426614174032', name: 'Dr. Monika Novakova', institution: 'Univ. of Bratislava', country: 'Slovakia', degree: 'PhD, Landscape Ecology', bio: 'Analyzes landscape connectivity and habitat fragmentation in mountain regions.', expertise: ['Landscape Ecology', 'Connectivity Modeling'], publications: 26, projects: 9, isCitizenScience: true, email: 'monika@example.com', linkedin: 'https://linkedin.com/in/monika', scopus: 'https://scopus.com/authid/monika', googleScholar: 'https://scholar.google.com/citations?user=monika' },
+  { id: '123e4567-e89b-12d3-a456-426614174033', name: 'Dr. Vasyl Kryvokhyzha', institution: 'Ukrainian National Forestry Univ.', country: 'Ukraine', degree: 'PhD, Botany', bio: 'Documents traditional ethnobotanical knowledge in Ukrainian Carpathians.', expertise: ['Ethnobotany', 'Traditional Knowledge'], publications: 18, projects: 6, isCitizenScience: true, email: 'vasyl@example.com', linkedin: 'https://linkedin.com/in/vasyl', scopus: 'https://scopus.com/authid/vasyl', googleScholar: 'https://scholar.google.com/citations?user=vasyl' },
+  { id: '123e4567-e89b-12d3-a456-426614174034', name: 'Dr. Agata Kowalczyk', institution: 'Univ. of Lodz', country: 'Poland', degree: 'PhD, Ornithology', bio: 'Tracks migratory bird populations and identifies critical stopover habitats.', expertise: ['Bird Migration', 'Population Monitoring'], publications: 32, projects: 11, isCitizenScience: true, email: 'agata@example.com', linkedin: 'https://linkedin.com/in/agata', scopus: 'https://scopus.com/authid/agata', googleScholar: 'https://scholar.google.com/citations?user=agata' },
+  { id: '123e4567-e89b-12d3-a456-426614174035', name: 'Dr. Simona Farcas', institution: 'Inst. of Biology Bucharest', country: 'Romania', degree: 'PhD, Genetics', bio: 'Applies genetic tools to study population structure of Carpathian wildlife.', expertise: ['Conservation Genetics', 'Population Genomics'], publications: 20, projects: 7, isCitizenScience: true, email: 'simona@example.com', linkedin: 'https://linkedin.com/in/simona', scopus: 'https://scopus.com/authid/simona', googleScholar: 'https://scholar.google.com/citations?user=simona' },
+  { id: '123e4567-e89b-12d3-a456-426614174036', name: 'Dr. Jozef Vlcek', institution: 'Univ. of Zilina', country: 'Slovakia', degree: 'PhD, Environmental Science', bio: 'Assesses environmental impacts of hydropower on mountain stream ecosystems.', expertise: ['Hydropower Impact', 'Stream Ecology'], publications: 16, projects: 5, isCitizenScience: true, email: 'jozef@example.com', linkedin: 'https://linkedin.com/in/jozef', scopus: 'https://scopus.com/authid/jozef', googleScholar: 'https://scholar.google.com/citations?user=jozef' },
+  { id: '123e4567-e89b-12d3-a456-426614174037', name: 'Dr. Cristina Neagu', institution: 'Univ. of Craiova', country: 'Romania', degree: 'PhD, Geoinformatics', bio: 'Integrates satellite imagery and ground data for land cover classification.', expertise: ['Satellite Imagery', 'Land Cover Classification'], publications: 30, projects: 10, isCitizenScience: true, email: 'cristina@example.com', linkedin: 'https://linkedin.com/in/cristina', scopus: 'https://scopus.com/authid/cristina', googleScholar: 'https://scholar.google.com/citations?user=cristina' },
+  { id: '123e4567-e89b-12d3-a456-426614174038', name: 'Dr. Piotr Adamczyk', institution: 'Univ. of Gdansk', country: 'Poland', degree: 'PhD, Marine Biology', bio: 'Expands terrestrial ecology expertise to mountain aquatic ecosystems.', expertise: ['Aquatic Ecology', 'Macroinvertebrates'], publications: 34, projects: 12, isCitizenScience: true, email: 'piotr@example.com', linkedin: 'https://linkedin.com/in/piotr', scopus: 'https://scopus.com/authid/piotr', googleScholar: 'https://scholar.google.com/citations?user=piotr' },
+  { id: '123e4567-e89b-12d3-a456-426614174039', name: 'Dr. Dan Gheorghiu', institution: 'Univ. of Timisoara', country: 'Romania', degree: 'PhD, Meteorology', bio: 'Studies extreme weather events and their impact on mountain ecosystems.', expertise: ['Mountain Meteorology', 'Extreme Events'], publications: 22, projects: 8, isCitizenScience: true, email: 'dan@example.com', linkedin: 'https://linkedin.com/in/dan', scopus: 'https://scopus.com/authid/dan', googleScholar: 'https://scholar.google.com/citations?user=dan' },
+  { id: '123e4567-e89b-12d3-a456-426614174040', name: 'Dr. Lucia Szaboova', institution: 'Univ. of Kosice', country: 'Slovakia', degree: 'PhD, Environmental Policy', bio: 'Analyzes policy frameworks for transboundary conservation in the Carpathians.', expertise: ['Environmental Policy', 'Transboundary Conservation'], publications: 15, projects: 5, isCitizenScience: true, email: 'lucia@example.com', linkedin: 'https://linkedin.com/in/lucia', scopus: 'https://scopus.com/authid/lucia', googleScholar: 'https://scholar.google.com/citations?user=lucia' },
+  { id: '123e4567-e89b-12d3-a456-426614174041', name: 'Dr. Mihai Cojocaru', institution: 'Univ. of Iasi', country: 'Romania', degree: 'PhD, Herpetology', bio: 'Surveys amphibian and reptile populations as bioindicators of ecosystem health.', expertise: ['Herpetology', 'Bioindicators'], publications: 17, projects: 6, isCitizenScience: true, email: 'mihai@example.com', linkedin: 'https://linkedin.com/in/mihai', scopus: 'https://scopus.com/authid/mihai', googleScholar: 'https://scholar.google.com/citations?user=mihai' },
+  { id: '123e4567-e89b-12d3-a456-426614174042', name: 'Dr. Halina Wojcik', institution: 'Polish Geological Inst.', country: 'Poland', degree: 'PhD, Geochemistry', bio: 'Investigates soil geochemistry and carbon storage in mountain peatlands.', expertise: ['Geochemistry', 'Carbon Cycling'], publications: 39, projects: 13, isCitizenScience: true, email: 'halina@example.com', linkedin: 'https://linkedin.com/in/halina', scopus: 'https://scopus.com/authid/halina', googleScholar: 'https://scholar.google.com/citations?user=halina' },
+  { id: '123e4567-e89b-12d3-a456-426614174043', name: 'Dr. Teodor Badescu', institution: 'Univ. of Pitesti', country: 'Romania', degree: 'PhD, Ecology', bio: 'Studies forest-grassland ecotones and their response to land use change.', expertise: ['Ecotone Ecology', 'Land Use Change'], publications: 13, projects: 4, isCitizenScience: true, email: 'teodor@example.com', linkedin: 'https://linkedin.com/in/teodor', scopus: 'https://scopus.com/authid/teodor', googleScholar: 'https://scholar.google.com/citations?user=teodor' },
+  { id: '123e4567-e89b-12d3-a456-426614174044', name: 'Dr. Bianca Rusu', institution: 'Univ. of Oradea', country: 'Romania', degree: 'PhD, Environmental Chemistry', bio: 'Analyzes water quality and pollutant transport in mountain watersheds.', expertise: ['Water Quality', 'Pollutant Transport'], publications: 26, projects: 9, isCitizenScience: true, email: 'bianca@example.com', linkedin: 'https://linkedin.com/in/bianca', scopus: 'https://scopus.com/authid/bianca', googleScholar: 'https://scholar.google.com/citations?user=bianca' },
+  { id: '123e4567-e89b-12d3-a456-426614174045', name: 'Dr. Pawel Jankowski', institution: 'Univ. of Poznan', country: 'Poland', degree: 'PhD, Silviculture', bio: 'Researches sustainable forest management practices in mountain conditions.', expertise: ['Forest Mgmt', 'Silviculture'], publications: 28, projects: 10, isCitizenScience: true, email: 'pawel@example.com', linkedin: 'https://linkedin.com/in/pawel', scopus: 'https://scopus.com/authid/pawel', googleScholar: 'https://scholar.google.com/citations?user=pawel' },
+  { id: '123e4567-e89b-12d3-a456-426614174046', name: 'Dr. Iulia Sandu', institution: 'Univ. of Galati', country: 'Romania', degree: 'PhD, Tourism Geography', bio: 'Studies sustainable tourism impacts on Carpathian protected areas.', expertise: ['Sustainable Tourism', 'Protected Area Mgmt'], publications: 11, projects: 4, isCitizenScience: true, email: 'iulia@example.com', linkedin: 'https://linkedin.com/in/iulia', scopus: 'https://scopus.com/authid/iulia', googleScholar: 'https://scholar.google.com/citations?user=iulia' },
+  { id: '123e4567-e89b-12d3-a456-426614174047', name: 'Dr. Marian Farkas', institution: 'Univ. of Miskolc', country: 'Hungary', degree: 'PhD, Speleology', bio: 'Explores karst systems and groundwater dynamics in carbonate mountain regions.', expertise: ['Karst Hydrology', 'Speleology'], publications: 24, projects: 8, isCitizenScience: true, email: 'marian@example.com', linkedin: 'https://linkedin.com/in/marian', scopus: 'https://scopus.com/authid/marian', googleScholar: 'https://scholar.google.com/citations?user=marian' },
+  { id: '123e4567-e89b-12d3-a456-426614174048', name: 'Dr. Raluca Stanciu', institution: 'Univ. of Bucharest', country: 'Romania', degree: 'PhD, Biostatistics', bio: 'Applies advanced statistical methods to analyze ecological monitoring data.', expertise: ['Biostatistics', 'Ecological Modeling'], publications: 41, projects: 14, isCitizenScience: true, email: 'raluca@example.com', linkedin: 'https://linkedin.com/in/raluca', scopus: 'https://scopus.com/authid/raluca', googleScholar: 'https://scholar.google.com/citations?user=raluca' },
+  { id: '123e4567-e89b-12d3-a456-426614174049', name: 'Dr. Krzysztof Nowicki', institution: 'Univ. of Szczecin', country: 'Poland', degree: 'PhD, Physical Geography', bio: 'Documents geomorphological changes in proglacial environments.', expertise: ['Glacial Geomorphology', 'Periglacial Processes'], publications: 33, projects: 11, isCitizenScience: true, email: 'krzysztof@example.com', linkedin: 'https://linkedin.com/in/krzysztof', scopus: 'https://scopus.com/authid/krzysztof', googleScholar: 'https://scholar.google.com/citations?user=krzysztof' },
+  { id: '123e4567-e89b-12d3-a456-426614174050', name: 'Dr. Ovidiu Matei', institution: 'Univ. of Constanta', country: 'Romania', degree: 'PhD, Ecology', bio: 'Studies trophic interactions and food web dynamics in alpine ecosystems.', expertise: ['Food Web Ecology', 'Trophic Dynamics'], publications: 18, projects: 6, isCitizenScience: true, email: 'ovidiu@example.com', linkedin: 'https://linkedin.com/in/ovidiu', scopus: 'https://scopus.com/authid/ovidiu', googleScholar: 'https://scholar.google.com/citations?user=ovidiu' },
+  { id: '123e4567-e89b-12d3-a456-426614174051', name: 'Dr. Alzbeta Tothova', institution: 'Slovak Hydrometeorological Inst.', country: 'Slovakia', degree: 'PhD, Climatology', bio: 'Analyzes long-term climate trends and extreme event frequency in the Tatra mountains.', expertise: ['Climate Trends', 'Extreme Event Analysis'], publications: 20, projects: 7, isCitizenScience: true, email: 'alzbeta@example.com', linkedin: 'https://linkedin.com/in/alzbeta', scopus: 'https://scopus.com/authid/alzbeta', googleScholar: 'https://scholar.google.com/citations?user=alzbeta' },
+];
+&nbsp;
+const mockExperts: ExpertData[] = mockExpertSeeds.map((expert, index) =&gt; ({
+  ...expert,
+  avatarUrl: expert.avatarUrl ?? `/profile-pictures/${expert.id}.jpg`,
+  orcid: expert.orcid ?? getMockOrcid(index),
+  headline: getExpertHeadline(expert),
+  expertiseSubtitle: getExpertiseSubtitle(expert),
+}));
+&nbsp;
+const delay = (ms: number) =&gt; new Promise(resolve =&gt; setTimeout(resolve, ms));
+&nbsp;
+export const mockApi = {
+  async getProjects(): Promise&lt;ProjectData[]&gt; { await delay(300); return mockProjects.map(p =&gt; ProjectSchema.parse(p)); },
+  async <span class="fstat-no" title="function not covered" >getProject(i</span>d: string): Promise&lt;ProjectData | null&gt; { <span class="cstat-no" title="statement not covered" >await delay(200); c</span>onst p = <span class="cstat-no" title="statement not covered" >mockProjects.<span class="fstat-no" title="function not covered" >find(x</span> =&gt; <span class="cstat-no" title="statement not covered" >x.id === id);</span></span> <span class="cstat-no" title="statement not covered" >return p ? ProjectSchema.parse(p) : null; },</span>
+  async getExperts(): Promise&lt;ExpertData[]&gt; { await delay(300); return mockExperts.map(e =&gt; ExpertSchema.parse(e)); },
+  async <span class="fstat-no" title="function not covered" >getExpert(i</span>d: string): Promise&lt;ExpertData | null&gt; { <span class="cstat-no" title="statement not covered" >await delay(200); c</span>onst e = <span class="cstat-no" title="statement not covered" >mockExperts.<span class="fstat-no" title="function not covered" >find(x</span> =&gt; <span class="cstat-no" title="statement not covered" >x.id === id);</span></span> <span class="cstat-no" title="statement not covered" >return e ? ExpertSchema.parse(e) : null; },</span>
+};
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2026-05-14T19:08:07.465Z
+            </div>
+        <script src="../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../sorter.js"></script>
+        <script src="../../block-navigation.js"></script>
+    </body>
+</html>
+    

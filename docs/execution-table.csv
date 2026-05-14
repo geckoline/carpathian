@@ -1,7 +1,0 @@
-﻿Week,Focus,Deliverables,Complexity,Pacing Guardrails
-M2W1,Search + API Foundation,useDebounce", safe highlighting (DOMPurify), "useExpertFilters", real API service skeleton (Zod + retry + env)",🟡 Medium,"≤5 micro-steps, TDD first, complex tasks PM"
-M2W2,Map Enhancements,"Marker clustering, tile toggle, card↔map sync via Zustand, auto-zoom + popup wiring",🟡 Medium,"Leaflet mocks for tests, isolate map logic from UI"
-M2W3,A11y + UI Polish,"Modal base (focus trap/ESC), ErrorBoundary, "useLocalStorage", accessibility controls panel, animated stats (optional)",🟢 Low–Medium,"Keyboard nav tests, contrast checks, reduced-motion QA"
-M2W4,Integration + CI,"GitHub Actions pipeline, Vercel/Netlify deploy, env validation, bundle split (lazy expert grid), retrospective",🟡 Medium,"CI dry-run, smoke tests, deployment checklist"
-M3,Forms + Advanced Map,"Add Project modal (multi-step + validation), Volunteer modal, Leaflet Draw polygons, fullscreen control",🔴 High,"Deferred until API stable; form TDD, coordinate validation tests"
-Deferred/Drop,"i18n, Auth, Favorites, Notifications, Logging Service, React Query, Router, 20+ legacy UI components",—,—,"Intentionally excluded to preserve focus, bundle size, and cognitive load"

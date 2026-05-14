@@ -13,8 +13,9 @@ export type PolygonLayerItem = {
 };
 
 export const usePolygonLayer = (projects?: ProjectData[]): PolygonLayerItem[] => {
-  const { data, ui: { selectedProjectId } } = useAppStore();
-  const sourceProjects = projects ?? data.projects;
+  const selectedProjectId = useAppStore(s => s.ui.selectedProjectId);
+  const storeProjects = useAppStore(s => s.data.projects);
+  const sourceProjects = projects ?? storeProjects;
 
   return useMemo(() => {
     if (!selectedProjectId) return [];

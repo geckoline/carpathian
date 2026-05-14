@@ -1,8 +1,10 @@
 import DOMPurify from 'dompurify';
 
+const purify = (s: string) => DOMPurify.sanitize(s, { ALLOWED_TAGS: [] });
+
 export const highlightText = (text: string, searchTerm: string): { __html: string } => {
   if (!searchTerm.trim()) {
-    return { __html: DOMPurify.sanitize(text, { ALLOWED_TAGS: [] }) };
+    return { __html: purify(text) };
   }
   
   const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -13,8 +15,8 @@ export const highlightText = (text: string, searchTerm: string): { __html: strin
   const html = parts
     .map((part) => 
       matchRegex.test(part) 
-        ? `<mark class="bg-yellow-200 px-0.5 rounded">${DOMPurify.sanitize(part)}</mark>` 
-        : DOMPurify.sanitize(part)
+        ? `<mark class="bg-yellow-200 px-0.5 rounded">${purify(part)}</mark>` 
+        : purify(part)
     )
     .join('');
     
