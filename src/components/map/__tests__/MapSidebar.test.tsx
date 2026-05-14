@@ -58,6 +58,27 @@ describe('MapSidebar', () => {
     expect(screen.getByRole('combobox', { name: /status/i })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: /category/i })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: /country/i })).toBeInTheDocument();
+    expect(screen.getByTestId('map-sidebar-filters-controls')).toHaveClass('grid-cols-2');
+  });
+
+  it('uses polished category and subtle status pills on project list cards', () => {
+    render(<MapSidebar projects={[
+      { ...mappedProject, field: 'Industry & Infrastructure', categoryId: undefined },
+      { ...mappedProject, id: '33333333-3333-4333-8333-333333333333', name: 'Planned Project', status: 'planned' },
+      { ...mappedProject, id: '44444444-4444-4444-8444-444444444444', name: 'Past Project', status: 'past' },
+    ]} />);
+
+    const status = screen.getByTestId(`map-sidebar-status-${mappedProject.id}`);
+    const category = screen.getByTestId(`map-sidebar-category-${mappedProject.id}`);
+
+    expect(status).toHaveTextContent('Active');
+    expect(status).toHaveClass('project-status-pill', 'project-status-pill-active');
+    expect(category).toHaveTextContent('Infrastructure');
+    expect(category).toHaveClass('project-category-pill');
+    expect(category).toHaveAttribute('title', 'Industry & Infrastructure');
+    expect(category).toHaveAttribute('aria-label', 'Category: Industry & Infrastructure');
+    expect(screen.getByTestId('map-sidebar-status-33333333-3333-4333-8333-333333333333')).toHaveClass('project-status-pill-planned');
+    expect(screen.getByTestId('map-sidebar-status-44444444-4444-4444-8444-444444444444')).toHaveClass('project-status-pill-past');
   });
 
   it('centers and pulses the selected map sidebar card', async () => {

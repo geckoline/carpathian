@@ -26,6 +26,7 @@ describe('Bundle Sanity', () => {
     expect(files.some(f => f.startsWith('leaflet-draw-'))).toBe(true);
     expect(files.some(f => f.startsWith('leaflet-cluster-'))).toBe(true);
     expect(files.some(f => f.startsWith('forms-'))).toBe(true);
+    expect(files.some(f => f.startsWith('search-'))).toBe(true);
     expect(files.some(f => f.startsWith('MapView-'))).toBe(true);
   });
 

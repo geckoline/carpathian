@@ -1,6 +1,7 @@
 import { useAppStore } from '@/store/appStore';
 import { useCardFlip } from '@/hooks/useCardFlip';
 import { highlightText } from '@/utils/highlightText';
+import { getCompactCategoryLabel, getProjectStatusLabel } from '@/utils/projectBadges';
 
 export interface ProjectCardProps {
   id: string;
@@ -54,9 +55,6 @@ const getOutputsLabel = (isCitizenScience?: boolean) =>
     ? 'Atlas layers, species reports, volunteer participation metrics'
     : 'Atlas layers, research reports, participation metrics';
 
-const getStatusLabel = (status: ProjectCardProps['status']) =>
-  status.charAt(0).toUpperCase() + status.slice(1);
-
 export const ProjectCard: React.FC<ProjectCardProps> = ({
   id,
   name,
@@ -85,7 +83,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const resolvedRegionLabel = getRegionLabel(regionLabel, displayLocation, location);
   const focusLabel = focusSummary ?? getFocusLabel(field);
   const outputsLabel = outputsSummary ?? getOutputsLabel(isCitizenScience);
-  const statusLabel = getStatusLabel(status);
+  const statusLabel = getProjectStatusLabel(status);
+  const compactFieldLabel = getCompactCategoryLabel(field);
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -114,7 +113,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
   return (
     <article
-      className={`card-interactive-shell relative h-[380px] w-full overflow-hidden rounded-2xl border border-surface-muted/80 shadow-[var(--shadow-card)] motion-reduce:transition-none ${
+      className={`card-interactive-shell card-auto-height-shell project-card-shell relative w-full overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-soft-border)] shadow-[var(--shadow-card)] motion-reduce:transition-none ${
         reducedMotion
           ? 'hover:shadow-[var(--shadow-card)]'
           : 'transition-all duration-200 [perspective:1600px] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-1'
@@ -132,20 +131,29 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           className={`card-face card project-front ${isFlipped ? 'pointer-events-none' : ''}`}
           onClick={handleSurfaceFlip}
         >
-          <header data-testid="project-front-header" className="header">
-            <div className="title-row">
-              <div>
-                <div className="eyebrow active" data-testid="project-status">{statusLabel}</div>
-                <h3 id={`project-card-${id}`} dangerouslySetInnerHTML={highlightText(name, searchTerm)} />
-              </div>
-              <div className="title-stack">
-                <div className="eyebrow field" data-testid="project-field">{field}</div>
+          <header data-testid="project-front-header" className="header project-card-header">
+            <div className="project-title-row" data-testid="project-title-row">
+              <h3
+                id={`project-card-${id}`}
+                data-testid="project-card-title"
+                dangerouslySetInnerHTML={highlightText(name, searchTerm)}
+              />
+              <div className="project-badge-row project-badge-stack" data-testid="project-badge-row">
+                <div className={`project-status-pill project-status-pill-${status} status-badge badge-single-line`} data-testid="project-status">{statusLabel}</div>
+                <div
+                  className="project-category-pill category-badge badge-single-line"
+                  data-testid="project-field"
+                  title={field}
+                  aria-label={`Category: ${field}`}
+                >
+                  {compactFieldLabel}
+                </div>
               </div>
             </div>
           </header>
 
-          <div className="body">
-            <div className="meta-grid" data-testid="project-meta-grid">
+          <div className="body card-content-scroll project-front-body">
+            <div className="meta-grid project-meta-grid" data-testid="project-meta-grid">
               <div className="meta-chip">
                 <strong>Region</strong>
                 <span data-testid="project-location" dangerouslySetInnerHTML={highlightText(resolvedRegionLabel, searchTerm)} />
@@ -157,13 +165,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               <button
                 type="button"
                 onClick={handleLeadExpertClick}
-                className="meta-chip"
+                className="meta-chip lead-meta-row"
                 data-testid="project-lead-expert"
                 aria-label={`Show lead expert ${leadExpertName}`}
               >
                 <strong>Lead</strong>
                 <span className="lead-link">
-                  <span className="pulse" aria-hidden="true" />
                   {leadExpertName}
                 </span>
               </button>
@@ -219,35 +226,38 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           className={`card-face card card-face-back project-back project-card-backdrop ${!isFlipped ? 'pointer-events-none' : ''}`}
           onClick={handleSurfaceFlip}
         >
-          <header className="header">
-            <div className="title-row">
-              <div>
-                <div className="eyebrow active">{statusLabel}</div>
-                <h3>{name}</h3>
-              </div>
-              <div className="title-stack">
-                <div className="eyebrow field">{field}</div>
+          <header className="header project-card-header">
+            <div className="project-title-row" data-testid="project-title-row">
+              <h3>{name}</h3>
+              <div className="project-badge-row project-badge-stack" data-testid="project-badge-row">
+                <div className={`project-status-pill project-status-pill-${status} status-badge badge-single-line`}>{statusLabel}</div>
+                <div className="project-category-pill category-badge badge-single-line" title={field} aria-label={`Category: ${field}`}>
+                  {compactFieldLabel}
+                </div>
               </div>
             </div>
           </header>
 
-          <div className="body project-back-body" data-testid="project-back-scroll">
-            <div className="back-summary" data-testid="project-back-summary">
-              <p dangerouslySetInnerHTML={highlightText(description, searchTerm)} />
-            </div>
-            <div className="detail-list">
-              <div className="detail-item">
-                <strong>Contact</strong>
-                <span>{contact ?? 'citizen-science@carpathian.org'}</span>
+          <div className="body card-content-scroll project-back-body notebook-body" data-testid="project-back-scroll">
+            <section className="notebook-section" aria-labelledby={`project-overview-${id}`}>
+              <h4 id={`project-overview-${id}`} className="notebook-section-title">Overview</h4>
+              <div className="back-summary notebook-panel" data-testid="project-back-summary">
+                <p dangerouslySetInnerHTML={highlightText(description, searchTerm)} />
               </div>
-              <div className="detail-item">
-                <strong>Focus</strong>
-                <span>{focusLabel}</span>
-              </div>
-              <div className="detail-item">
-                <strong>Outputs</strong>
-                <span>{outputsLabel}</span>
-              </div>
+            </section>
+            <div className="detail-list notebook-detail-list" data-testid="project-detail-list">
+              <section className="notebook-detail-item" data-testid="project-contact-detail" aria-labelledby={`project-contact-${id}`}>
+                <h4 id={`project-contact-${id}`} className="notebook-section-title">Contact</h4>
+                <p>{contact ?? 'citizen-science@carpathian.org'}</p>
+              </section>
+              <section className="notebook-detail-item" data-testid="project-focus-detail" aria-labelledby={`project-focus-${id}`}>
+                <h4 id={`project-focus-${id}`} className="notebook-section-title">Focus</h4>
+                <p>{focusLabel}</p>
+              </section>
+              <section className="notebook-detail-item" data-testid="project-outputs-detail" aria-labelledby={`project-outputs-${id}`}>
+                <h4 id={`project-outputs-${id}`} className="notebook-section-title">Outputs</h4>
+                <p>{outputsLabel}</p>
+              </section>
             </div>
           </div>
 

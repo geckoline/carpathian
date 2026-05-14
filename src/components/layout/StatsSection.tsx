@@ -5,38 +5,29 @@ import AnimatedCounter from '@/components/ui/AnimatedCounter';
 export const StatsSection = ({ projects, experts }: { projects: ProjectData[]; experts: ExpertData[] }) => {
   const activeProjects = projects.filter(p => p.status === 'active').length;
   const countries = [...new Set(projects.map(p => p.country).filter(Boolean))].length;
+  const stats = [
+    { id: 'projects', label: 'Total Projects', value: projects.length },
+    { id: 'active', label: 'Active Projects', value: activeProjects },
+    { id: 'countries', label: 'Countries', value: countries },
+    { id: 'experts', label: 'Experts', value: experts.length },
+  ];
 
   return (
-    <section className="mb-6" aria-label="Platform statistics">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="relative bg-white rounded-2xl shadow-md border border-[#c8e6c9]/70 p-6 text-center overflow-hidden hover:-translate-y-2 hover:shadow-lg transition-all duration-500">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#006633] to-[#00a050]" />
-          <p className="text-4xl font-extrabold mb-2 bg-gradient-to-r from-[#006633] to-[#008040] bg-clip-text text-transparent" data-testid="stat-projects">
-            <AnimatedCounter target={projects.length} />
-          </p>
-          <p className="text-lg font-semibold text-[#666]">Total Projects</p>
-        </div>
-        <div className="relative bg-white rounded-2xl shadow-md border border-[#c8e6c9]/70 p-6 text-center overflow-hidden hover:-translate-y-2 hover:shadow-lg transition-all duration-500">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#006633] to-[#00a050]" />
-          <p className="text-4xl font-extrabold mb-2 bg-gradient-to-r from-[#006633] to-[#008040] bg-clip-text text-transparent" data-testid="stat-active">
-            <AnimatedCounter target={activeProjects} />
-          </p>
-          <p className="text-lg font-semibold text-[#666]">Active Projects</p>
-        </div>
-        <div className="relative bg-white rounded-2xl shadow-md border border-[#c8e6c9]/70 p-6 text-center overflow-hidden hover:-translate-y-2 hover:shadow-lg transition-all duration-500">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#006633] to-[#00a050]" />
-          <p className="text-4xl font-extrabold mb-2 bg-gradient-to-r from-[#006633] to-[#008040] bg-clip-text text-transparent" data-testid="stat-countries">
-            <AnimatedCounter target={countries} />
-          </p>
-          <p className="text-lg font-semibold text-[#666]">Countries</p>
-        </div>
-        <div className="relative bg-white rounded-2xl shadow-md border border-[#c8e6c9]/70 p-6 text-center overflow-hidden hover:-translate-y-2 hover:shadow-lg transition-all duration-500">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#006633] to-[#00a050]" />
-          <p className="text-4xl font-extrabold mb-2 bg-gradient-to-r from-[#006633] to-[#008040] bg-clip-text text-transparent" data-testid="stat-experts">
-            <AnimatedCounter target={experts.length} />
-          </p>
-          <p className="text-lg font-semibold text-[#666]">Experts</p>
-        </div>
+    <section className="mb-4 sm:mb-6" aria-label="Platform statistics">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" data-testid="stats-grid">
+        {stats.map((stat) => (
+          <div
+            key={stat.id}
+            data-testid={`stat-card-${stat.id}`}
+            className="relative overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-soft-border)] bg-[var(--color-panel-surface)] p-4 text-center shadow-[var(--shadow-panel)] transition-all duration-500 sm:p-6 sm:hover:-translate-y-2 sm:hover:shadow-[var(--shadow-surface)]"
+          >
+            <div className="absolute left-0 top-0 h-1.5 w-full bg-gradient-to-r from-[#006633] to-[#00a050] sm:h-2" />
+            <p className="mb-1 bg-gradient-to-r from-[#006633] to-[#008040] bg-clip-text text-2xl sm:text-4xl font-extrabold text-transparent sm:mb-2" data-testid={`stat-${stat.id}`}>
+              <AnimatedCounter target={stat.value} />
+            </p>
+            <p className="text-xs font-semibold leading-tight text-[var(--color-field-note)] sm:text-lg">{stat.label}</p>
+          </div>
+        ))}
       </div>
     </section>
   );

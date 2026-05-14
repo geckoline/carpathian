@@ -50,6 +50,12 @@ const getExpertHeadline = (expert: Pick<ExpertData, 'expertise' | 'country'>) =>
 const getExpertiseSubtitle = (expert: Pick<ExpertData, 'expertise'>) =>
   expert.expertise.slice(0, 4).join(' • ');
 
+const getMockOrcid = (index: number) => {
+  const middle = String(1800 + index).padStart(4, '0');
+  const tail = String(1000 + index).padStart(4, '0');
+  return `https://orcid.org/0000-0002-${middle}-${tail}`;
+};
+
 const mockProjects: ProjectData[] = (() => {
   const raw = [
     { id: '123e4567-e89b-12d3-a456-426614174000', name: 'Carpathian Forest Watch', status: 'active' as const, field: 'Biodiversity', description: 'Monitoring deforestation rates and biodiversity loss across the northern Carpathian mountain range.', yearRange: '2021-2025', leadExpertId: '123e4567-e89b-12d3-a456-426614174001', leadExpertName: 'Dr. E. Popescu', website: 'https://example.com/project', lat: 47.5, lng: 25.0, area: 'carpathians', country: 'Romania', contact: 'info@carpathian.org', isCitizenScience: true, displayLocation: '3 Countries' },
@@ -80,7 +86,7 @@ const mockProjects: ProjectData[] = (() => {
   });
 })();
 
-const mockExperts: ExpertData[] = [
+const mockExpertSeeds: ExpertData[] = [
   { id: '123e4567-e89b-12d3-a456-426614174001', name: 'Dr. Elena Popescu', institution: 'Univ. of Bucharest', country: 'Romania', degree: 'PhD, Ecology', bio: 'Leading research on Carpathian biodiversity for over 15 years.', expertise: ['Alpine Eco', 'Climate Resilience'], publications: 42, projects: 15, isCitizenScience: true, email: 'elena@example.com', linkedin: 'https://linkedin.com/in/elena', scopus: 'https://scopus.com/authid/elena', googleScholar: 'https://scholar.google.com/citations?user=abc123' },
   { id: '123e4567-e89b-12d3-a456-426614174004', name: 'Dr. Andrei Ionescu', institution: 'Transylvania Univ.', country: 'Romania', degree: 'PhD, Zoology', bio: 'Specialist in large carnivore ecology and corridor conservation.', expertise: ['Wildlife Tracking', 'GIS'], publications: 28, projects: 9, isCitizenScience: true, email: 'andrei@example.com', linkedin: 'https://linkedin.com/in/andrei', scopus: 'https://scopus.com/authid/andrei', googleScholar: 'https://scholar.google.com/citations?user=andrei' },
   { id: '123e4567-e89b-12d3-a456-426614174006', name: 'Dr. Marek Kowalski', institution: 'Jagiellonian Univ.', country: 'Poland', degree: 'PhD, Entomology', bio: 'Expert in pollinator ecology with focus on high-altitude meadow ecosystems.', expertise: ['Pollination Networks', 'Statistical Modeling'], publications: 35, projects: 12, isCitizenScience: true, email: 'marek@example.com', linkedin: 'https://linkedin.com/in/marek', scopus: 'https://scopus.com/authid/marek', googleScholar: 'https://scholar.google.com/citations?user=marek' },
@@ -123,8 +129,12 @@ const mockExperts: ExpertData[] = [
   { id: '123e4567-e89b-12d3-a456-426614174049', name: 'Dr. Krzysztof Nowicki', institution: 'Univ. of Szczecin', country: 'Poland', degree: 'PhD, Physical Geography', bio: 'Documents geomorphological changes in proglacial environments.', expertise: ['Glacial Geomorphology', 'Periglacial Processes'], publications: 33, projects: 11, isCitizenScience: true, email: 'krzysztof@example.com', linkedin: 'https://linkedin.com/in/krzysztof', scopus: 'https://scopus.com/authid/krzysztof', googleScholar: 'https://scholar.google.com/citations?user=krzysztof' },
   { id: '123e4567-e89b-12d3-a456-426614174050', name: 'Dr. Ovidiu Matei', institution: 'Univ. of Constanta', country: 'Romania', degree: 'PhD, Ecology', bio: 'Studies trophic interactions and food web dynamics in alpine ecosystems.', expertise: ['Food Web Ecology', 'Trophic Dynamics'], publications: 18, projects: 6, isCitizenScience: true, email: 'ovidiu@example.com', linkedin: 'https://linkedin.com/in/ovidiu', scopus: 'https://scopus.com/authid/ovidiu', googleScholar: 'https://scholar.google.com/citations?user=ovidiu' },
   { id: '123e4567-e89b-12d3-a456-426614174051', name: 'Dr. Alzbeta Tothova', institution: 'Slovak Hydrometeorological Inst.', country: 'Slovakia', degree: 'PhD, Climatology', bio: 'Analyzes long-term climate trends and extreme event frequency in the Tatra mountains.', expertise: ['Climate Trends', 'Extreme Event Analysis'], publications: 20, projects: 7, isCitizenScience: true, email: 'alzbeta@example.com', linkedin: 'https://linkedin.com/in/alzbeta', scopus: 'https://scopus.com/authid/alzbeta', googleScholar: 'https://scholar.google.com/citations?user=alzbeta' },
-].map((expert) => ({
+];
+
+const mockExperts: ExpertData[] = mockExpertSeeds.map((expert, index) => ({
   ...expert,
+  avatarUrl: expert.avatarUrl ?? `/profile-pictures/${expert.id}.jpg`,
+  orcid: expert.orcid ?? getMockOrcid(index),
   headline: getExpertHeadline(expert),
   expertiseSubtitle: getExpertiseSubtitle(expert),
 }));

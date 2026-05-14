@@ -45,6 +45,16 @@ const getExpertSummary = (bio: string) => {
 
 const getFrontSubtitle = (bio: string) => getExpertSummary(bio);
 const getBackSubtitle = (expertise: string[]) => expertise.slice(0, 3).join(' • ');
+const isLocalProfilePicture = (value?: string) =>
+  Boolean(value?.startsWith('/profile-pictures/') && !value.includes('..'));
+
+type SocialLink = {
+  href: string;
+  label: string;
+  ariaLabel: string;
+  testKey: string;
+  external?: boolean;
+};
 
 export interface ExpertCardProps {
   id: string;
@@ -61,6 +71,7 @@ export interface ExpertCardProps {
   email?: string;
   linkedin?: string;
   scopus?: string;
+  orcid?: string;
   googleScholar?: string;
   avatarUrl?: string;
 }
@@ -80,7 +91,9 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
   email,
   linkedin,
   scopus,
+  orcid,
   googleScholar,
+  avatarUrl,
 }) => {
   const { isFlipped, isFlipping, toggle } = useCardFlip({ durationMs: 600 });
   const selectedExpertId = useAppStore((s) => s.ui.selectedExpertId);
@@ -89,7 +102,16 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
   const frontSubtitle = headline ?? getFrontSubtitle(bio);
   const backSubtitle = expertiseSubtitle ?? getBackSubtitle(expertise);
   const fallbackAvatarUrl = buildAvatarDataUrl(name);
-  const profilePictureSrc = getLocalExpertPortraitPath(id);
+  const idProfilePictureSrc = getLocalExpertPortraitPath(id);
+  const profilePictureSrc = isLocalProfilePicture(avatarUrl) ? avatarUrl : idProfilePictureSrc;
+  const secondaryAvatarSrc = profilePictureSrc === idProfilePictureSrc ? avatarUrl : idProfilePictureSrc;
+  const socialLinks: SocialLink[] = [
+    ...(email ? [{ href: `mailto:${email}`, label: 'Mail', ariaLabel: 'Send email', testKey: 'contact-email' }] : []),
+    ...(linkedin ? [{ href: linkedin, label: 'LinkedIn', ariaLabel: 'LinkedIn profile', testKey: 'linkedin', external: true }] : []),
+    ...(scopus ? [{ href: scopus, label: 'Scopus', ariaLabel: 'Scopus profile', testKey: 'scopus', external: true }] : []),
+    ...(googleScholar ? [{ href: googleScholar, label: 'Scholar', ariaLabel: 'Google Scholar profile', testKey: 'google-scholar', external: true }] : []),
+    ...(orcid ? [{ href: orcid, label: 'ORCID', ariaLabel: 'ORCID profile', testKey: 'orcid', external: true }] : []),
+  ];
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -104,22 +126,54 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
     toggle();
   };
 
+  const handleAvatarError = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    const image = event.currentTarget;
+    const fallbackStep = image.dataset.fallbackStep;
+
+    if (secondaryAvatarSrc && fallbackStep !== 'secondary-avatar') {
+      image.dataset.fallbackStep = 'secondary-avatar';
+      image.src = secondaryAvatarSrc;
+      return;
+    }
+
+    if (fallbackStep !== 'generated') {
+      image.dataset.fallbackStep = 'generated';
+      image.src = fallbackAvatarUrl;
+    }
+  };
+
   const renderAvatar = (hidden = false) => (
-    <div className="avatar" aria-hidden={hidden}>
+    <div className="avatar profile-avatar" aria-hidden={hidden} data-testid="expert-avatar">
       <img
         src={profilePictureSrc}
         alt={`${name} portrait`}
         loading="lazy"
-        onError={(event) => {
-          event.currentTarget.src = fallbackAvatarUrl;
-        }}
+        onError={handleAvatarError}
       />
+    </div>
+  );
+
+  const renderSocialLinks = (surface: 'front' | 'back') => (
+    <div className="social-row" data-testid={surface === 'front' ? 'expert-social-row' : `expert-${surface}-social-row`}>
+      {socialLinks.map((link) => (
+        <a
+          key={`${surface}-${link.testKey}`}
+          href={link.href}
+          target={link.external ? '_blank' : undefined}
+          rel={link.external ? 'noopener noreferrer' : undefined}
+          className="social-pill"
+          data-testid={`expert-${surface}-${link.testKey}-btn`}
+          aria-label={link.ariaLabel}
+        >
+          {link.label}
+        </a>
+      ))}
     </div>
   );
 
   return (
     <article
-      className={`card-interactive-shell relative h-[440px] w-full overflow-hidden rounded-2xl border border-surface-muted/80 shadow-[var(--shadow-card)] motion-reduce:transition-none ${
+      className={`card-interactive-shell card-auto-height-shell expert-card-shell relative w-full overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-soft-border)] shadow-[var(--shadow-card)] motion-reduce:transition-none ${
         reducedMotion
           ? 'hover:shadow-[var(--shadow-card)]'
           : 'transition-all duration-200 [perspective:1600px] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-1'
@@ -137,13 +191,13 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
           className={`card-face card expert-front ${isFlipped ? 'pointer-events-none' : ''}`}
           onClick={handleSurfaceFlip}
         >
-          <header data-testid="expert-front-header" className="header profile-header">
+          <header data-testid="expert-front-header" className="header profile-header profile-header-safe">
             <h3 id={`expert-card-${id}`}>{name}</h3>
             <p className="expert-subtitle" data-testid="expert-subtitle">{frontSubtitle}</p>
             {renderAvatar()}
           </header>
 
-          <div className="body">
+          <div className="body card-content-scroll expert-front-content" data-testid="expert-front-content">
             <div className="expert-identity">
               <div data-testid="expert-institution"><strong>Institution:</strong> {institution}</div>
               <div data-testid="expert-country"><strong>Country:</strong> {country}</div>
@@ -162,12 +216,7 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
           </div>
 
           <div className="footer expert-footer-column">
-            <div className="social-row" data-testid="expert-social-row">
-              {email ? <a href={`mailto:${email}`} className="social-pill" data-testid="expert-front-contact-email-btn" aria-label="Send email">Mail</a> : null}
-              {linkedin ? <a href={linkedin} target="_blank" rel="noopener noreferrer" className="social-pill" data-testid="expert-front-linkedin-btn" aria-label="LinkedIn profile">LinkedIn</a> : null}
-              {scopus ? <a href={scopus} target="_blank" rel="noopener noreferrer" className="social-pill" data-testid="expert-front-scopus-btn" aria-label="Scopus profile">Scopus</a> : null}
-              {googleScholar ? <a href={googleScholar} target="_blank" rel="noopener noreferrer" className="social-pill" data-testid="expert-front-google-scholar-btn" aria-label="Google Scholar profile">Scholar</a> : null}
-            </div>
+            {renderSocialLinks('front')}
             <div className="footer-actions footer-actions-spread">
               <button type="button" onClick={handleCopy} className="button outline" data-testid="copy-expert-link" aria-label="Copy expert link">
                 Copy
@@ -185,32 +234,35 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
           className={`card-face card card-face-back expert-back expert-card-backdrop ${!isFlipped ? 'pointer-events-none' : ''}`}
           onClick={handleSurfaceFlip}
         >
-          <header className="header profile-header">
+          <header className="header profile-header profile-header-safe">
             <h3>{name}</h3>
             <p className="expert-subtitle" data-testid="expert-back-subtitle">{backSubtitle}</p>
             {renderAvatar(true)}
           </header>
 
-          <div className="body expert-back-body" data-testid="expert-back-scroll">
-            <div className="tag-row" data-testid="expert-tags">
-              {expertise.map((tag) => (
-                <span key={tag} className="tag">{tag}</span>
-              ))}
-            </div>
-            <div className="bio-box">
-              <p data-testid="expert-bio">{bio}</p>
-            </div>
+          <div className="body card-content-scroll expert-back-body notebook-body" data-testid="expert-back-scroll">
+            <section className="notebook-section" aria-labelledby={`expert-expertise-${id}`}>
+              <h4 id={`expert-expertise-${id}`} className="notebook-section-title">Expertise</h4>
+              <div className="tag-row notebook-chip-row" data-testid="expert-tags">
+                {expertise.map((tag) => (
+                  <span key={tag} className="tag">{tag}</span>
+                ))}
+              </div>
+            </section>
+            <section className="notebook-section" aria-labelledby={`expert-bio-section-${id}`}>
+              <h4 id={`expert-bio-section-${id}`} className="notebook-section-title">Bio</h4>
+              <div className="bio-box notebook-panel" data-testid="expert-bio-box">
+                <p data-testid="expert-bio">{bio}</p>
+              </div>
+            </section>
           </div>
 
-          <div className="footer">
-            <div className="footer-actions">
-              {linkedin ? <a href={linkedin} target="_blank" rel="noopener noreferrer" className="button outline" aria-label="LinkedIn">LinkedIn</a> : null}
-              {scopus ? <a href={scopus} target="_blank" rel="noopener noreferrer" className="button outline" aria-label="Scopus">Scopus</a> : null}
+          <div className="footer expert-footer-column">
+            {renderSocialLinks('back')}
+            <div className="footer-actions footer-actions-spread">
               <button type="button" onClick={handleCopy} className="button outline" data-testid="copy-expert-back-link" aria-label="Copy expert link">
                 Copy
               </button>
-            </div>
-            <div className="footer-actions">
               <button type="button" onClick={toggle} disabled={isFlipping} className="button" data-testid="flip-to-front" aria-label="Back to expert summary">
                 Back ↻
               </button>

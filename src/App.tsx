@@ -70,10 +70,10 @@ export default function App() {
 
   return (
     <main className="flex flex-col min-h-screen" tabIndex={-1}>
-      <header className="px-4 md:px-6 lg:px-8 pt-4 md:pt-6 lg:pt-8 max-w-7xl mx-auto w-full mb-4 flex justify-between items-start">
+      <header className="px-4 md:px-6 lg:px-8 pt-3 sm:pt-4 md:pt-6 lg:pt-8 max-w-7xl mx-auto w-full mb-3 sm:mb-4 flex justify-between items-start gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-primary-700">Citizen Science Platform</h1>
-          <p className="text-text-muted mt-1">Explore projects & connect with experts</p>
+          <h1 className="text-2xl font-bold leading-tight text-primary-700">Citizen Science Platform</h1>
+          <p className="text-text-muted mt-1 text-sm sm:text-base">Explore projects & connect with experts</p>
         </div>
         <div className="flex items-center gap-2">
           <ThemeToggle />
@@ -81,7 +81,7 @@ export default function App() {
         </div>
       </header>
 
-      <div className="px-4 md:px-6 lg:px-8 max-w-7xl mx-auto w-full mb-4">
+      <div className="px-4 md:px-6 lg:px-8 max-w-7xl mx-auto w-full mb-3 sm:mb-4">
         {statusMessage && (
           <div
             className={`mb-4 rounded-[var(--radius-panel)] shadow-[var(--shadow-panel)] border px-4 py-3 text-sm ${
@@ -99,13 +99,13 @@ export default function App() {
         <StatsSection projects={projectsToFilter} experts={expertsToFilter} />
       </div>
 
-      <div className="px-4 md:px-6 lg:px-8 max-w-7xl mx-auto w-full mb-4">
-        <div className="flex gap-1 bg-white/85 rounded-[var(--radius-panel)] p-1 w-fit border border-[var(--color-panel-border)] shadow-[var(--shadow-panel)]" role="tablist" aria-label="Dataset selection">
+      <div className="px-4 md:px-6 lg:px-8 max-w-7xl mx-auto w-full mb-3 sm:mb-4">
+        <div className="flex w-full gap-1 rounded-[var(--radius-panel)] border border-[var(--color-panel-border)] bg-[var(--color-panel-surface)] p-1 shadow-[var(--shadow-panel)] sm:w-fit" role="tablist" aria-label="Dataset selection">
           <button
             role="tab"
             aria-selected={dataset === 'cs'}
             onClick={() => setDataset('cs')}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition focus:outline-none focus:ring-2 focus:ring-primary-500 ${dataset === 'cs' ? 'bg-white text-primary-700 shadow-sm' : 'text-text-muted hover:text-primary-600'}`}
+            className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition focus:outline-none focus:ring-2 focus:ring-primary-500 sm:flex-none sm:px-4 ${dataset === 'cs' ? 'bg-[var(--color-panel-surface)] text-primary-700 shadow-sm' : 'text-text-muted hover:text-primary-600'}`}
           >
             Citizen Science
           </button>
@@ -113,16 +113,16 @@ export default function App() {
             role="tab"
             aria-selected={dataset === 'all'}
             onClick={() => setDataset('all')}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition focus:outline-none focus:ring-2 focus:ring-primary-500 ${dataset === 'all' ? 'bg-white text-primary-700 shadow-sm' : 'text-text-muted hover:text-primary-600'}`}
+            className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition focus:outline-none focus:ring-2 focus:ring-primary-500 sm:flex-none sm:px-4 ${dataset === 'all' ? 'bg-[var(--color-panel-surface)] text-primary-700 shadow-sm' : 'text-text-muted hover:text-primary-600'}`}
           >
             All Carpathian
           </button>
         </div>
       </div>
 
-      <section className="px-4 md:px-6 lg:px-8 max-w-7xl mx-auto w-full mb-8">
-        <div className="flex flex-col lg:flex-row min-h-[520px] gap-6 lg:h-[70vh] lg:min-h-[500px]">
-          <div className="h-[520px] flex-1 min-w-0 rounded-[var(--radius-panel)] overflow-hidden border border-[var(--color-panel-border)] shadow-[var(--shadow-panel)] relative bg-white sm:h-[560px] lg:h-auto">
+      <section className="px-4 md:px-6 lg:px-8 max-w-7xl mx-auto w-full mb-6 sm:mb-8">
+        <div className="flex flex-col lg:flex-row min-h-[460px] gap-4 sm:gap-6 lg:h-[70vh] lg:min-h-[500px]">
+          <div className="h-[460px] flex-1 min-w-0 rounded-[var(--radius-panel)] overflow-hidden border border-[var(--color-panel-border)] shadow-[var(--shadow-panel)] relative bg-[var(--color-panel-surface)] sm:h-[560px] lg:h-auto">
             <Suspense fallback={<div className="h-full w-full bg-surface-muted animate-pulse flex items-center justify-center text-text-muted">Loading map...</div>}>
               <MapView projects={projectsToFilter} />
             </Suspense>
@@ -146,7 +146,7 @@ export default function App() {
           <button onClick={() => setActiveTab('experts')} className={`px-3 py-1 rounded text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-primary-500 ${filters.activeTab === 'experts' ? 'bg-primary-500 text-white' : 'bg-white text-primary-500 border border-primary-500'}`} aria-pressed={filters.activeTab === 'experts'}>Experts</button>
         </div>
 
-        <section aria-live="polite" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="status">
+        <section aria-live="polite" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" role="status">
           {isLoading ? (
             <><SkeletonCard type="project" /><SkeletonCard type="project" /></>
           ) : (
@@ -160,7 +160,7 @@ export default function App() {
             </>
           )}
           {(!isLoading && activeItems.length === 0) && (
-            <div className="col-span-full rounded-[var(--radius-panel)] border border-dashed border-[var(--color-panel-border)] bg-white/85 shadow-[var(--shadow-panel)] px-6 py-12 text-center text-text-muted">
+            <div className="col-span-full rounded-[var(--radius-panel)] border border-dashed border-[var(--color-panel-border)] bg-[var(--color-panel-surface)] shadow-[var(--shadow-panel)] px-6 py-12 text-center text-text-muted">
               <h2 className="text-lg font-semibold text-primary-700">{emptyState.title}</h2>
               <p className="mx-auto mt-2 max-w-xl text-sm">{emptyState.description}</p>
               {hasActiveFilters && (

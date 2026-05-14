@@ -6,7 +6,7 @@ export const FilterBar = () => {
 
   return (
     <section
-      className="mb-6 rounded-[var(--radius-panel)] border border-[var(--color-panel-border)] bg-white/90 p-4 shadow-[var(--shadow-panel)]"
+      className="mb-6 rounded-[var(--radius-panel)] border border-[var(--color-panel-border)] bg-[var(--color-panel-surface)] p-4 shadow-[var(--shadow-panel)]"
       aria-label="Project and expert filters"
     >
       <FilterControls projects={projects} idPrefix="main-filters" />

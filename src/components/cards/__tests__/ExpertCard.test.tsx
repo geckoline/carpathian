@@ -17,7 +17,8 @@ const mockExpert = {
   degree: 'PhD, Ecology', headline: 'Cross-border biodiversity lead and mountain systems researcher', expertiseSubtitle: 'Ecology • Restoration • Citizen-science networks', bio: 'Leading research on Carpathian biodiversity. Full bio expands on toggle.',
   expertise: ['Alpine Eco', 'Climate Resilience'], publications: 42, projects: 15,
   email: 'elena@example.com', linkedin: 'https://linkedin.com/in/elena', scopus: 'https://scopus.com/authid/elena',
-  googleScholar: 'https://scholar.google.com/citations?user=abc123'
+  googleScholar: 'https://scholar.google.com/citations?user=abc123',
+  orcid: 'https://orcid.org/0000-0002-1825-0097',
 };
 
 describe('ExpertCard', () => {
@@ -48,12 +49,17 @@ describe('ExpertCard', () => {
     expect(within(front).getByTestId('expert-front-linkedin-btn')).toBeInTheDocument();
     expect(within(front).getByTestId('expert-front-scopus-btn')).toBeInTheDocument();
     expect(within(front).getByTestId('expert-front-google-scholar-btn')).toBeInTheDocument();
+    expect(within(front).getByTestId('expert-front-orcid-btn')).toBeInTheDocument();
     expect(within(front).getByTestId('expert-front-contact-email-btn')).toBeInTheDocument();
     expect(within(front).getByRole('button', { name: /copy expert link/i })).toBeInTheDocument();
     expect(within(front).getByRole('button', { name: /view expert details/i })).toBeInTheDocument();
     expect(container.querySelector('[data-testid="expert-card-stage"]')).toHaveClass('card-flip-stage');
     expect(within(front).getByTestId('expert-front-header')).toHaveClass('header', 'profile-header');
+    expect(within(front).getByTestId('expert-front-header')).toHaveClass('profile-header-safe');
+    expect(within(front).getByTestId('expert-avatar')).toHaveClass('profile-avatar');
     expect(screen.getByTestId('expert-face-back')).toHaveClass('expert-card-backdrop');
+    expect(container.querySelector('article')).toHaveClass('expert-card-shell', 'card-auto-height-shell');
+    expect(within(front).getByTestId('expert-front-content')).toHaveClass('card-content-scroll');
   });
 
   it('copies link and stops propagation', async () => {
@@ -74,12 +80,30 @@ describe('ExpertCard', () => {
     expect(within(screen.getByTestId('expert-face-front')).getByRole('img', { name: /dr\. elena popescu portrait/i })).toHaveAttribute('src', '/profile-pictures/e1.jpg');
   });
 
-  it('keeps using the id-based local profile picture path even when avatarUrl is provided', () => {
-    render(<ExpertCard {...mockExpert} avatarUrl="https://example.com/avatar.jpg" />);
+  it('tries the id-based local profile picture before avatarUrl', () => {
+    render(<ExpertCard {...mockExpert} avatarUrl="https://images.example.org/avatar.jpg" />);
     expect(within(screen.getByTestId('expert-face-front')).getByRole('img', { name: /dr\. elena popescu portrait/i })).toHaveAttribute('src', '/profile-pictures/e1.jpg');
   });
 
-  it('falls back to generated SVG on image error', () => {
+  it('uses an assigned local profile picture before the id fallback', () => {
+    render(<ExpertCard {...mockExpert} avatarUrl="/profile-pictures/assigned-demo.jpg" />);
+    const img = within(screen.getByTestId('expert-face-front')).getByRole('img', { name: /dr\. elena popescu portrait/i });
+
+    expect(img).toHaveAttribute('src', '/profile-pictures/assigned-demo.jpg');
+    img.dispatchEvent(new Event('error'));
+    expect(img).toHaveAttribute('src', '/profile-pictures/e1.jpg');
+  });
+
+  it('falls back from local portrait to avatarUrl and then generated SVG', () => {
+    render(<ExpertCard {...mockExpert} avatarUrl="https://images.example.org/avatar.jpg" />);
+    const img = within(screen.getByTestId('expert-face-front')).getByRole('img', { name: /dr\. elena popescu portrait/i });
+    img.dispatchEvent(new Event('error'));
+    expect(img).toHaveAttribute('src', 'https://images.example.org/avatar.jpg');
+    img.dispatchEvent(new Event('error'));
+    expect(img).toHaveAttribute('src', expect.stringContaining('data:image/svg+xml'));
+  });
+
+  it('falls back directly to generated SVG when no avatarUrl exists', () => {
     render(<ExpertCard {...mockExpert} />);
     const img = within(screen.getByTestId('expert-face-front')).getByRole('img', { name: /dr\. elena popescu portrait/i });
     img.dispatchEvent(new Event('error'));
@@ -92,8 +116,16 @@ describe('ExpertCard', () => {
     const back = screen.getByTestId('expert-face-back');
     expect(within(back).getByTestId('expert-back-subtitle')).toHaveTextContent('Ecology • Restoration • Citizen-science networks');
     expect(within(back).getByText('Leading research on Carpathian biodiversity. Full bio expands on toggle.')).toBeInTheDocument();
+    expect(within(back).getByText('Expertise')).toBeInTheDocument();
+    expect(within(back).getByText('Bio')).toBeInTheDocument();
     expect(within(back).getByTestId('expert-tags')).toHaveTextContent('Alpine Eco');
+    expect(within(back).getByTestId('expert-tags').closest('.notebook-section')).not.toBeNull();
+    expect(within(back).getByTestId('expert-bio-box')).toHaveClass('notebook-panel');
     expect(within(back).getByRole('link', { name: /linkedin/i })).toBeInTheDocument();
+    expect(within(back).getByRole('link', { name: /send email/i })).toBeInTheDocument();
+    expect(within(back).getByRole('link', { name: /scopus/i })).toBeInTheDocument();
+    expect(within(back).getByRole('link', { name: /google scholar/i })).toBeInTheDocument();
+    expect(within(back).getByRole('link', { name: /orcid/i })).toBeInTheDocument();
     expect(within(back).getByRole('button', { name: /back/i })).toBeInTheDocument();
   });
 
@@ -110,7 +142,7 @@ describe('ExpertCard', () => {
     expect(screen.getByTestId('expert-tags')).toHaveTextContent('Restoration');
     expect(screen.getByRole('button', { name: /copy expert link/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /back to expert summary/i })).toBeInTheDocument();
-    expect(container.querySelector('[data-testid="expert-bio"]')?.closest('.bio-box')).not.toBeNull();
+    expect(container.querySelector('[data-testid="expert-bio"]')?.closest('.notebook-panel')).not.toBeNull();
   });
 
   it('flips from card-surface clicks and explicit controls, but not from interactive child actions', async () => {

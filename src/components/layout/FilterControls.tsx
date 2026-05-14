@@ -27,6 +27,9 @@ const isCategoryAvailable = (options: ProjectFilterOptions, fieldFilter: string)
   return !!categoryId && options.categories.some((category) => category.id === categoryId);
 };
 
+const labelClass = 'mb-1 block text-[0.68rem] font-semibold uppercase tracking-wide text-[var(--color-field-note)] sm:text-xs';
+const controlClass = 'w-full rounded-lg border border-[var(--color-soft-border)] bg-[var(--color-panel-surface)] px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 sm:px-3';
+
 export const FilterControls = ({ projects, idPrefix = 'project-filters', variant = 'full' }: FilterControlsProps) => {
   const storeProjects = useAppStore(s => s.data.projects);
   const filters = useAppStore(s => s.filters);
@@ -82,33 +85,34 @@ export const FilterControls = ({ projects, idPrefix = 'project-filters', variant
   };
 
   const gridClass = variant === 'compact'
-    ? 'grid gap-3 sm:grid-cols-2'
-    : 'grid gap-3 md:grid-cols-[minmax(220px,1fr)_150px_220px_180px_auto] md:items-end';
+    ? 'grid grid-cols-2 gap-2 sm:gap-3'
+    : 'grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-[minmax(220px,1fr)_150px_220px_180px_auto] md:items-end';
+  const searchFieldClass = variant === 'compact' ? 'col-span-2' : 'col-span-2 md:col-span-1';
   const clearButtonClass = variant === 'compact'
-    ? 'sm:col-span-2 rounded-lg border border-primary-200 px-3 py-2 text-sm font-medium text-primary-700 transition hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-transparent'
-    : 'rounded-lg border border-primary-200 px-3 py-2 text-sm font-medium text-primary-700 transition hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-transparent';
+    ? 'col-span-2 rounded-lg border border-[var(--color-soft-border)] px-3 py-2 text-sm font-medium text-primary-700 transition hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:border-[var(--color-soft-border)] disabled:text-gray-400 disabled:hover:bg-transparent'
+    : 'col-span-2 rounded-lg border border-[var(--color-soft-border)] px-3 py-2 text-sm font-medium text-primary-700 transition hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:border-[var(--color-soft-border)] disabled:text-gray-400 disabled:hover:bg-transparent md:col-span-1';
 
   return (
-    <div className={gridClass}>
-      <div className={variant === 'compact' ? 'sm:col-span-2' : undefined}>
-        <label htmlFor={`${idPrefix}-search-input`} className="mb-1 block text-xs font-semibold uppercase tracking-wide text-text-muted">Search</label>
+    <div className={gridClass} data-testid={`${idPrefix}-controls`}>
+      <div className={searchFieldClass} data-testid={`${idPrefix}-search-field`}>
+        <label htmlFor={`${idPrefix}-search-input`} className={labelClass}>Search</label>
         <input
           id={`${idPrefix}-search-input`}
           type="text"
           value={localSearch}
           onChange={(event) => setLocalSearch(event.target.value)}
           placeholder="Projects, experts, places, keywords..."
-          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className={controlClass}
         />
       </div>
 
       <div>
-        <label htmlFor={`${idPrefix}-status-filter`} className="mb-1 block text-xs font-semibold uppercase tracking-wide text-text-muted">Status</label>
+        <label htmlFor={`${idPrefix}-status-filter`} className={labelClass}>Status</label>
         <select
           id={`${idPrefix}-status-filter`}
           value={filters.statusFilter}
           onChange={(event) => handleStatusChange(event.target.value as FilterState['statusFilter'])}
-          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className={controlClass}
         >
           <option value="all">All status</option>
           {options.statuses.map((status) => (
@@ -118,12 +122,12 @@ export const FilterControls = ({ projects, idPrefix = 'project-filters', variant
       </div>
 
       <div>
-        <label htmlFor={`${idPrefix}-field-filter`} className="mb-1 block text-xs font-semibold uppercase tracking-wide text-text-muted">Category</label>
+        <label htmlFor={`${idPrefix}-field-filter`} className={labelClass}>Category</label>
         <select
           id={`${idPrefix}-field-filter`}
           value={normalizedFieldFilter}
           onChange={(event) => handleFieldChange(event.target.value)}
-          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className={controlClass}
         >
           <option value="all">All categories</option>
           {options.categories.map((category) => (
@@ -133,12 +137,12 @@ export const FilterControls = ({ projects, idPrefix = 'project-filters', variant
       </div>
 
       <div>
-        <label htmlFor={`${idPrefix}-country-filter`} className="mb-1 block text-xs font-semibold uppercase tracking-wide text-text-muted">Country</label>
+        <label htmlFor={`${idPrefix}-country-filter`} className={labelClass}>Country</label>
         <select
           id={`${idPrefix}-country-filter`}
           value={filters.countryFilter}
           onChange={(event) => handleCountryChange(event.target.value)}
-          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className={controlClass}
         >
           <option value="all">All countries</option>
           {options.countries.map((country) => (

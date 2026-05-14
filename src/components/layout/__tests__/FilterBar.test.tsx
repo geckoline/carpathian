@@ -53,6 +53,8 @@ describe('FilterBar', () => {
   it('renders search input with local state', () => {
     render(<FilterBar />);
     expect(screen.getByRole('textbox', { name: /search/i })).toBeInTheDocument();
+    expect(screen.getByTestId('main-filters-controls')).toHaveClass('grid-cols-2', 'md:grid-cols-[minmax(220px,1fr)_150px_220px_180px_auto]');
+    expect(screen.getByTestId('main-filters-search-field')).toHaveClass('col-span-2', 'md:col-span-1');
   });
 
   it('debounces search input to store', async () => {

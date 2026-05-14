@@ -73,4 +73,21 @@ describe('useApplyAccessibility', () => {
     expect(document.documentElement.classList.contains('dark')).toBe(true);
     expect(document.documentElement.classList.contains('theme-light')).toBe(false);
   });
+
+  it('keeps font scaling, high contrast, reduced motion, and theme classes active together', () => {
+    vi.mocked(useAppStore).mockReturnValue({
+      a11y: { fontSize: 22, highContrast: true, reducedMotion: true },
+      theme: 'dark',
+      setA11y: vi.fn(),
+      setTheme: vi.fn(),
+    });
+
+    renderHook(() => useApplyAccessibility());
+
+    expect(document.documentElement.style.fontSize).toBe('22px');
+    expect(document.documentElement.classList.contains('high-contrast')).toBe(true);
+    expect(document.documentElement.classList.contains('reduced-motion-forced')).toBe(true);
+    expect(document.documentElement.classList.contains('theme-dark')).toBe(true);
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+  });
 });

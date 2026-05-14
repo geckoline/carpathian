@@ -6,6 +6,7 @@ import Modal from '@/components/common/Modal';
 export const AccessibilityControls = () => {
   const { a11y, setA11y } = useAppStore();
   const [isOpen, setIsOpen] = useState(false);
+  const updateFontSize = (value: string) => setA11y({ fontSize: Number(value) });
 
   return (
     <>
@@ -20,12 +21,15 @@ export const AccessibilityControls = () => {
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Accessibility Settings">
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium mb-2">Font Size: {a11y.fontSize}px</label>
+            <label htmlFor="accessibility-font-size" className="block text-sm font-medium mb-2">Font Size: {a11y.fontSize}px</label>
             <input
+              id="accessibility-font-size"
               type="range" min="12" max="24" step="2"
               value={a11y.fontSize}
-              onChange={(e) => setA11y({ fontSize: Number(e.target.value) })}
+              onChange={(e) => updateFontSize(e.target.value)}
+              onInput={(e) => updateFontSize(e.currentTarget.value)}
               className="w-full accent-primary-500"
+              aria-label="Font size"
               aria-valuemin={12} aria-valuemax={24}
             />
           </div>

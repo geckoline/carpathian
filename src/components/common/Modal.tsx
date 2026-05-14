@@ -63,9 +63,9 @@ export const Modal = ({ isOpen, onClose, title, children, size = 'md' }: ModalPr
     >
       <div
         ref={contentRef}
-        className={`relative z-[4010] max-h-[90vh] w-full ${sizes[size]} overflow-y-auto rounded-xl bg-white shadow-[0_24px_80px_rgba(0,0,0,0.35)]`}
+        className={`relative z-[4010] max-h-[90vh] w-full ${sizes[size]} overflow-y-auto rounded-[var(--radius-panel)] border border-[var(--color-panel-border)] bg-[var(--color-panel-surface)] shadow-[var(--shadow-surface)]`}
       >
-        <header className="flex items-center justify-between border-b p-4">
+        <header className="flex items-center justify-between border-b border-[var(--color-panel-border)] p-4">
           <h2 id="modal-title" className="text-lg font-semibold text-primary-700">{title}</h2>
           <button onClick={onClose} className="rounded p-1 hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500" aria-label="Close modal">
             <X size={20} />

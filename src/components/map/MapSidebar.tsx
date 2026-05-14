@@ -3,6 +3,7 @@ import { useAppStore } from '@/store/appStore';
 import FilterControls from '@/components/layout/FilterControls';
 import type { ProjectData } from '@/types/project';
 import { getCategoryLabel } from '@/utils/categories';
+import { getCompactCategoryLabel, getProjectStatusLabel } from '@/utils/projectBadges';
 
 interface MapSidebarProps {
   projects: ProjectData[];
@@ -34,14 +35,14 @@ export const MapSidebar = ({ projects, filterProjects = projects, onAddProject, 
   }, [selectedProjectId, reducedMotion]);
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-panel-border)] bg-white/95 shadow-[var(--shadow-panel)]">
+    <div className="flex h-full flex-col overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-panel-border)] bg-[var(--color-panel-surface)] shadow-[var(--shadow-panel)]">
       <div className="border-b border-[var(--color-panel-border)] p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-xl font-bold text-primary-700">Map Projects</h2>
             <p className="mt-1 text-xs text-text-muted">Select a project to sync the map, popup, and sidebar.</p>
           </div>
-          <span className="rounded-full bg-primary-50 px-3 py-1 text-sm font-semibold text-primary-700">
+          <span className="rounded-full bg-[var(--color-panel-surface-soft)] px-3 py-1 text-sm font-semibold text-primary-700">
             {projects.length}
           </span>
         </div>
@@ -68,7 +69,7 @@ export const MapSidebar = ({ projects, filterProjects = projects, onAddProject, 
         )}
       </div>
 
-      <div className="border-b border-[var(--color-panel-border)] bg-primary-50/40 p-4">
+      <div className="border-b border-[var(--color-panel-border)] bg-[var(--color-panel-surface-soft)] p-4">
         <FilterControls projects={filterProjects} idPrefix="map-sidebar-filters" variant="compact" />
       </div>
 
@@ -77,13 +78,15 @@ export const MapSidebar = ({ projects, filterProjects = projects, onAddProject, 
           projects.map((project) => {
             const isSelected = selectedProjectId === project.id;
             const isPulsing = pulsedProjectId === project.id;
+            const categoryLabel = getCategoryLabel(project.categoryId ?? project.field);
+            const compactCategoryLabel = getCompactCategoryLabel(categoryLabel);
 
             return (
               <button
                 key={project.id}
                 id={`map-sidebar-card-${project.id}`}
                 type="button"
-                className={`relative w-full overflow-hidden rounded-[var(--radius-panel)] border bg-white p-4 text-left transition-all hover:translate-x-1 hover:shadow-[var(--shadow-panel)] focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+                className={`relative w-full overflow-hidden rounded-[var(--radius-panel)] border bg-[var(--color-panel-surface)] p-4 text-left transition-all hover:translate-x-1 hover:shadow-[var(--shadow-panel)] focus:outline-none focus:ring-2 focus:ring-primary-500 ${
                   isSelected
                     ? 'border-primary-500 shadow-[var(--shadow-panel)] ring-2 ring-primary-500/20'
                     : 'border-[var(--color-panel-border)]'
@@ -95,25 +98,29 @@ export const MapSidebar = ({ projects, filterProjects = projects, onAddProject, 
                 <span className="absolute left-0 top-0 h-full w-2 bg-gradient-to-b from-primary-700 to-primary-500" aria-hidden="true" />
                 <span className="mb-2 flex items-start justify-between gap-3">
                   <span className="text-sm font-semibold text-gray-900">{project.name}</span>
-                  <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white ${
-                    project.status === 'active' ? 'bg-status-active' :
-                    project.status === 'planned' ? 'bg-status-planned' :
-                    'bg-status-past'
-                  }`}>
-                    {project.status}
+                  <span
+                    className={`project-status-pill project-status-pill-${project.status} map-sidebar-status-pill badge-single-line`}
+                    data-testid={`map-sidebar-status-${project.id}`}
+                  >
+                    {getProjectStatusLabel(project.status)}
                   </span>
                 </span>
                 <span className="flex items-center gap-2 text-xs text-gray-500">
                   <span>{project.displayLocation || project.regionLabel || project.country || 'Carpathian region'}</span>
-                  <span className="ml-auto rounded-full bg-primary-600 px-2 py-0.5 text-xs font-semibold text-white">
-                    {getCategoryLabel(project.categoryId ?? project.field)}
+                  <span
+                    className="project-category-pill map-sidebar-category-pill badge-single-line ml-auto"
+                    data-testid={`map-sidebar-category-${project.id}`}
+                    title={categoryLabel}
+                    aria-label={`Category: ${categoryLabel}`}
+                  >
+                    {compactCategoryLabel}
                   </span>
                 </span>
               </button>
             );
           })
         ) : (
-          <div className="rounded-[var(--radius-panel)] border border-dashed border-[var(--color-panel-border)] bg-primary-50/60 px-4 py-8 text-center text-sm text-text-muted" role="status">
+          <div className="rounded-[var(--radius-panel)] border border-dashed border-[var(--color-panel-border)] bg-[var(--color-panel-surface-soft)] px-4 py-8 text-center text-sm text-text-muted" role="status">
             <h3 className="text-base font-semibold text-primary-700">No mapped projects</h3>
             <p className="mt-2">Use the filter bar above the cards or add a new project when you have field data.</p>
           </div>

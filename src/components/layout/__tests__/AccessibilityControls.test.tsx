@@ -33,7 +33,7 @@ describe('AccessibilityControls', () => {
     const user = userEvent.setup();
     render(<AccessibilityControls />);
     await user.click(screen.getByLabelText('Accessibility settings'));
-    expect(screen.getByRole('slider')).toBeInTheDocument();
+    expect(screen.getByRole('slider', { name: 'Font size' })).toBeInTheDocument();
   });
 
   it('calls setA11y when slider value changes', async () => {
@@ -43,6 +43,15 @@ describe('AccessibilityControls', () => {
     const range = screen.getByRole('slider');
     fireEvent.change(range, { target: { value: '20' } });
     expect(mockSetA11y).toHaveBeenCalledWith({ fontSize: 20 });
+  });
+
+  it('updates font size from range input events', async () => {
+    const user = userEvent.setup();
+    render(<AccessibilityControls />);
+    await user.click(screen.getByLabelText('Accessibility settings'));
+    const range = screen.getByRole('slider', { name: 'Font size' });
+    fireEvent.input(range, { target: { value: '22' } });
+    expect(mockSetA11y).toHaveBeenCalledWith({ fontSize: 22 });
   });
 
   it('shows toggle switches with aria-checked', async () => {

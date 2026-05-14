@@ -57,6 +57,15 @@ describe('ProjectCard', () => {
     expect(within(front).getByText('Region')).toBeInTheDocument();
     expect(within(front).getByText('Timeline')).toBeInTheDocument();
     expect(within(front).getByText('Lead')).toBeInTheDocument();
+    expect(within(front).getByTestId('project-badge-row')).toBeInTheDocument();
+    expect(within(front).getByTestId('project-title-row')).toHaveClass('project-title-row');
+    expect(within(front).getByTestId('project-badge-row')).toHaveClass('project-badge-stack');
+    expect(within(front).getByTestId('project-status')).toHaveClass('badge-single-line', 'project-status-pill', 'project-status-pill-active');
+    expect(within(front).getByTestId('project-field')).toHaveAttribute('title', 'Biodiversity');
+    expect(within(front).getByTestId('project-field')).toHaveClass('project-category-pill');
+    expect(within(front).getByTestId('project-card-title')).toHaveTextContent('Carpathian Watch');
+    expect(within(front).getByTestId('project-lead-expert')).toHaveClass('lead-meta-row');
+    expect(within(front).getByTestId('project-lead-expert').querySelector('.pulse')).not.toBeInTheDocument();
     expect(within(front).getByTestId('project-location')).toHaveTextContent('3-country mountain corridor');
     expect(within(front).getByTestId('project-year')).toHaveTextContent('2021-2025');
     expect(within(front).getByTestId('project-summary')).toHaveTextContent('Draft-ready project summary for the front face.');
@@ -68,6 +77,29 @@ describe('ProjectCard', () => {
     expect(within(front).getByTestId('flip-to-back')).toBeInTheDocument();
     expect(container.querySelector('[data-testid="project-card-stage"]')).toHaveClass('card-flip-stage');
     expect(screen.getByTestId('project-face-back')).toHaveClass('project-card-backdrop');
+    expect(container.querySelector('article')).toHaveClass('project-card-shell', 'card-auto-height-shell');
+  });
+
+  it('keeps long category labels compact while preserving the full accessible label', () => {
+    render(<ProjectCard {...mockProject} field="Industry & Infrastructure" />);
+    const fieldBadge = within(screen.getByTestId('project-face-front')).getByTestId('project-field');
+
+    expect(fieldBadge).toHaveTextContent('Infrastructure');
+    expect(fieldBadge).toHaveAttribute('title', 'Industry & Infrastructure');
+    expect(fieldBadge).toHaveAttribute('aria-label', 'Category: Industry & Infrastructure');
+    expect(fieldBadge).toHaveClass('badge-single-line', 'project-category-pill');
+  });
+
+  it.each([
+    ['active', 'Active', 'project-status-pill-active'],
+    ['planned', 'Planned', 'project-status-pill-planned'],
+    ['past', 'Past', 'project-status-pill-past'],
+  ] as const)('uses the subtle color-coded %s status pill', (status, label, statusClass) => {
+    render(<ProjectCard {...mockProject} status={status} />);
+
+    const statusBadge = within(screen.getByTestId('project-face-front')).getByTestId('project-status');
+    expect(statusBadge).toHaveTextContent(label);
+    expect(statusBadge).toHaveClass('project-status-pill', statusClass);
   });
 
   it('renders lead expert action and selects the related expert', async () => {
@@ -142,11 +174,18 @@ describe('ProjectCard', () => {
     vi.mocked(useCardFlip).mockReturnValue({ isFlipped: true, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() });
     render(<ProjectCard {...mockProject} />);
     const back = screen.getByTestId('project-face-back');
+    expect(within(back).getByTestId('project-badge-row')).toHaveClass('project-badge-stack');
     expect(within(back).getByText('Monitoring deforestation across northern ranges. Full text expands on toggle.')).toBeInTheDocument();
+    expect(within(back).getByText('Overview')).toBeInTheDocument();
     expect(within(back).getByTestId('project-back-summary')).toBeInTheDocument();
+    expect(within(back).getByTestId('project-back-summary').closest('.notebook-section')).not.toBeNull();
+    expect(within(back).getByTestId('project-detail-list')).toHaveClass('notebook-detail-list');
     expect(within(back).getByText('Contact')).toBeInTheDocument();
     expect(within(back).getByText('Focus')).toBeInTheDocument();
     expect(within(back).getByText('Outputs')).toBeInTheDocument();
+    expect(within(back).getByTestId('project-contact-detail')).toHaveClass('notebook-detail-item');
+    expect(within(back).getByTestId('project-focus-detail')).toHaveClass('notebook-detail-item');
+    expect(within(back).getByTestId('project-outputs-detail')).toHaveClass('notebook-detail-item');
     expect(within(back).getByText('citizen-science@carpathian.org')).toBeInTheDocument();
     expect(within(back).getByText('Pollinators, habitat fragmentation, community mapping')).toBeInTheDocument();
     expect(within(back).getByText('Atlas layers, species reports, volunteer participation metrics')).toBeInTheDocument();
