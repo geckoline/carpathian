@@ -1,5 +1,6 @@
 import { useAppStore } from '@/store/appStore';
 import { useCardFlip } from '@/hooks/useCardFlip';
+import { useCardShare } from '@/hooks/useCardShare';
 import { getLocalExpertPortraitPath } from './expertProfileImage';
 
 const getInitials = (name: string) => {
@@ -96,6 +97,7 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
   avatarUrl,
 }) => {
   const { isFlipped, isFlipping, toggle } = useCardFlip({ durationMs: 600 });
+  const dataset = useAppStore((s) => s.dataset);
   const selectedExpertId = useAppStore((s) => s.ui.selectedExpertId);
   const reducedMotion = useAppStore((s) => s.a11y.reducedMotion);
   const isSelected = selectedExpertId === id;
@@ -105,6 +107,11 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
   const idProfilePictureSrc = getLocalExpertPortraitPath(id);
   const profilePictureSrc = isLocalProfilePicture(avatarUrl) ? avatarUrl : idProfilePictureSrc;
   const secondaryAvatarSrc = profilePictureSrc === idProfilePictureSrc ? avatarUrl : idProfilePictureSrc;
+  const { copy: handleCopy } = useCardShare({
+    kind: 'expert',
+    id,
+    dataset,
+  });
   const socialLinks: SocialLink[] = [
     ...(email ? [{ href: `mailto:${email}`, label: 'Mail', ariaLabel: 'Send email', testKey: 'contact-email' }] : []),
     ...(linkedin ? [{ href: linkedin, label: 'LinkedIn', ariaLabel: 'LinkedIn profile', testKey: 'linkedin', external: true }] : []),
@@ -112,11 +119,6 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
     ...(googleScholar ? [{ href: googleScholar, label: 'Scholar', ariaLabel: 'Google Scholar profile', testKey: 'google-scholar', external: true }] : []),
     ...(orcid ? [{ href: orcid, label: 'ORCID', ariaLabel: 'ORCID profile', testKey: 'orcid', external: true }] : []),
   ];
-
-  const handleCopy = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(`${window.location.origin}/expert/${id}`).catch(() => {});
-  };
 
   const handleSurfaceFlip = (e: React.MouseEvent<HTMLElement>) => {
     const target = e.target as HTMLElement;
@@ -178,8 +180,9 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
           ? 'hover:shadow-[var(--shadow-card)]'
           : 'transition-all duration-200 [perspective:1600px] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-1'
       } ${isSelected ? 'ring-2 ring-primary-500 ring-offset-2' : ''} focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2`}
+      id={`expert-card-${id}`}
       data-testid={`expert-card-${isFlipped ? 'back' : 'front'}`}
-      aria-labelledby={`expert-card-${id}`}
+      aria-labelledby={`expert-card-title-${id}`}
     >
       <div
         data-testid="expert-card-stage"
@@ -192,7 +195,7 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
           onClick={handleSurfaceFlip}
         >
           <header data-testid="expert-front-header" className="header profile-header profile-header-safe">
-            <h3 id={`expert-card-${id}`}>{name}</h3>
+            <h3 id={`expert-card-title-${id}`}>{name}</h3>
             <p className="expert-subtitle" data-testid="expert-subtitle">{frontSubtitle}</p>
             {renderAvatar()}
           </header>

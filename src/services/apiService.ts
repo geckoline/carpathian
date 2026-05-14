@@ -5,6 +5,7 @@ import type {
   AppExpertRow,
   AppProjectRow,
   ExpertInsert,
+  Json,
   ProjectInsert,
   VolunteerSubscriptionCategoryInsert,
   VolunteerSubscriptionInsert,
@@ -102,6 +103,7 @@ export const toExpertData = (expert: AppExpertRow): ExpertData => ({
   googleScholar: optionalString(expert.google_scholar),
   avatarUrl: optionalString(expert.avatar_url),
   isCitizenScience: expert.is_cs === true,
+  importMetadata: expert.import_metadata as Record<string, unknown> | undefined,
 });
 
 export const apiService = {
@@ -165,12 +167,13 @@ export const apiService = {
       bio: expert.bio ?? null,
       expertise: expert.expertise ?? [],
       publications: expert.publications ?? 0,
-      email: expert.email ?? null,
+      email: expert.email ?? '',
       linkedin: expert.linkedin ?? null,
       scopus: expert.scopus ?? null,
       orcid: expert.orcid ?? null,
       google_scholar: expert.googleScholar ?? null,
       avatar_url: expert.avatarUrl ?? null,
+      import_metadata: (expert.importMetadata ?? {}) as Json,
     };
 
     const { data, error } = await getSupabaseClient()

@@ -105,7 +105,7 @@ describe('dataset tabs', () => {
         sortKey: 'name',
         sortDirection: 'asc',
       },
-      ui: { isMapVisible: true, selectedExpertId: null, selectedProjectId: null, hoveredProjectId: null },
+      ui: { isMapVisible: true, selectedExpertId: null, selectedProjectId: null, isAddExpertOpen: false, expertImportDialog: null, hoveredProjectId: null },
     });
   });
 

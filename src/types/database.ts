@@ -30,12 +30,13 @@ export type ExpertRow = {
   bio: string | null;
   expertise: string[] | null;
   publications: number | null;
-  email: string | null;
+  email: string;
   linkedin: string | null;
   scopus: string | null;
   orcid: string | null;
   google_scholar: string | null;
   avatar_url: string | null;
+  import_metadata: Json;
   created_at: string | null;
   updated_at: string | null;
 };
@@ -157,6 +158,7 @@ export type AppProjectRow = {
 export type AppExpertRow = ExpertRow & {
   projects: number | null;
   is_cs: boolean | null;
+  import_metadata: Json;
 };
 
 export type VolunteerProjectMatchRow = {

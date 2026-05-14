@@ -35,7 +35,7 @@ describe('MapSidebar', () => {
         sortKey: 'name',
         sortDirection: 'asc',
       },
-      ui: { isMapVisible: true, selectedExpertId: null, selectedProjectId: null, hoveredProjectId: null },
+      ui: { isMapVisible: true, selectedExpertId: null, selectedProjectId: null, isAddExpertOpen: false, expertImportDialog: null, hoveredProjectId: null },
       a11y: { fontSize: 16, highContrast: false, reducedMotion: false },
     });
   });
@@ -95,6 +95,8 @@ describe('MapSidebar', () => {
           isMapVisible: true,
           selectedExpertId: null,
           selectedProjectId: mappedProject.id,
+          isAddExpertOpen: false,
+          expertImportDialog: null,
           hoveredProjectId: null,
         },
       });

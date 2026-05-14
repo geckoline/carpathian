@@ -11,7 +11,7 @@ const createMockStore = (overrides: Partial<AppState> = {}) => {
     theme: 'light',
     isOnline: true,
     filters: { searchTerm: '', statusFilter: 'all', fieldFilter: 'all', countryFilter: 'all', activeTab: 'projects', sortKey: 'name' as const, sortDirection: 'asc' as const },
-    ui: { isMapVisible: true, selectedExpertId: null, selectedProjectId: null, hoveredProjectId: null },
+    ui: { isMapVisible: true, selectedExpertId: null, selectedProjectId: null, isAddExpertOpen: false, expertImportDialog: null, hoveredProjectId: null },
     data: { projects: [], experts: [], loading: false, error: null },
     a11y: { fontSize: 16, highContrast: false, reducedMotion: false },
     draftPolygon: null,
@@ -36,6 +36,8 @@ const createMockStore = (overrides: Partial<AppState> = {}) => {
     setA11y: vi.fn(),
     addProject: vi.fn(),
     addExpert: vi.fn(),
+    setAddExpertOpen: vi.fn(),
+    setExpertImportDialog: vi.fn(),
     setHoveredProjectId: vi.fn(),
     setDraftPolygon: vi.fn(),
   };

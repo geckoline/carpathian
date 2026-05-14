@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import type { ProjectData } from '@/types/project';
-import type { ExpertData } from '@/types/expert';
+import type { ExpertData, ExpertFormData } from '@/types/expert';
 import { getCategoryLabel, normalizeCategoryId } from '@/utils/categories';
 
 export type DatasetMode = 'cs' | 'all';
@@ -25,12 +25,25 @@ export type A11yState = {
   reducedMotion: boolean;
 };
 
+export type ExpertImportDialog = {
+  isOpen: boolean;
+  importedData: Partial<ExpertFormData> | null;
+  existingData: Partial<ExpertFormData> | null;
+};
+
 export type AppState = {
   dataset: DatasetMode;
   theme: ThemeMode;
   isOnline: boolean;
   filters: FilterState;
-  ui: { isMapVisible: boolean; selectedExpertId: string | null; selectedProjectId: string | null; hoveredProjectId: string | null };
+  ui: {
+    isMapVisible: boolean;
+    selectedExpertId: string | null;
+    selectedProjectId: string | null;
+    hoveredProjectId: string | null;
+    isAddExpertOpen: boolean;
+    expertImportDialog: ExpertImportDialog | null;
+  };
   data: { projects: ProjectData[]; experts: ExpertData[]; loading: boolean; error: string | null };
   a11y: A11yState;
   draftPolygon: [number, number][] | null;
@@ -58,6 +71,8 @@ export type AppState = {
   addProject: (project: Partial<ProjectData>) => void;
   addExpert: (expert: Partial<ExpertData>) => void;
   setDraftPolygon: (coords: [number, number][] | null) => void;
+  setAddExpertOpen: (open: boolean) => void;
+  setExpertImportDialog: (dialog: ExpertImportDialog | null) => void;
 };
 
 const initialFilters: FilterState = {
@@ -70,7 +85,14 @@ export const useAppStore = create<AppState>()(
     theme: 'light',
     isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
     filters: { ...initialFilters },
-    ui: { isMapVisible: true, selectedExpertId: null, selectedProjectId: null, hoveredProjectId: null },
+    ui: {
+      isMapVisible: true,
+      selectedExpertId: null,
+      selectedProjectId: null,
+      hoveredProjectId: null,
+      isAddExpertOpen: false,
+      expertImportDialog: null,
+    },
     data: { projects: [], experts: [], loading: false, error: null },
     draftPolygon: null,
     a11y: { fontSize: 16, highContrast: false, reducedMotion: false },
@@ -133,5 +155,7 @@ export const useAppStore = create<AppState>()(
       s.data.experts.push(complete);
     }),
     setDraftPolygon: (coords) => set((s) => { s.draftPolygon = coords; }),
+    setAddExpertOpen: (open) => set((s) => { s.ui.isAddExpertOpen = open; }),
+    setExpertImportDialog: (dialog) => set((s) => { s.ui.expertImportDialog = dialog; }),
   }))
 );

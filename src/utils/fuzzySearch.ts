@@ -36,12 +36,13 @@ export const filterProjectsBySearch = (projects: ProjectData[], searchTerm: stri
 
 export const filterExpertsBySearch = (experts: ExpertData[], searchTerm: string) => filterWithFuse(experts, searchTerm, {
   keys: [
-    { name: 'name', weight: 0.28 },
-    { name: 'institution', weight: 0.18 },
-    { name: 'headline', weight: 0.16 },
-    { name: 'expertiseSubtitle', weight: 0.12 },
-    { name: 'expertise', weight: 0.1 },
+    { name: 'name', weight: 0.26 },
+    { name: 'institution', weight: 0.16 },
+    { name: 'headline', weight: 0.14 },
+    { name: 'expertiseSubtitle', weight: 0.10 },
+    { name: 'expertise', weight: 0.10 },
     { name: 'country', weight: 0.08 },
+    { name: 'email', weight: 0.08 },
     { name: 'bio', weight: 0.08 },
   ],
 });

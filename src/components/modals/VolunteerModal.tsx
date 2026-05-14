@@ -49,7 +49,7 @@ export const VolunteerModal = ({ isOpen, onClose, onSubmit, isOnline = true }: V
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Volunteer Project Alerts" size="md">
+    <Modal isOpen={isOpen} onClose={onClose} title="Volunteer Projects" size="md">
       <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-4" noValidate>
         <p className="text-sm text-text-muted">
           Subscribe once and we will match you with citizen science projects near your city when they need local participation.

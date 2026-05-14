@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ProjectCard } from '../ProjectCard';
 import { useCardFlip } from '@/hooks/useCardFlip';
@@ -12,6 +12,7 @@ const storeMocks = vi.hoisted(() => ({
 
 vi.mock('@/store/appStore', () => ({
   useAppStore: vi.fn((sel: (s: any) => any) => sel({
+    dataset: 'cs',
     setSelectedExpertId: storeMocks.setSelectedExpertId,
     setActiveTab: storeMocks.setActiveTab,
     filters: { searchTerm: '' },
@@ -124,7 +125,44 @@ describe('ProjectCard', () => {
     vi.mocked(useCardFlip).mockReturnValue({ isFlipped: false, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() });
     render(<ProjectCard {...mockProject} />);
     await user.click(within(screen.getByTestId('project-face-front')).getByTestId('copy-project-link'));
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringContaining('/project/p1'));
+
+    const expectedUrl = `${window.location.origin}/?dataset=cs&tab=projects&card=project&id=p1#project-card-p1`;
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expectedUrl);
+    expect(screen.queryByTestId('copied-card-preview')).not.toBeInTheDocument();
+    expect(screen.queryByText(/project link copied/i)).not.toBeInTheDocument();
+    expect(within(screen.getByTestId('project-face-front')).getByRole('button', { name: /copy project link/i })).toHaveTextContent('Copy');
+  });
+
+  it('uses the legacy copy fallback when the Clipboard API rejects', async () => {
+    vi.spyOn(navigator.clipboard, 'writeText').mockRejectedValue(new Error('denied'));
+    const execCommand = vi.fn().mockReturnValue(true);
+    Object.defineProperty(document, 'execCommand', {
+      configurable: true,
+      value: execCommand,
+    });
+    const user = userEvent.setup();
+    render(<ProjectCard {...mockProject} />);
+
+    await user.click(within(screen.getByTestId('project-face-front')).getByTestId('copy-project-link'));
+
+    expect(execCommand).toHaveBeenCalledWith('copy');
+    expect(screen.queryByTestId('copied-card-preview')).not.toBeInTheDocument();
+  });
+
+  it('keeps copy failure silent when project link copy cannot be confirmed', async () => {
+    vi.spyOn(navigator.clipboard, 'writeText').mockRejectedValue(new Error('denied'));
+    Object.defineProperty(document, 'execCommand', {
+      configurable: true,
+      value: undefined,
+    });
+    const user = userEvent.setup();
+    render(<ProjectCard {...mockProject} />);
+
+    await user.click(within(screen.getByTestId('project-face-front')).getByTestId('copy-project-link'));
+
+    expect(screen.queryByTestId('copied-card-preview')).not.toBeInTheDocument();
+    expect(screen.queryByText(/project share link ready/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/copy failed/i)).not.toBeInTheDocument();
   });
 
   it('does not render per-project volunteer actions because volunteer signup is global', () => {
@@ -163,7 +201,7 @@ describe('ProjectCard', () => {
     const front = screen.getByTestId('project-face-front');
     within(front).getByRole('button', { name: /copy project link/i }).focus();
     await user.keyboard('[Enter]');
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringContaining('/project/p1'));
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(`${window.location.origin}/?dataset=cs&tab=projects&card=project&id=p1#project-card-p1`);
 
     within(front).getByRole('button', { name: /view project details/i }).focus();
     await user.keyboard('[Enter]');
@@ -186,11 +224,23 @@ describe('ProjectCard', () => {
     expect(within(back).getByTestId('project-contact-detail')).toHaveClass('notebook-detail-item');
     expect(within(back).getByTestId('project-focus-detail')).toHaveClass('notebook-detail-item');
     expect(within(back).getByTestId('project-outputs-detail')).toHaveClass('notebook-detail-item');
-    expect(within(back).getByText('citizen-science@carpathian.org')).toBeInTheDocument();
+    expect(within(back).getByRole('link', { name: /email citizen-science@carpathian\.org/i })).toHaveAttribute('href', 'mailto:citizen-science@carpathian.org');
     expect(within(back).getByText('Pollinators, habitat fragmentation, community mapping')).toBeInTheDocument();
     expect(within(back).getByText('Atlas layers, species reports, volunteer participation metrics')).toBeInTheDocument();
     expect(within(back).getByRole('button', { name: /copy project link/i })).toBeInTheDocument();
     expect(within(back).getByRole('button', { name: /back/i })).toBeInTheDocument();
+  });
+
+  it('keeps contact email clicks from flipping the project card', () => {
+    const toggle = vi.fn();
+    vi.mocked(useCardFlip).mockReturnValue({ isFlipped: true, isFlipping: false, flip: vi.fn(), toggle, clear: vi.fn() });
+    render(<ProjectCard {...mockProject} />);
+    const contactLink = screen.getByRole('link', { name: /email citizen-science@carpathian\.org/i });
+    contactLink.addEventListener('click', (event) => event.preventDefault());
+
+    fireEvent.click(contactLink);
+
+    expect(toggle).not.toHaveBeenCalled();
   });
 
   it('keeps long back content scrollable while footer actions remain reachable', () => {

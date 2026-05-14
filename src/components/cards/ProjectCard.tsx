@@ -1,5 +1,6 @@
 import { useAppStore } from '@/store/appStore';
 import { useCardFlip } from '@/hooks/useCardFlip';
+import { useCardShare } from '@/hooks/useCardShare';
 import { highlightText } from '@/utils/highlightText';
 import { getCompactCategoryLabel, getProjectStatusLabel } from '@/utils/projectBadges';
 
@@ -75,6 +76,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   contact,
 }) => {
   const { isFlipped, isFlipping, toggle } = useCardFlip({ durationMs: 600 });
+  const dataset = useAppStore((s) => s.dataset);
   const searchTerm = useAppStore((s) => s.filters?.searchTerm ?? '');
   const reducedMotion = useAppStore((s) => s.a11y.reducedMotion);
   const setSelectedExpertId = useAppStore((s) => s.setSelectedExpertId);
@@ -85,11 +87,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const outputsLabel = outputsSummary ?? getOutputsLabel(isCitizenScience);
   const statusLabel = getProjectStatusLabel(status);
   const compactFieldLabel = getCompactCategoryLabel(field);
-
-  const handleCopy = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(`${window.location.origin}/project/${id}`).catch(() => {});
-  };
+  const contactEmail = contact ?? 'citizen-science@carpathian.org';
+  const { copy: handleCopy } = useCardShare({
+    kind: 'project',
+    id,
+    dataset,
+  });
 
   const handleLeadExpertClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -118,8 +121,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           ? 'hover:shadow-[var(--shadow-card)]'
           : 'transition-all duration-200 [perspective:1600px] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-1'
       }`}
+      id={`project-card-${id}`}
       data-testid={`project-card-${isFlipped ? 'back' : 'front'}`}
-      aria-labelledby={`project-card-${id}`}
+      aria-labelledby={`project-card-title-${id}`}
     >
       <div
         data-testid="project-card-stage"
@@ -134,7 +138,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           <header data-testid="project-front-header" className="header project-card-header">
             <div className="project-title-row" data-testid="project-title-row">
               <h3
-                id={`project-card-${id}`}
+                id={`project-card-title-${id}`}
                 data-testid="project-card-title"
                 dangerouslySetInnerHTML={highlightText(name, searchTerm)}
               />
@@ -248,7 +252,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             <div className="detail-list notebook-detail-list" data-testid="project-detail-list">
               <section className="notebook-detail-item" data-testid="project-contact-detail" aria-labelledby={`project-contact-${id}`}>
                 <h4 id={`project-contact-${id}`} className="notebook-section-title">Contact</h4>
-                <p>{contact ?? 'citizen-science@carpathian.org'}</p>
+                <p>
+                  <a
+                    href={`mailto:${contactEmail}`}
+                    className="notebook-link"
+                    onClick={(event) => event.stopPropagation()}
+                    aria-label={`Email ${contactEmail}`}
+                  >
+                    {contactEmail}
+                  </a>
+                </p>
               </section>
               <section className="notebook-detail-item" data-testid="project-focus-detail" aria-labelledby={`project-focus-${id}`}>
                 <h4 id={`project-focus-${id}`} className="notebook-section-title">Focus</h4>

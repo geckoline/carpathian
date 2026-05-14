@@ -19,6 +19,7 @@ import { getDatasetExperts, getDatasetProjects } from '@/utils/datasetScope';
 
 const MapView = lazy(() => import('@/components/map/MapView'));
 const AddProjectModal = lazy(() => import('@/components/modals/AddProjectModal'));
+const AddExpertModal = lazy(() => import('@/components/modals/AddExpertModal'));
 const VolunteerModal = lazy(() => import('@/components/modals/VolunteerModal'));
 
 export default function App() {
@@ -37,10 +38,12 @@ export default function App() {
   const isLoading = data.loading && data.projects.length === 0 && !data.error;
 
   const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
+  const [isAddExpertOpen, setIsAddExpertOpen] = useState(false);
   const [isVolunteerOpen, setIsVolunteerOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
   const { submitProject } = useProjectSubmission(setStatusMessage);
   const { submitVolunteerSubscription } = useVolunteerSubscription(setStatusMessage);
+  const addExpert = useAppStore(s => s.addExpert);
 
   const activeProjects = filteredProjects;
   const activeExperts = filteredExperts;
@@ -132,6 +135,7 @@ export default function App() {
               projects={activeProjects}
               filterProjects={projectsToFilter}
               onAddProject={() => setIsAddProjectOpen(true)}
+              onAddExpert={() => setIsAddExpertOpen(true)}
               onVolunteer={() => setIsVolunteerOpen(true)}
             />
           </aside>
@@ -180,6 +184,35 @@ export default function App() {
       {isAddProjectOpen && (
         <Suspense fallback={null}>
           <AddProjectModal isOpen={isAddProjectOpen} onClose={() => setIsAddProjectOpen(false)} onSubmit={async (data) => { await submitProject(data); setIsAddProjectOpen(false); }} isOnline={isOnline} />
+        </Suspense>
+      )}
+      {isAddExpertOpen && (
+        <Suspense fallback={null}>
+          <AddExpertModal
+            isOpen={isAddExpertOpen}
+            onClose={() => setIsAddExpertOpen(false)}
+            onSubmit={async (data) => {
+              addExpert({
+                id: crypto.randomUUID(),
+                name: data.name,
+                institution: data.institution,
+                country: data.country,
+                degree: data.degree,
+                headline: data.headline,
+                expertiseSubtitle: data.expertiseSubtitle,
+                bio: data.bio,
+                expertise: data.expertise,
+                email: data.email,
+                linkedin: data.linkedin,
+                orcid: data.orcid,
+                googleScholar: data.googleScholar,
+                importMetadata: { source: 'manual', importedAt: new Date().toISOString() },
+              });
+              setStatusMessage({ tone: 'success', text: 'Expert added successfully.' });
+              setIsAddExpertOpen(false);
+            }}
+            isOnline={isOnline}
+          />
         </Suspense>
       )}
       {isVolunteerOpen && (

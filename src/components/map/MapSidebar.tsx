@@ -9,10 +9,11 @@ interface MapSidebarProps {
   projects: ProjectData[];
   filterProjects?: ProjectData[];
   onAddProject?: () => void;
+  onAddExpert?: () => void;
   onVolunteer?: () => void;
 }
 
-export const MapSidebar = ({ projects, filterProjects = projects, onAddProject, onVolunteer }: MapSidebarProps) => {
+export const MapSidebar = ({ projects, filterProjects = projects, onAddProject, onAddExpert, onVolunteer }: MapSidebarProps) => {
   const setSelectedProjectId = useAppStore(s => s.setSelectedProjectId);
   const selectedProjectId = useAppStore(s => s.ui.selectedProjectId);
   const reducedMotion = useAppStore(s => s.a11y.reducedMotion);
@@ -56,6 +57,15 @@ export const MapSidebar = ({ projects, filterProjects = projects, onAddProject, 
             className="flex-1 rounded-lg bg-primary-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             + Add Project
+          </button>
+        )}
+        {onAddExpert && (
+          <button
+            type="button"
+            onClick={onAddExpert}
+            className="flex-1 rounded-lg bg-primary-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            + Add Expert
           </button>
         )}
         {onVolunteer && (

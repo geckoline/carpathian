@@ -1,12 +1,12 @@
 import '@testing-library/jest-dom/vitest';
 import { beforeEach, describe, it, expect, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ExpertCard } from '../ExpertCard';
 import { useCardFlip } from '@/hooks/useCardFlip';
 
 vi.mock('@/store/appStore', () => ({
-  useAppStore: vi.fn((sel: any) => sel({ ui: { selectedExpertId: null }, a11y: { reducedMotion: false } }))
+  useAppStore: vi.fn((sel: any) => sel({ dataset: 'cs', ui: { selectedExpertId: null }, a11y: { reducedMotion: false } }))
 }));
 vi.mock('@/hooks/useCardFlip', () => ({
   useCardFlip: vi.fn(() => ({ isFlipped: false, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() }))
@@ -24,12 +24,14 @@ const mockExpert = {
 describe('ExpertCard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    if (!navigator.clipboard) {
-      Object.defineProperty(navigator, 'clipboard', {
-        configurable: true,
-        value: { writeText: vi.fn().mockResolvedValue(undefined) },
-      });
-    }
+    Object.defineProperty(globalThis.navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: vi.fn().mockResolvedValue(undefined) },
+    });
+    Object.defineProperty(window.navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: vi.fn().mockResolvedValue(undefined) },
+    });
     vi.mocked(useCardFlip).mockReturnValue({ isFlipped: false, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() });
   });
 
@@ -62,17 +64,34 @@ describe('ExpertCard', () => {
     expect(within(front).getByTestId('expert-front-content')).toHaveClass('card-content-scroll');
   });
 
-  it('copies link and stops propagation', async () => {
-    const writeText = vi.fn().mockResolvedValue(undefined);
-    Object.defineProperty(navigator, 'clipboard', {
-      configurable: true,
-      value: { writeText },
-    });
+  it('copies canonical share link and shows copied preview', async () => {
     vi.mocked(useCardFlip).mockReturnValue({ isFlipped: false, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() });
+    const user = userEvent.setup();
+    const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined);
     render(<ExpertCard {...mockExpert} />);
 
-    within(screen.getByTestId('expert-face-front')).getByTestId('copy-expert-link').click();
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('/expert/e1'));
+    await user.click(within(screen.getByTestId('expert-face-front')).getByTestId('copy-expert-link'));
+
+    const expectedUrl = `${window.location.origin}/?dataset=cs&tab=experts&card=expert&id=e1#expert-card-e1`;
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith(expectedUrl));
+    expect(screen.queryByTestId('copied-card-preview')).not.toBeInTheDocument();
+    expect(screen.queryByText(/expert link copied/i)).not.toBeInTheDocument();
+  });
+
+  it('keeps copy failure silent when expert link copy cannot be confirmed', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(navigator.clipboard, 'writeText').mockRejectedValue(new Error('denied'));
+    Object.defineProperty(document, 'execCommand', {
+      configurable: true,
+      value: undefined,
+    });
+    render(<ExpertCard {...mockExpert} />);
+
+    await user.click(within(screen.getByTestId('expert-face-front')).getByTestId('copy-expert-link'));
+
+    expect(screen.queryByTestId('copied-card-preview')).not.toBeInTheDocument();
+    expect(screen.queryByText(/expert share link ready/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/copy failed/i)).not.toBeInTheDocument();
   });
 
   it('uses the id-based local profile picture path on the front face', () => {
@@ -179,7 +198,7 @@ describe('ExpertCard', () => {
     const front = screen.getByTestId('expert-face-front');
     within(front).getByRole('button', { name: /copy expert link/i }).focus();
     await user.keyboard('[Enter]');
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringContaining('/expert/e1'));
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(`${window.location.origin}/?dataset=cs&tab=experts&card=expert&id=e1#expert-card-e1`);
 
     within(front).getByRole('button', { name: /view expert details/i }).focus();
     await user.keyboard('[Enter]');

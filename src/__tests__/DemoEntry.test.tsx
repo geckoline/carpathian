@@ -75,6 +75,8 @@ beforeEach(() => {
       isMapVisible: true,
       selectedExpertId: null,
       selectedProjectId: null,
+      isAddExpertOpen: false,
+      expertImportDialog: null,
       hoveredProjectId: null,
     },
   });

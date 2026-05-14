@@ -63,7 +63,7 @@ describe('SmoothScroll', () => {
     useAppStore.setState({
       data: { projects: [{ ...mockProject, lat: 47.5, lng: 25.0 } as any], experts: [], loading: false, error: null },
       filters: { searchTerm: '', statusFilter: 'all', fieldFilter: 'all', countryFilter: 'all', activeTab: 'projects', sortKey: 'name' as const, sortDirection: 'asc' as const },
-      ui: { isMapVisible: true, selectedExpertId: null, selectedProjectId: null, hoveredProjectId: null },
+      ui: { isMapVisible: true, selectedExpertId: null, selectedProjectId: null, isAddExpertOpen: false, expertImportDialog: null, hoveredProjectId: null },
       draftPolygon: null,
       a11y: { fontSize: 16, highContrast: false, reducedMotion: false },
     });

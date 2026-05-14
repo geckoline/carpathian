@@ -41,19 +41,19 @@ create table public.experts (
   bio text,
   expertise text[] not null default '{}',
   publications integer not null default 0 check (publications >= 0),
-  email varchar,
+  email varchar not null,
   linkedin text,
   scopus text,
   orcid text,
   google_scholar text,
   avatar_url text,
+  import_metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  constraint email_format check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
 );
 
-create unique index experts_email_unique_idx
-  on public.experts (lower(email))
-  where email is not null;
+create unique index experts_email_unique_idx on public.experts (lower(email));
 
 create table public.projects (
   id uuid primary key default extensions.gen_random_uuid(),
@@ -356,6 +356,7 @@ select
   e.orcid,
   e.google_scholar,
   e.avatar_url,
+  e.import_metadata,
   exists (
     select 1
     from public.project_experts pe

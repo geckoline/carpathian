@@ -706,6 +706,20 @@ html.high-contrast .project-category-pill {
   line-height: 1.55;
 }
 
+.notebook-link {
+  color: #236748;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: rgb(35 103 72 / 0.32);
+  text-underline-offset: 0.18em;
+}
+
+.notebook-link:hover,
+.notebook-link:focus-visible {
+  color: #164b33;
+  text-decoration-color: currentColor;
+}
+
 .profile-header {
   min-height: 124px;
   padding-right: 130px;
