@@ -159,6 +159,7 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
         isOnline={isOnline}
         submitError={submitError}
         onSubmit={handleSubmit(handleSubmitForm)}
+        initialFocus="#expert-name"
       >
         <div className="grid grid-cols-2 gap-4">
             <div>

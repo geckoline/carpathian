@@ -45,7 +45,7 @@ describe('VolunteerModal', () => {
     render(<VolunteerModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} />);
 
     await fillVolunteerForm(user);
-    await user.click(screen.getByRole('button', { name: /Subscribe for alerts/i }));
+    await user.click(screen.getByRole('button', { name: /Subscribe to Volunteer alerts/i }));
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalledWith(expect.objectContaining({
@@ -70,21 +70,21 @@ describe('VolunteerModal', () => {
     await user.type(screen.getByLabelText(/City/i), 'Brasov');
     await user.type(screen.getByLabelText(/Country/i), 'Romania');
     await user.click(screen.getByLabelText('Biodiversity'));
-    await user.click(screen.getByRole('button', { name: /Subscribe for alerts/i }));
+    await user.click(screen.getByRole('button', { name: /Subscribe to Volunteer alerts/i }));
 
     expect(await screen.findByText(/Consent is required/i)).toBeInTheDocument();
     expect(mockOnSubmit).not.toHaveBeenCalled();
   });
 
   it('shows submit error and keeps modal open when onSubmit rejects', async () => {
-    mockOnSubmit.mockRejectedValueOnce(new Error('Volunteer subscription failed'));
+    mockOnSubmit.mockRejectedValueOnce(new Error('Volunteer alert failed'));
     const user = userEvent.setup();
     render(<VolunteerModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} />);
 
     await fillVolunteerForm(user);
-    await user.click(screen.getByRole('button', { name: /Subscribe for alerts/i }));
+    await user.click(screen.getByRole('button', { name: /Subscribe to Volunteer alerts/i }));
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Volunteer subscription failed');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Volunteer alert failed');
     expect(mockOnClose).not.toHaveBeenCalled();
   });
 
@@ -92,7 +92,7 @@ describe('VolunteerModal', () => {
     render(<VolunteerModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} isOnline={false} />);
 
     expect(screen.getByRole('alert')).toHaveTextContent(/offline/i);
-    expect(screen.getByRole('button', { name: /subscribe for alerts/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /subscribe to volunteer alerts/i })).toBeDisabled();
   });
 
   it('has no accessibility violations', async () => {

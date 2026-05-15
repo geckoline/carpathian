@@ -65,6 +65,13 @@ describe('ExpertCard', () => {
     expect(within(front).getByTestId('expert-front-content')).toHaveClass('card-content-scroll');
   });
 
+  it('links the institution when an institution website is available', () => {
+    render(<ExpertCard {...mockExpert} institutionWebsite="https://unibuc.ro" />);
+    const institution = within(screen.getByTestId('expert-face-front')).getByTestId('expert-institution');
+
+    expect(within(institution).getByRole('link', { name: 'Univ. of Bucharest' })).toHaveAttribute('href', 'https://unibuc.ro');
+  });
+
   it('copies canonical share link and shows copied preview', async () => {
     vi.mocked(useCardFlip).mockReturnValue({ isFlipped: false, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() });
     const user = userEvent.setup();

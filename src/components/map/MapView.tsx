@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useState, useMemo, type ComponentType, type ReactNode } from 'react';
+import { Suspense, lazy, useEffect, useState, useMemo, useCallback, type ComponentType, type ReactNode } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { useAppStore } from '@/store/appStore';
@@ -150,12 +150,25 @@ export const MapView = ({ projects: propProjects }: { projects?: ProjectData[] }
   const [mapType, setMapType] = useState<'street' | 'satellite'>('satellite');
   const [showLabels, setShowLabels] = useState(true);
 
-  const handleMapTypeChange = (type: 'street' | 'satellite') => {
+  const handleMapTypeChange = useCallback((type: 'street' | 'satellite') => {
     setMapType(type);
     if (type === 'street') setShowLabels(false);
-  };
+  }, []);
 
-  const toggleLabels = () => setShowLabels(prev => !prev);
+  const toggleLabels = useCallback(() => setShowLabels(prev => !prev), []);
+
+  const projectNameLookup = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const p of projects) map.set(p.id, p.name);
+    return map;
+  }, [projects]);
+
+  const handlePolygonHover = useCallback((projectId: string) => {
+    setHoveredProjectId(projectId);
+  }, []);
+  const handlePolygonHoverEnd = useCallback(() => {
+    setHoveredProjectId(null);
+  }, []);
   const projectMarkers = useMemo(() => displayProjects.map((project) => (
     <Marker
       key={project.id}
@@ -246,10 +259,10 @@ export const MapView = ({ projects: propProjects }: { projects?: ProjectData[] }
               key={p.projectId}
               coords={p.coords}
               style={p.style}
-              onMouseOver={() => setHoveredProjectId(p.projectId)}
-              onMouseOut={() => setHoveredProjectId(null)}
+              onMouseOver={() => handlePolygonHover(p.projectId)}
+              onMouseOut={handlePolygonHoverEnd}
               projectId={p.projectId}
-              projectName={projects.find(pr => pr.id === p.projectId)?.name || 'Unknown'}
+              projectName={projectNameLookup.get(p.projectId) ?? 'Unknown'}
               isSelected={p.isSelected}
             />
           ))}

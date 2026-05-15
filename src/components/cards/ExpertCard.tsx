@@ -1,11 +1,10 @@
 import { useAppStore } from '@/store/appStore';
-import { useCardFlip } from '@/hooks/useCardFlip';
-import { useCardShare } from '@/hooks/useCardShare';
-import { makeSurfaceFlipHandler, extractFirstSentence } from '@/utils/cardInteraction';
+import { extractFirstSentence } from '@/utils/cardInteraction';
 import { LinkedInIcon, ScopusIcon, GoogleScholarIcon, OrcidIcon } from '@/components/ui/SocialIcons';
 import { Mail } from 'lucide-react';
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import { getLocalExpertPortraitPath, isLocalProfilePicture, buildUiAvatarUrl } from './expertProfileImage';
+import { useEffect, useState, useMemo, useCallback, memo } from 'react';
+import { getLocalExpertPortraitPaths, buildUiAvatarUrl } from './expertProfileImage';
+import { CardShell } from './CardShell';
 
 const getFrontSubtitle = (bio: string) => extractFirstSentence(bio, 110);
 const getBackSubtitle = (expertise: string[]) => expertise.slice(0, 3).join(' • ');
@@ -22,6 +21,7 @@ export interface ExpertCardProps {
   id: string;
   name: string;
   institution: string;
+  institutionWebsite?: string;
   country: string;
   degree?: string;
   headline?: string;
@@ -35,13 +35,13 @@ export interface ExpertCardProps {
   scopus?: string;
   orcid?: string;
   googleScholar?: string;
-  avatarUrl?: string;
 }
 
-export const ExpertCard: React.FC<ExpertCardProps> = ({
+export const ExpertCard = memo<ExpertCardProps>(({
   id,
   name,
   institution,
+  institutionWebsite,
   country,
   degree,
   headline,
@@ -55,36 +55,39 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
   scopus,
   orcid,
   googleScholar,
-  avatarUrl,
 }) => {
-  const { isFlipped, isFlipping, toggle } = useCardFlip({ durationMs: 600 });
-  const dataset = useAppStore((s) => s.dataset);
   const selectedExpertId = useAppStore((s) => s.ui.selectedExpertId);
-  const reducedMotion = useAppStore((s) => s.a11y.reducedMotion);
   const isSelected = selectedExpertId === id;
   const frontSubtitle = headline ?? getFrontSubtitle(bio);
   const backSubtitle = expertiseSubtitle ?? getBackSubtitle(expertise);
-  const portraitSrc = useMemo(
-    () => avatarUrl && isLocalProfilePicture(avatarUrl) ? avatarUrl : getLocalExpertPortraitPath(id),
-    [avatarUrl, id]
-  );
+  const portraitSources = useMemo(() => getLocalExpertPortraitPaths(id), [id]);
   const fallbackSrc = useMemo(() => buildUiAvatarUrl(name), [name]);
   const [useFallback, setUseFallback] = useState(false);
+  const [portraitSourceIndex, setPortraitSourceIndex] = useState(0);
+  const portraitSrc = portraitSources[portraitSourceIndex] ?? fallbackSrc;
 
   useEffect(() => {
     let cancelled = false;
     const img = new Image();
     img.onload = () => { if (!cancelled) setUseFallback(false); };
-    img.onerror = () => { if (!cancelled) setUseFallback(true); };
+    img.onerror = () => {
+      if (cancelled) return;
+      const nextIndex = portraitSourceIndex + 1;
+      if (nextIndex < portraitSources.length) {
+        setPortraitSourceIndex(nextIndex);
+        return;
+      }
+      setUseFallback(true);
+    };
     img.src = portraitSrc;
     return () => { cancelled = true; };
-  }, [portraitSrc]);
+  }, [portraitSourceIndex, portraitSrc, portraitSources.length]);
 
-  const { copy: handleCopy, copied } = useCardShare({
-    kind: 'expert',
-    id,
-    dataset,
-  });
+  useEffect(() => {
+    setPortraitSourceIndex(0);
+    setUseFallback(false);
+  }, [portraitSources]);
+
   const socialLinks = useMemo((): (SocialLink & { icon: React.ReactNode })[] => [
     ...(email ? [{ href: `mailto:${email}`, label: 'Mail', icon: <Mail size={14} />, ariaLabel: 'Send email', testKey: 'contact-email' }] : []),
     ...(linkedin ? [{ href: linkedin, label: 'LinkedIn', icon: <LinkedInIcon size={14} />, ariaLabel: 'LinkedIn profile', testKey: 'linkedin', external: true }] : []),
@@ -93,19 +96,28 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
     ...(orcid ? [{ href: orcid, label: 'ORCID', icon: <OrcidIcon size={14} />, ariaLabel: 'ORCID profile', testKey: 'orcid', external: true }] : []),
   ], [email, linkedin, scopus, googleScholar, orcid]);
 
-  const handleSurfaceFlip = useCallback(makeSurfaceFlipHandler(toggle), [toggle]);
-  const handleFlipKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
-      e.preventDefault();
-      toggle();
-    }
-  }, [toggle]);
-
   const renderAvatar = useCallback((hidden = false) => (
     <div className="avatar profile-avatar" aria-hidden={hidden} data-testid="expert-avatar">
       <img src={useFallback ? fallbackSrc : portraitSrc} alt={`${name} portrait`} loading="lazy" />
     </div>
   ), [useFallback, fallbackSrc, portraitSrc, name]);
+
+  const renderInstitution = useCallback(() => (
+    <div data-testid="expert-institution">
+      <strong>Institution:</strong>{' '}
+      {institutionWebsite ? (
+        <a
+          href={institutionWebsite}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="notebook-link"
+          onClick={(event) => event.stopPropagation()}
+        >
+          {institution}
+        </a>
+      ) : institution}
+    </div>
+  ), [institution, institutionWebsite]);
 
   const renderSocialLinks = useCallback((surface: 'front' | 'back') => (
     <div className="social-row" data-testid={surface === 'front' ? 'expert-social-row' : `expert-${surface}-social-row`}>
@@ -129,28 +141,12 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
   ), [socialLinks]);
 
   return (
-    <article
-      className={`card-interactive-shell card-auto-height-shell expert-card-shell relative w-full overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-soft-border)] shadow-[var(--shadow-card)] motion-reduce:transition-none ${
-        reducedMotion
-          ? 'hover:shadow-[var(--shadow-card)]'
-          : 'transition-all duration-200 [perspective:1600px] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-1'
-      } ${isSelected ? 'ring-2 ring-primary-500 ring-offset-2' : ''} focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2`}
-      id={`expert-card-${id}`}
-      data-testid={`expert-card-${isFlipped ? 'back' : 'front'}`}
-      aria-labelledby={`expert-card-title-${id}`}
-    >
-      <div
-        data-testid="expert-card-stage"
-        className={`card-flip-stage relative motion-reduce:transition-none ${reducedMotion ? '' : 'transition-transform duration-600'} ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}
-      >
-        <section
-          data-testid="expert-face-front"
-          aria-hidden={isFlipped}
-          className={`card-face card expert-front ${isFlipped ? 'pointer-events-none' : ''}`}
-          onClick={handleSurfaceFlip}
-          onKeyDown={handleFlipKeyDown}
-          tabIndex={0}
-        >
+    <CardShell
+      id={id}
+      cardType="expert"
+      isSelected={isSelected}
+      front={({ toggle, isFlipping, handleCopy, copied }) => (
+        <>
           <header data-testid="expert-front-header" className="header profile-header profile-header-safe">
             <h3 id={`expert-card-title-${id}`}>{name}</h3>
             <p className="expert-subtitle" data-testid="expert-subtitle">{frontSubtitle}</p>
@@ -159,7 +155,7 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
 
           <div className="body card-content-scroll expert-front-content" data-testid="expert-front-content">
             <div className="expert-identity">
-              <div data-testid="expert-institution"><strong>Institution:</strong> {institution}</div>
+              {renderInstitution()}
               <div data-testid="expert-country"><strong>Country:</strong> {country}</div>
               <div data-testid="expert-degree"><strong>Degree:</strong> {degree || 'N/A'}</div>
             </div>
@@ -178,7 +174,7 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
           <div className="footer expert-footer-column">
             {renderSocialLinks('front')}
             <div className="footer-actions footer-actions-spread">
-              <button type="button" onClick={handleCopy} className="button outline" data-testid="copy-expert-link" aria-label="Copy expert link">
+              <button type="button" onClick={(e: React.MouseEvent) => handleCopy(e)} className="button outline" data-testid="copy-expert-link" aria-label="Copy expert link">
                 {copied ? 'Copied!' : 'Copy'}
               </button>
               <button type="button" onClick={toggle} disabled={isFlipping} className="button" data-testid="flip-to-back" aria-label="View expert details">
@@ -186,16 +182,10 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
               </button>
             </div>
           </div>
-        </section>
-
-        <section
-          data-testid="expert-face-back"
-          aria-hidden={!isFlipped}
-          className={`card-face card card-face-back expert-back expert-card-backdrop ${!isFlipped ? 'pointer-events-none' : ''}`}
-          onClick={handleSurfaceFlip}
-          onKeyDown={handleFlipKeyDown}
-          tabIndex={0}
-        >
+        </>
+      )}
+      back={({ toggle: backToggle, isFlipping: backIsFlipping, handleCopy: backHandleCopy, copied: backCopied }) => (
+        <>
           <header className="header profile-header profile-header-safe">
             <h3>{name}</h3>
             <p className="expert-subtitle" data-testid="expert-back-subtitle">{backSubtitle}</p>
@@ -222,18 +212,18 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
           <div className="footer expert-footer-column">
             {renderSocialLinks('back')}
             <div className="footer-actions footer-actions-spread">
-              <button type="button" onClick={handleCopy} className="button outline" data-testid="copy-expert-back-link" aria-label="Copy expert link">
-                {copied ? 'Copied!' : 'Copy'}
+              <button type="button" onClick={(e: React.MouseEvent) => backHandleCopy(e)} className="button outline" data-testid="copy-expert-back-link" aria-label="Copy expert link">
+                {backCopied ? 'Copied!' : 'Copy'}
               </button>
-              <button type="button" onClick={toggle} disabled={isFlipping} className="button" data-testid="flip-to-front" aria-label="Back to expert summary">
+              <button type="button" onClick={backToggle} disabled={backIsFlipping} className="button" data-testid="flip-to-front" aria-label="Back to expert summary">
                 Back ↻
               </button>
             </div>
           </div>
-        </section>
-      </div>
-    </article>
+        </>
+      )}
+    />
   );
-};
+});
 
 export default ExpertCard;

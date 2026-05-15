@@ -90,10 +90,14 @@ export const useAppStore = create<AppState>()(
     setA11y: (updates) => set((s) => { Object.assign(s.a11y, updates); }),
     addProject: (project) => {
       if (!project.leadExpertId || !project.leadExpertName) {
-        throw new Error('Every project must include a leading expert that exists in the expert dataset.');
+        console.warn('[store] addProject skipped: leadExpertId and leadExpertName are required');
+        return;
       }
       set((s) => {
         const categoryId = normalizeCategoryWithFallback(project.categoryId, project.field);
+        const defined = Object.fromEntries(
+          Object.entries(project).filter(([_, v]) => v !== undefined)
+        ) as Partial<ProjectData>;
         const complete = {
           id: project.id || crypto.randomUUID(),
           name: project.name || 'Untitled',
@@ -107,12 +111,15 @@ export const useAppStore = create<AppState>()(
           lat: project.lat || 47.5,
           lng: project.lng || 25.0,
           isCitizenScience: project.isCitizenScience ?? true,
-          ...project,
+          ...defined,
         } as ProjectData;
         s.data.projects.push(complete);
       });
     },
     addExpert: (expert) => set((s) => {
+      const defined = Object.fromEntries(
+        Object.entries(expert).filter(([_, v]) => v !== undefined)
+      ) as Partial<ExpertData>;
       const complete = {
         id: expert.id || crypto.randomUUID(),
         name: expert.name || 'Anonymous',
@@ -123,7 +130,7 @@ export const useAppStore = create<AppState>()(
         expertise: expert.expertise || [],
         publications: expert.publications ?? 0,
         projects: expert.projects ?? 0,
-        ...expert,
+        ...defined,
       } as ExpertData;
       s.data.experts.push(complete);
     }),

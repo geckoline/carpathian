@@ -1,69 +1,92 @@
-# Round 3 — Remaining Tasks Implementation Plan
+# Round 3 — Implementation Plan
 
-**5 items · ~6-8 hours · KIS approach**
+**Current baseline (2026-05-15): 66 test files, 417 tests, 0 tsc errors, build passes**
 
 ---
 
-## 🔴 1 — Extract `FlippableCard` Wrapper (#62) — ~3 hours
+## Baseline
+
+| Check | Status |
+|-------|--------|
+| `tsc --noEmit` | Pass |
+| `npm run test:run` | 66 files, 417 tests — all passing |
+| `npm run build` | Pass |
+| Statement coverage | 89.93% |
+| Branch coverage | 75.77% |
+| Function coverage | 91.87% |
+| Line coverage | 91.67% |
+
+---
+
+## 🔴 P0 — Dead Code Removal — ~15 min
+
+| File | Reason | Action |
+|------|--------|--------|
+| `src/hooks/useLoadAppData.ts` | Defined but never imported in production (only in its own test) | Delete file + test |
+| `src/utils/geometry.ts` | Defines `simplifyPolygon`, `generateAutoCircle` — only imported in `geometry.test.ts` | Delete file + test |
+
+**Note:** The files flagged in the earlier overview (`useOnlineStatus.ts`, `TileToggle.tsx`, etc.) **no longer exist** — already cleaned up.
+
+---
+
+## 🔴 P1 — Extract `FlippableCard` Wrapper (#62) — ~3 hours
 
 **Goal:** Extract shared card-flip boilerplate from ExpertCard + ProjectCard.
 
-### KIS Approach (NOT render props)
+### Approach
 
-Instead of a complex `FlippableCard` with render props / slots API, use a simple **composition approach**: create a `CardShell` component that wraps the common structure and accepts `front` and `back` as `ReactNode` children.
+Create `src/components/cards/CardShell.tsx` — a composition wrapper that accepts `front`/`back` as `ReactNode` + callbacks.
 
-### Implementation
-
-Create `src/components/cards/CardShell.tsx`:
-
-```tsx
-import { useCallback, type ReactNode } from 'react';
-import { useCardFlip } from '@/hooks/useCardFlip';
-import { useCardShare } from '@/hooks/useCardShare';
-import { makeSurfaceFlipHandler } from '@/utils/cardInteraction';
-
-type CardShellProps = {
-  id: string;
-  shareUrl: string;
-  cardType: 'project' | 'expert';
-  reducedMotion: boolean;
-  front: (toggle: () => void, handleFlipKeyDown: (e: React.KeyboardEvent) => void, handleSurfaceFlip: (e: React.MouseEvent) => void) => ReactNode;
-  back: (toggle: () => void, handleFlipKeyDown: (e: React.KeyboardEvent) => void, handleSurfaceFlip: (e: React.MouseEvent) => void) => ReactNode;
-};
-
-export const CardShell = ({ id, shareUrl, cardType, reducedMotion, front, back }: CardShellProps) => {
-  const { isFlipped, isFlipping, toggle } = useCardFlip({ durationMs: 600 });
-  const { copy: handleCopy, copied } = useCardShare({ kind: cardType, id, dataset: 'cs' });
-
-  const handleSurfaceFlip = useCallback(makeSurfaceFlipHandler(toggle), [toggle]);
-  const handleFlipKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
-      e.preventDefault();
-      toggle();
-    }
-  }, [toggle]);
-
-  // Card shell article, card-flip-stage, front/back face sections, footer buttons
-  // ...common JSX
-};
-```
-
-**Steps:**
-1. Create `CardShell` with the shared flip/share/keyboard logic
-2. Update `ExpertCard` to use `CardShell` — pass front/back as callbacks
-3. Update `ProjectCard` to use `CardShell` — pass front/back as callbacks
+### Steps
+1. Create `CardShell` with shared flip/share/keyboard logic
+2. Update `ExpertCard` to use `CardShell`
+3. Update `ProjectCard` to use `CardShell`
 4. Remove `useCardFlip` + `useCardShare` + `handleSurfaceFlip` + `handleFlipKeyDown` from both cards
-5. Run tests, fix any regressions
+5. Run tests, fix regressions
 
-**TDD:** Existing card tests (406 total) must still pass.
+**TDD:** Existing card tests (417 total) must still pass.
 
 ---
 
-## 🟡 2 — Replace Hardcoded CSS Colors (#76) — ~30 min
+## 🟠 P2 — Coverage Gaps — ~3 hours
 
-**Goal:** Replace hardcoded colors with `var(--color-*)` variables for consistency.
+### P2a — AddExpertModal coverage (currently 29% statements)
 
-### Implementation
+Priority: Highest gap. Add tests for:
+- Form validation paths (missing fields, invalid email)
+- Conflict dialog triggering (imported data conflicts)
+- Submit success/error paths
+- ORCID fetch success/failure
+
+**Target:** 80% statements, 60% branches
+
+### P2b — Branch coverage fixes (<70%)
+
+| File | Branches | Action |
+|------|----------|--------|
+| `apiService.ts` | 45.37% | Add tests for error handling, null field transforms |
+| `AccessibilityControls.tsx` | 50.00% | Toggle state tests |
+| `useVolunteerSubscription.ts` | 50.00% | Success/error path tests |
+| `useRealtimeSync.ts` | 33.33% | Online/offline transitions, fetch errors |
+| `VolunteerModal.tsx` | 62.50% | Consent validation, submit states |
+
+### P2c — Coverage threshold enforcement
+
+Add to `vitest.config.ts`:
+| Metric | Target |
+|--------|--------|
+| Statements | 80% |
+| Branches | 70% |
+| Functions | 80% |
+| Lines | 80% |
+
+Start at current levels to prevent regression, ratchet up per cycle.
+
+---
+
+## 🟡 P3 — CSS Maintenance — ~1.5 hours
+
+### P3a — Replace hardcoded CSS colors (#76) — ~30 min
 
 | Current | Replace with | Lines |
 |---------|-------------|-------|
@@ -72,19 +95,10 @@ export const CardShell = ({ id, shareUrl, cardType, reducedMotion, front, back }
 | `#536057` | `var(--color-text-muted)` | 4 instances |
 | `#1b4d35` | `var(--color-primary-800)` | 1 instance |
 
-**TDD:** Visual check — no behavior change expected. Run tests.
-
----
-
-## 🟠 3 — Split `index.css` by Domain (#48) — ~1 hour
-
-**Goal:** Split the 883-line CSS into domain files for maintainability.
-
-### Plan
+### P3b — Split `index.css` by domain (#48) — ~1 hour
 
 Create:
 - `src/styles/cards.css` — card-face, card-flip-stage, flip animations
-- `src/styles/notebook.css` — notebook-panel, notebook-detail, paper styles
 - `src/styles/a11y.css` — high-contrast, reduced-motion, theme-dark, theme-reduced-color
 - Keep in `index.css`: `@import "tailwindcss"`, font imports, `@theme` tokens, status pills, map styles (~300 lines)
 
@@ -92,28 +106,71 @@ Create:
 
 ---
 
-## 🟢 4 — Add Missing Component Tests (#49) — ~2 hours
+## 🟢 P4 — Missing Tests (#49) — ~2 hours
 
-### Tests to add
-
-1. **`ExportButton.test.tsx`** — test render, CSV export click, JSON export click, disabled state
-2. **`FilterControls.test.tsx`** — test search input, status/field/country selects, clear button, compact variant
-3. **`useCardShare.test.ts`** — test URL generation, clipboard write, copied state, error handling
+1. **`ExportButton.test.tsx`** — render, CSV click, JSON click, disabled state
+2. **`FilterControls.test.tsx`** — search input, dropdown selects, clear button, compact variant
+3. **`useCardShare.test.ts`** — URL generation, clipboard write, copied state, error handling
 
 Keep tests simple — behavior assertions only, no CSS class assertions.
 
 ---
 
-## ⚪ 5 — Integration Test Improvements (#52) — ~1 hour
-
-### Current gaps
-- No integration test for the full filter → card render flow
-- No integration test for URL sync → tab/dataset persistence
-
-### Add
+## ⚪ P5 — Integration Tests (#52) — ~1 hour
 
 1. **`FilterFlow.integration.test.tsx`** — render App with mock data, apply filters, verify card list updates
 2. Extend `DatasetTabs.test.tsx` — test loading state, error state
+
+---
+
+## ⚪ P7 — Quick Code Cleanup (S1-S8) — ~1.5 hours
+
+**S1 — Fix inline `onSubmit` handlers in `App.tsx`** — ~20 min
+Move inline async arrow functions at lines 241, 251-270, 279 into named `useCallback` handlers.
+
+**S2 — Stable `ProjectPolygon` event handlers in `MapView.tsx`** — ~15 min
+Inline `() => setHoveredProjectId(p.projectId)` in `.map()` loop (lines 249-250) create new functions every render. Extract factory via `useCallback`.
+
+**S3 — Fix production `any` types** — ~15 min
+- `src/App.tsx:68`: `(item: any)` → `(item: ProjectData | ExpertData)`
+- `src/hooks/useLoadAppData.ts:5`: `setProjects: any` etc. → proper types (if file survives P0)
+
+**S4 — Add `React.memo` to high-churn components** — ~30 min
+| Component | File |
+|-----------|------|
+| `ProjectCard` | `src/components/cards/ProjectCard.tsx:55` |
+| `ExpertCard` | `src/components/cards/ExpertCard.tsx:41` |
+| `StatsSection` | `src/components/layout/StatsSection.tsx:6` |
+| `ProjectPolygon` | `src/components/map/ProjectPolygon.tsx:15` |
+
+**S5 — Add `useModal` to hooks barrel** — ~5 min
+Add `export { useModal } from './useModal'` to `src/hooks/index.ts`.
+
+**S6 — Graceful error in `addProject` instead of throw** — ~10 min
+`src/store/appStore.ts:92-94` — `throw new Error(...)` inside immer produce. Replace with return value / status.
+
+**S7 — Covered by P0** (`useLoadAppData.ts` gets deleted, ref-in-render issue goes away).
+
+**S8 — Clean up `MapDrawingControl` dynamic import casts** — ~10 min
+`src/components/map/MapDrawingControl.tsx:41-51` — multiple `as` casts for `leaflet-draw`. Replace with strict types or inline module declaration.
+
+---
+
+## ⚪ P6 — Infrastructure — ~1 hour
+
+### CI Pipeline
+
+Create `.github/workflows/ci.yml` with:
+- `tsc --noEmit`
+- `vitest run --coverage`
+- `vite build`
+
+### Accessibility Audit
+
+Manual audit for:
+- Keyboard navigation (tab order, focus indicators, skip links)
+- Screen reader (ARIA labels, roles, live regions)
+- Color contrast (WCAG AA 4.5:1)
 
 ---
 
@@ -121,9 +178,12 @@ Keep tests simple — behavior assertions only, no CSS class assertions.
 
 | # | Item | Effort | Type | Risk |
 |---|------|--------|------|------|
-| 1 | FlippableCard wrapper (#62) | ~3h | Refactor | Medium |
-| 2 | CSS color variables (#76) | ~30m | Polish | Low |
-| 3 | Split index.css (#48) | ~1h | Structure | Low |
-| 4 | Missing tests (#49) | ~2h | Testing | Low |
-| 5 | Integration tests (#52) | ~1h | Testing | Low |
-| **Total** | | **~7.5h** | | |
+| P0 | Dead code removal | ~15m | Cleanup | Low |
+| P1 | FlippableCard wrapper (#62) | ~3h | Refactor | Medium |
+| P2 | Coverage gaps (tests) | ~3h | Testing | Low |
+| P3 | CSS maintenance (#48, #76) | ~1.5h | Structure | Low |
+| P4 | Missing component tests (#49) | ~2h | Testing | Low |
+| P5 | Integration tests (#52) | ~1h | Testing | Low |
+| P6 | Infrastructure (CI, a11y audit) | ~1h | Ops | Low |
+| P7 | Quick code cleanup (S1-S8) | ~1.5h | Cleanup | Low |
+| **Total** | | **~13h** | | |

@@ -138,6 +138,32 @@ describe('AddExpertModal', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Failed to validate profile URL');
   });
 
+
+
+  it('resolves conflicts by confirming', async () => {
+    mockValidateBoth.mockResolvedValue([{
+      source: 'orcid', valid: true,
+      profile: { name: 'Imported Name', affiliation: 'UBB', biography: 'Researcher', country: 'RO', keywords: ['biodiversity'], citedBy: 10 },
+    }]);
+    const user = userEvent.setup();
+    render(<AddExpertModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} />);
+
+    await user.type(screen.getByLabelText(/name \*/i), 'Existing Name');
+    await user.type(screen.getByLabelText(/orcid url \*/i), 'https://orcid.org/0000-0002-1234-5678');
+    const fetchButtons = screen.getAllByRole('button', { name: /fetch profile/i });
+    await user.click(fetchButtons[1]!);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('conflict-fields')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId('confirm-conflicts'));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('conflict-dialog')).not.toBeInTheDocument();
+    });
+  });
+
   it('has no accessibility violations', async () => {
     const { container } = render(<AddExpertModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} />);
     expect(await axe(container)).toHaveNoViolations();

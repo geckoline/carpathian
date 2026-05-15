@@ -272,10 +272,7 @@ Similarly for `renderSocialLinks`.
 
 **#16 — `portraitSrc` + `fallbackSrc` useMemo (lines 67-68):**
 ```ts
-const portraitSrc = useMemo(
-  () => isLocalProfilePicture(avatarUrl) ? avatarUrl : getLocalExpertPortraitPath(id),
-  [avatarUrl, id]
-);
+const portraitSources = useMemo(() => getLocalExpertPortraitPaths(id), [id]);
 const fallbackSrc = useMemo(() => buildUiAvatarUrl(name), [name]);
 ```
 
@@ -659,7 +656,7 @@ Consolidate in `index.css` via `@import`.
 
 ## ✅ Final Status — All 52 Issues Complete
 
-**Tests: 411 passed, 0 failed, 0 errors — 65/65 test files passing**
+**Tests: 417 passed, 0 failed, 0 errors — 66/66 test files passing**
 **TypeScript: 0 errors**
 **Build: Success (470 KB main chunk)**
 

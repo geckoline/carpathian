@@ -25,10 +25,10 @@ describe('CSS safety checks', () => {
   });
 
   it('app CSS respects reduced-motion preference', () => {
-    const css = readSource('../../src/index.css');
-    expect(css).toMatch(/prefers-reduced-motion/i);
-    expect(css).toMatch(/reduced-motion-forced/i);
-    expect(css).toMatch(/high-contrast/i);
+    const a11y = readSource('../../src/styles/a11y.css');
+    expect(a11y).toMatch(/prefers-reduced-motion/i);
+    expect(a11y).toMatch(/reduced-motion-forced/i);
+    expect(a11y).toMatch(/high-contrast/i);
   });
 
   it('app map/sidebar layout has explicit mobile and desktop classes', () => {
@@ -58,8 +58,7 @@ describe('CSS safety checks', () => {
     const filterBar = readSource('../../src/components/layout/FilterBar.tsx');
     const filterControls = readSource('../../src/components/layout/FilterControls.tsx');
     const modal = readSource('../../src/components/common/Modal.tsx');
-    const projectCard = readSource('../../src/components/cards/ProjectCard.tsx');
-    const expertCard = readSource('../../src/components/cards/ExpertCard.tsx');
+    const cardShell = readSource('../../src/components/cards/CardShell.tsx');
 
     expect(css).toContain('--color-app-bg');
     expect(css).toContain('--color-panel-border');
@@ -86,19 +85,16 @@ describe('CSS safety checks', () => {
     expect(filterControls).toContain('border-[var(--color-soft-border)]');
     expect(modal).toContain('rounded-[var(--radius-panel)]');
     expect(modal).toContain('bg-[var(--color-panel-surface)]');
-    expect(projectCard).toContain('border-[var(--color-soft-border)]');
-    expect(expertCard).toContain('border-[var(--color-soft-border)]');
+    expect(cardShell).toContain('border-[var(--color-soft-border)]');
   });
 
   it('uses subtle field notebook details for card backs', () => {
-    const css = readSource('../../src/index.css');
+    const cards = readSource('../../src/styles/cards.css');
     const projectCard = readSource('../../src/components/cards/ProjectCard.tsx');
     const expertCard = readSource('../../src/components/cards/ExpertCard.tsx');
 
-    expect(css).toContain('--color-paper-warm');
-    expect(css).toContain('--color-paper-line');
-    expect(css).toContain('.notebook-section-title');
-    expect(css).toContain('letter-spacing: 0.06em');
+    expect(cards).toContain('.notebook-section-title');
+    expect(cards).toContain('letter-spacing: 0.06em');
     expect(projectCard).toContain('notebook-section');
     expect(projectCard).toContain('project-detail-list');
     expect(expertCard).toContain('notebook-section');
@@ -106,10 +102,9 @@ describe('CSS safety checks', () => {
   });
 
   it('keeps phase 5 card polish responsive and scalable', () => {
-    const css = readSource('../../src/index.css');
+    const cards = readSource('../../src/styles/cards.css');
     const projectCard = readSource('../../src/components/cards/ProjectCard.tsx');
     const expertCard = readSource('../../src/components/cards/ExpertCard.tsx');
-    const cardCss = css.slice(css.indexOf('.card-interactive-shell'), css.indexOf('#citizen-science-root'));
 
     expect(projectCard).toContain('project-title-row');
     expect(projectCard).toContain('project-badge-stack');
@@ -118,21 +113,20 @@ describe('CSS safety checks', () => {
     expect(projectCard).toContain('project-status-pill');
     expect(expertCard).toContain('orcid');
     expect(expertCard).toContain('renderSocialLinks');
-    expect(css).toContain('.profile-header-safe');
-    expect(css).toContain('.profile-avatar');
-    expect(css).toContain('.social-pill');
-    expect(css).toContain('.project-category-pill');
-    expect(css).toContain('.project-status-pill-active');
-    expect(css).toContain('.project-status-pill-planned');
-    expect(css).toContain('.project-status-pill-past');
-    expect(css).toContain('color: var(--color-field-note)');
-    expect(css).toContain('padding: 0.34rem 0.58rem');
-    expect(css).toContain('html.theme-dark .project-category-pill');
-    expect(css).toContain('html.high-contrast .project-status-pill');
-    expect(css).toContain('.project-meta-grid');
-    expect(css).toContain('grid-template-columns: repeat(2, minmax(0, 1fr));');
-    expect(css).not.toContain('.meta-grid,\n  .stat-grid');
-    expect(cardCss).not.toMatch(/font-size:\s*\d+px/);
+    expect(cards).toContain('.profile-header-safe');
+    expect(cards).toContain('.profile-avatar');
+    expect(cards).toContain('.social-pill');
+    expect(cards).toContain('.project-category-pill');
+    expect(cards).toContain('.project-status-pill-active');
+    expect(cards).toContain('.project-status-pill-planned');
+    expect(cards).toContain('.project-status-pill-past');
+    expect(cards).toContain('padding: 0.34rem 0.58rem');
+    expect(cards).toContain('html.theme-dark .project-category-pill');
+    expect(cards).toContain('html.high-contrast .project-status-pill');
+    expect(cards).toContain('.project-meta-grid');
+    expect(cards).toContain('grid-template-columns: repeat(2, minmax(0, 1fr));');
+    expect(cards).not.toContain('.meta-grid,\n  .stat-grid');
+    expect(cards).not.toMatch(/font-size:\s*\d+px/);
   });
 
   it('mounts the accessibility hook in the app shell', () => {

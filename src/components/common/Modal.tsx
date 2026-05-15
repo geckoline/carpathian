@@ -10,9 +10,10 @@ interface ModalProps {
   title: string;
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg';
+  initialFocus?: string;
 }
 
-export const Modal = ({ isOpen, onClose, title, children, size = 'md' }: ModalProps) => {
+export const Modal = ({ isOpen, onClose, title, children, size = 'md', initialFocus = '#modal-close-btn' }: ModalProps) => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
@@ -35,7 +36,7 @@ export const Modal = ({ isOpen, onClose, title, children, size = 'md' }: ModalPr
   }, [onClose]);
 
   const modal = (
-    <FocusTrap focusTrapOptions={{ initialFocus: '#modal-close-btn', fallbackFocus: '#modal-close-btn' }}>
+    <FocusTrap focusTrapOptions={{ initialFocus, fallbackFocus: '#modal-close-btn' }}>
       <motion.div
         ref={overlayRef}
         initial={{ opacity: 0 }}

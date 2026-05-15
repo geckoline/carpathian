@@ -1,18 +1,11 @@
 import { z } from 'zod';
 
-const ProfileImageUrlSchema = z.string().refine((value) => {
-  try {
-    new URL(value);
-    return true;
-  } catch {
-    return value.startsWith('/profile-pictures/') && !value.includes('..');
-  }
-}, 'Expected an absolute URL or a local /profile-pictures/ asset path');
-
 export const ExpertSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1).max(200),
+  institutionId: z.string().min(1).optional(),
   institution: z.string().min(1),
+  institutionWebsite: z.string().url().optional(),
   country: z.string().min(1),
   degree: z.string().optional(),
   headline: z.string().min(10).max(200).optional(),
@@ -26,7 +19,6 @@ export const ExpertSchema = z.object({
   scopus: z.string().url().optional(),
   orcid: z.string().url().optional(),
   googleScholar: z.string().url().optional(),
-  avatarUrl: ProfileImageUrlSchema.optional(),
   isCitizenScience: z.boolean().optional(),
   importMetadata: z.record(z.unknown()).optional(),
 });

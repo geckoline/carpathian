@@ -5,6 +5,7 @@ import type {
   AppExpertRow,
   AppProjectRow,
   ExpertInsert,
+  InstitutionInsert,
   Json,
   ProjectInsert,
   VolunteerSubscriptionCategoryInsert,
@@ -17,6 +18,15 @@ import { mockApi } from './mockApi';
 const optionalString = (value: unknown): string | undefined => {
   return typeof value === 'string' && value.trim().length > 0 ? value : undefined;
 };
+
+const getInstitutionId = (name: string) =>
+  name
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '') || 'independent';
 
 const requiredString = (value: unknown, fieldName: string): string => {
   const normalized = optionalString(value);
@@ -87,7 +97,9 @@ export const toProjectData = (project: AppProjectRow): ProjectData => {
 export const toExpertData = (expert: AppExpertRow): ExpertData => ({
   id: expert.id,
   name: expert.name,
+  institutionId: expert.institution_id,
   institution: expert.institution,
+  institutionWebsite: optionalString(expert.institution_website),
   country: expert.country,
   degree: optionalString(expert.degree),
   headline: optionalString(expert.headline),
@@ -101,9 +113,10 @@ export const toExpertData = (expert: AppExpertRow): ExpertData => ({
   scopus: optionalString(expert.scopus),
   orcid: optionalString(expert.orcid),
   googleScholar: optionalString(expert.google_scholar),
-  avatarUrl: optionalString(expert.avatar_url),
   isCitizenScience: expert.is_cs === true,
-  importMetadata: expert.import_metadata as Record<string, unknown> | undefined,
+  importMetadata: typeof expert.import_metadata === 'object' && expert.import_metadata !== null && !Array.isArray(expert.import_metadata)
+    ? (expert.import_metadata as Record<string, unknown>)
+    : undefined,
 });
 
 export const apiService = {
@@ -157,9 +170,21 @@ export const apiService = {
   },
 
   async addExpert(expert: Partial<ExpertData>) {
+    const institutionName = expert.institution ?? 'Independent';
+    const institutionId = expert.institutionId ?? getInstitutionId(institutionName);
+    const institutionInsert: InstitutionInsert = {
+      id: institutionId,
+      name: institutionName,
+      website: expert.institutionWebsite ?? null,
+    };
+    const { error: institutionError } = await getSupabaseClient()
+      .from('institutions')
+      .upsert(institutionInsert, { onConflict: 'id' });
+    if (institutionError) throw institutionError;
+
     const insert: ExpertInsert = {
       name: expert.name ?? 'Anonymous',
-      institution: expert.institution ?? 'Independent',
+      institution_id: institutionId,
       country: expert.country ?? 'Unknown',
       degree: expert.degree ?? null,
       headline: expert.headline ?? null,
@@ -172,7 +197,6 @@ export const apiService = {
       scopus: expert.scopus ?? null,
       orcid: expert.orcid ?? null,
       google_scholar: expert.googleScholar ?? null,
-      avatar_url: expert.avatarUrl ?? null,
       import_metadata: (expert.importMetadata ?? {}) as Json,
     };
 

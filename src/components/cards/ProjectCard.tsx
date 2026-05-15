@@ -1,10 +1,9 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, memo } from 'react';
 import { useAppStore } from '@/store/appStore';
-import { useCardFlip } from '@/hooks/useCardFlip';
-import { useCardShare } from '@/hooks/useCardShare';
 import { highlightText } from '@/utils/highlightText';
 import { getCompactCategoryLabel, getProjectStatusLabel } from '@/utils/projectBadges';
-import { makeSurfaceFlipHandler, extractFirstSentence } from '@/utils/cardInteraction';
+import { extractFirstSentence } from '@/utils/cardInteraction';
+import { CardShell } from './CardShell';
 
 export interface ProjectCardProps {
   id: string;
@@ -52,7 +51,7 @@ const getOutputsLabel = (isCitizenScience?: boolean) =>
     ? 'Atlas layers, species reports, volunteer participation metrics'
     : 'Atlas layers, research reports, participation metrics';
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({
+export const ProjectCard = memo<ProjectCardProps>(({
   id,
   name,
   status,
@@ -71,7 +70,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   isCitizenScience,
   contact,
 }) => {
-  const { isFlipped, isFlipping, toggle } = useCardFlip({ durationMs: 600 });
   const dataset = useAppStore((s) => s.dataset);
   const searchTerm = useAppStore((s) => s.filters?.searchTerm ?? '');
   const reducedMotion = useAppStore((s) => s.a11y.reducedMotion);
@@ -96,11 +94,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const statusLabel = useMemo(() => getProjectStatusLabel(status), [status]);
   const compactFieldLabel = useMemo(() => getCompactCategoryLabel(field), [field]);
   const contactEmail = useMemo(() => contact ?? 'citizen-science@carpathian.org', [contact]);
-  const { copy: handleCopy, copied } = useCardShare({
-    kind: 'project',
-    id,
-    dataset,
-  });
 
   const handleLeadExpertClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -114,37 +107,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     });
   }, [leadExpertId, reducedMotion, setSelectedExpertId, setActiveTab]);
 
-  const handleSurfaceFlip = useCallback(makeSurfaceFlipHandler(toggle), [toggle]);
-  const handleFlipKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
-      e.preventDefault();
-      toggle();
-    }
-  }, [toggle]);
-
   return (
-    <article
-      className={`card-interactive-shell card-auto-height-shell project-card-shell relative w-full overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-soft-border)] shadow-[var(--shadow-card)] motion-reduce:transition-none ${
-        reducedMotion
-          ? 'hover:shadow-[var(--shadow-card)]'
-          : 'transition-all duration-200 [perspective:1600px] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-1'
-      }`}
-      id={`project-card-${id}`}
-      data-testid={`project-card-${isFlipped ? 'back' : 'front'}`}
-      aria-labelledby={`project-card-title-${id}`}
-    >
-      <div
-        data-testid="project-card-stage"
-        className={`card-flip-stage relative motion-reduce:transition-none ${reducedMotion ? '' : 'transition-transform duration-600'} ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}
-      >
-        <section
-          data-testid="project-face-front"
-          aria-hidden={isFlipped}
-          className={`card-face card project-front ${isFlipped ? 'pointer-events-none' : ''}`}
-          onClick={handleSurfaceFlip}
-          onKeyDown={handleFlipKeyDown}
-          tabIndex={0}
-        >
+    <CardShell
+      id={id}
+      cardType="project"
+      dataset={dataset}
+      front={({ toggle, isFlipping, handleCopy, copied }) => (
+        <>
           <header data-testid="project-front-header" className="header project-card-header">
             <div className="project-title-row" data-testid="project-title-row">
               <h3
@@ -196,8 +165,19 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             />
           </div>
 
-          <div className="footer">
-            <div className="footer-actions">
+          <div className="footer project-footer-actions">
+            <div className="footer-actions project-footer-left">
+              <button
+                type="button"
+                onClick={(e: React.MouseEvent) => handleCopy(e)}
+                className="button outline"
+                data-testid="copy-project-link"
+                aria-label="Copy project link"
+              >
+                {copied ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+            <div className="footer-actions project-footer-center">
               {website ? (
                 <a
                   href={website}
@@ -209,17 +189,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   Website
                 </a>
               ) : null}
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="button outline"
-                data-testid="copy-project-link"
-                aria-label="Copy project link"
-              >
-                {copied ? 'Copied!' : 'Copy'}
-              </button>
             </div>
-            <div className="footer-actions">
+            <div className="footer-actions project-footer-right">
               <button
                 type="button"
                 onClick={toggle}
@@ -232,16 +203,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               </button>
             </div>
           </div>
-        </section>
-
-        <section
-          data-testid="project-face-back"
-          aria-hidden={!isFlipped}
-          className={`card-face card card-face-back project-back project-card-backdrop ${!isFlipped ? 'pointer-events-none' : ''}`}
-          onClick={handleSurfaceFlip}
-          onKeyDown={handleFlipKeyDown}
-          tabIndex={0}
-        >
+        </>
+      )}
+      back={({ toggle: backToggle, isFlipping: backIsFlipping, handleCopy: backHandleCopy, copied: backCopied }) => (
+        <>
           <header className="header project-card-header">
             <div className="project-title-row" data-testid="project-title-row">
               <h3>{name}</h3>
@@ -290,19 +255,19 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             <div className="footer-actions">
               <button
                 type="button"
-                onClick={handleCopy}
+                onClick={(e: React.MouseEvent) => backHandleCopy(e)}
                 className="button outline"
                 data-testid="copy-project-back-link"
                 aria-label="Copy project link"
               >
-                {copied ? 'Copied!' : 'Copy'}
+                {backCopied ? 'Copied!' : 'Copy'}
               </button>
             </div>
             <div className="footer-actions">
               <button
                 type="button"
-                onClick={toggle}
-                disabled={isFlipping}
+                onClick={backToggle}
+                disabled={backIsFlipping}
                 className="button"
                 data-testid="flip-to-front"
                 aria-label="Back to project summary"
@@ -311,8 +276,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               </button>
             </div>
           </div>
-        </section>
-      </div>
-    </article>
+        </>
+      )}
+    />
   );
-};
+});
+
+export default ProjectCard;

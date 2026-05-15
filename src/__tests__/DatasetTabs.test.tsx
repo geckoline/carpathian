@@ -86,6 +86,22 @@ const projects = [
 ];
 
 describe('dataset tabs', () => {
+  it('shows loading skeleton when data is loading', () => {
+    useAppStore.setState({
+      data: { projects: [], experts: [], loading: true, error: null },
+    });
+    const { container } = render(<App />);
+    const skeletons = container.querySelectorAll('[aria-hidden="true"][role="presentation"]');
+    expect(skeletons.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('shows error state when data loading fails', () => {
+    useAppStore.setState({
+      data: { projects: [], experts: [], loading: false, error: 'Failed to fetch' },
+    });
+    render(<App />);
+    expect(screen.getByText('Failed to load platform data')).toBeInTheDocument();
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     window.history.pushState(null, '', '/');

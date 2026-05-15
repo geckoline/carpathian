@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { LatLngTuple } from 'leaflet';
 import { Polygon, Tooltip } from 'react-leaflet';
 import { useAppStore } from '@/store/appStore';
@@ -12,7 +13,7 @@ interface ProjectPolygonProps {
   onMouseOut?: () => void;
 }
 
-export const ProjectPolygon = ({ coords, style, projectId, projectName, isSelected, onMouseOver, onMouseOut }: ProjectPolygonProps) => {
+export const ProjectPolygon = memo(({ coords, style, projectId, projectName, isSelected, onMouseOver, onMouseOut }: ProjectPolygonProps) => {
   const setSelectedProjectId = useAppStore(s => s.setSelectedProjectId);
 
   return (
@@ -41,4 +42,4 @@ export const ProjectPolygon = ({ coords, style, projectId, projectName, isSelect
       </Tooltip>
     </Polygon>
   );
-};
+});

@@ -21,6 +21,10 @@ import { VirtualizedCardGrid } from '@/components/ui/VirtualizedCardGrid';
 import { ExportButton } from '@/components/ui/ExportButton';
 import { downloadAsCSV, downloadAsJSON } from '@/utils/dataExport';
 import { getDatasetExperts, getDatasetProjects } from '@/utils/datasetScope';
+import type { ProjectData } from '@/types/project';
+import type { ExpertData, ExpertFormData } from '@/types/expert';
+import type { ProjectFormData } from '@/components/modals/AddProjectModal';
+import type { VolunteerFormData } from '@/components/modals/VolunteerModal';
 
 const MapView = lazy(() => import('@/components/map/MapView'));
 const AddProjectModal = lazy(() => import('@/components/modals/AddProjectModal'));
@@ -65,11 +69,42 @@ export default function App() {
   const { submitProject } = useProjectSubmission(setStatusMessage);
   const { submitVolunteerSubscription } = useVolunteerSubscription(setStatusMessage);
   const addExpert = useAppStore(s => s.addExpert);
-  const renderCardItem = useCallback((item: any) =>
+  const renderCardItem = useCallback((item: ProjectData | ExpertData) =>
     activeTab === 'projects'
-      ? <ProjectCard key={item.id} {...item} />
-      : <ExpertCard key={item.id} {...item} />
+      ? <ProjectCard key={item.id} {...(item as ProjectData)} />
+      : <ExpertCard key={item.id} {...(item as ExpertData)} />
   , [activeTab]);
+
+  const handleAddProjectSubmit = useCallback(async (data: ProjectFormData) => {
+    await submitProject(data);
+    addProjectModal.close();
+  }, [submitProject, addProjectModal]);
+
+  const handleAddExpertSubmit = useCallback(async (data: ExpertFormData) => {
+    addExpert({
+      id: crypto.randomUUID(),
+      name: data.name,
+      institution: data.institution,
+      country: data.country,
+      degree: data.degree,
+      headline: data.headline,
+      expertiseSubtitle: data.expertiseSubtitle,
+      bio: data.bio,
+      expertise: data.expertise,
+      email: data.email,
+      linkedin: data.linkedin,
+      orcid: data.orcid,
+      googleScholar: data.googleScholar,
+      importMetadata: { source: 'manual', importedAt: new Date().toISOString() },
+    });
+    setStatusMessage({ tone: 'success', text: 'Expert added successfully.' });
+    addExpertModal.close();
+  }, [addExpert, addExpertModal, setStatusMessage]);
+
+  const handleVolunteerSubmit = useCallback(async (data: VolunteerFormData) => {
+    await submitVolunteerSubscription(data);
+    volunteerModal.close();
+  }, [submitVolunteerSubscription, volunteerModal]);
 
   const activeProjects = filteredProjects;
   const activeExperts = filteredExperts;
@@ -238,7 +273,7 @@ export default function App() {
       {addProjectModal.isOpen && (
         <ErrorBoundary>
           <Suspense fallback={null}>
-            <AddProjectModal isOpen={addProjectModal.isOpen} onClose={addProjectModal.close} onSubmit={async (data) => { await submitProject(data); addProjectModal.close(); }} isOnline={isOnline} />
+            <AddProjectModal isOpen={addProjectModal.isOpen} onClose={addProjectModal.close} onSubmit={handleAddProjectSubmit} isOnline={isOnline} />
           </Suspense>
         </ErrorBoundary>
       )}
@@ -248,26 +283,7 @@ export default function App() {
             <AddExpertModal
             isOpen={addExpertModal.isOpen}
             onClose={addExpertModal.close}
-            onSubmit={async (data) => {
-              addExpert({
-                id: crypto.randomUUID(),
-                name: data.name,
-                institution: data.institution,
-                country: data.country,
-                degree: data.degree,
-                headline: data.headline,
-                expertiseSubtitle: data.expertiseSubtitle,
-                bio: data.bio,
-                expertise: data.expertise,
-                email: data.email,
-                linkedin: data.linkedin,
-                orcid: data.orcid,
-                googleScholar: data.googleScholar,
-                importMetadata: { source: 'manual', importedAt: new Date().toISOString() },
-              });
-              setStatusMessage({ tone: 'success', text: 'Expert added successfully.' });
-              addExpertModal.close();
-            }}
+            onSubmit={handleAddExpertSubmit}
             isOnline={isOnline}
           />
         </Suspense>
@@ -276,7 +292,7 @@ export default function App() {
       {volunteerModal.isOpen && (
         <ErrorBoundary>
           <Suspense fallback={null}>
-            <VolunteerModal isOpen={volunteerModal.isOpen} onClose={volunteerModal.close} onSubmit={async (data) => { await submitVolunteerSubscription(data); volunteerModal.close(); }} isOnline={isOnline} />
+            <VolunteerModal isOpen={volunteerModal.isOpen} onClose={volunteerModal.close} onSubmit={handleVolunteerSubmit} isOnline={isOnline} />
           </Suspense>
         </ErrorBoundary>
       )}

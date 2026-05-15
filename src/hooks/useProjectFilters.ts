@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useAppStore } from '@/store/appStore';
-import { ProjectData } from '@/types/project';
+import type { ProjectData } from '@/types/project';
 import { normalizeCategoryId } from '@/utils/categories';
 import { filterProjectsBySearch } from '@/utils/fuzzySearch';
 

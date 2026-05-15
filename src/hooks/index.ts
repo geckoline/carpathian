@@ -10,3 +10,4 @@ export { useUrlSync } from './useUrlSync';
 export { usePolygonLayer } from './usePolygonLayer';
 export { useProjectSubmission } from './useProjectSubmission';
 export { useVolunteerSubscription } from './useVolunteerSubscription';
+export { useModal } from './useModal';

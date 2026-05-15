@@ -60,7 +60,7 @@ const FilterControlsInner = ({ projects, idPrefix = 'project-filters', variant =
   useEffect(() => {
     if (debouncedSearch === searchTerm) return;
     setSearchTerm(debouncedSearch);
-  }, [debouncedSearch, searchTerm, setSearchTerm]);
+  }, [debouncedSearch, setSearchTerm]);
 
   useEffect(() => {
     if (localSearch === searchTerm) return;

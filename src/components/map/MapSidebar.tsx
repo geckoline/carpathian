@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useAppStore } from '@/store/appStore';
 import FilterControls from '@/components/layout/FilterControls';
 import type { ProjectData } from '@/types/project';
@@ -18,6 +18,14 @@ export const MapSidebar = ({ projects, filterProjects = projects, onAddProject, 
   const selectedProjectId = useAppStore(s => s.ui.selectedProjectId);
   const reducedMotion = useAppStore(s => s.a11y.reducedMotion);
   const [pulsedProjectId, setPulsedProjectId] = useState<string | null>(null);
+  const projectLabels = useMemo(() => {
+    const map = new Map<string, { category: string; compactCategory: string }>();
+    for (const p of projects) {
+      const label = getCategoryLabel(p.categoryId ?? p.field);
+      map.set(p.id, { category: label, compactCategory: getCompactCategoryLabel(label) });
+    }
+    return map;
+  }, [projects]);
 
   useEffect(() => {
     if (!selectedProjectId) return;
@@ -88,8 +96,9 @@ export const MapSidebar = ({ projects, filterProjects = projects, onAddProject, 
           projects.map((project) => {
             const isSelected = selectedProjectId === project.id;
             const isPulsing = pulsedProjectId === project.id;
-            const categoryLabel = getCategoryLabel(project.categoryId ?? project.field);
-            const compactCategoryLabel = getCompactCategoryLabel(categoryLabel);
+            const labels = projectLabels.get(project.id);
+            const categoryLabel = labels?.category ?? getCategoryLabel(project.categoryId ?? project.field);
+            const compactCategoryLabel = labels?.compactCategory ?? getCompactCategoryLabel(categoryLabel);
 
             return (
               <button

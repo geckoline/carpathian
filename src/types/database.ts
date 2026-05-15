@@ -19,10 +19,23 @@ export type CategoryInsert = Omit<CategoryRow, 'created_at' | 'updated_at'> & {
   updated_at?: string | null;
 };
 
+export type InstitutionRow = {
+  id: string;
+  name: string;
+  website: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
+export type InstitutionInsert = Omit<InstitutionRow, 'created_at' | 'updated_at'> & {
+  created_at?: string | null;
+  updated_at?: string | null;
+};
+
 export type ExpertRow = {
   id: string;
   name: string;
-  institution: string;
+  institution_id: string;
   country: string;
   degree: string | null;
   headline: string | null;
@@ -35,7 +48,6 @@ export type ExpertRow = {
   scopus: string | null;
   orcid: string | null;
   google_scholar: string | null;
-  avatar_url: string | null;
   import_metadata: Json;
   created_at: string | null;
   updated_at: string | null;
@@ -156,6 +168,8 @@ export type AppProjectRow = {
 };
 
 export type AppExpertRow = ExpertRow & {
+  institution: string;
+  institution_website: string | null;
   projects: number | null;
   is_cs: boolean | null;
   import_metadata: Json;
@@ -185,6 +199,12 @@ export type Database = {
         Row: ExpertRow;
         Insert: ExpertInsert;
         Update: Partial<ExpertInsert>;
+        Relationships: [];
+      };
+      institutions: {
+        Row: InstitutionRow;
+        Insert: InstitutionInsert;
+        Update: Partial<InstitutionInsert>;
         Relationships: [];
       };
       projects: {

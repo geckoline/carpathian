@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { mockApi } from '../mockApi';
 import { ProjectSchema } from '@/types/project';
 import { ExpertSchema } from '@/types/expert';
-import { getLocalExpertPortraitPath } from '@/components/cards/expertProfileImage';
+import { getLocalExpertPortraitPath, getLocalExpertPortraitPaths } from '@/components/cards/expertProfileImage';
 
 describe('Mock API - Data Integrity', () => {
   describe('Project Data', () => {
@@ -91,6 +91,11 @@ describe('Mock API - Data Integrity', () => {
       data.forEach((expert: { id: string }) => {
         const portraitPath = getLocalExpertPortraitPath(expert.id);
         expect(portraitPath).toMatch(/^\/profile-pictures\/[0-9a-f-]+\.jpg$/);
+        expect(getLocalExpertPortraitPaths(expert.id)).toEqual([
+          `/profile-pictures/${expert.id}.jpg`,
+          `/profile-pictures/${expert.id}.png`,
+          `/profile-pictures/${expert.id}.webp`,
+        ]);
       });
     });
   });

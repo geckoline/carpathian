@@ -49,7 +49,20 @@ vi.mock('react-leaflet', () => ({
 }));
 
 vi.mock('leaflet', () => ({
+  default: {
+    FeatureGroup: leafletMock.FeatureGroup,
+    Polygon: leafletMock.Polygon,
+    Control: {
+      get Draw() {
+        return leafletMock.drawAvailable ? leafletMock.DrawControl : undefined;
+      },
+    },
+    get Draw() {
+      return leafletMock.drawAvailable ? { Event: { CREATED: 'draw:created' } } : undefined;
+    },
+  },
   FeatureGroup: leafletMock.FeatureGroup,
+  Polygon: leafletMock.Polygon,
   Control: {
     get Draw() {
       return leafletMock.drawAvailable ? leafletMock.DrawControl : undefined;
@@ -58,7 +71,6 @@ vi.mock('leaflet', () => ({
   get Draw() {
     return leafletMock.drawAvailable ? { Event: { CREATED: 'draw:created' } } : undefined;
   },
-  Polygon: leafletMock.Polygon,
 }));
 
 vi.mock('leaflet-draw', () => ({}));

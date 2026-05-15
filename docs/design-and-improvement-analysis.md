@@ -306,7 +306,7 @@ But **question for clarification:** Should delete be available for ALL cards or 
 
 ### 8B — Image upload for expert avatars
 
-Currently avatars are either URL-based (`avatarUrl`) or auto-generated SVGs. Adding image upload would require:
+Currently expert portraits are derived from `/profile-pictures/{expert_id}.{jpg|png|webp}` with generated SVG fallback. Adding image upload would require:
 - File input in AddExpertModal
 - Supabase Storage bucket for profile images
 - Upload progress indicator

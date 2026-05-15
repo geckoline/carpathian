@@ -71,6 +71,8 @@ describe('ProjectCard', () => {
     expect(within(front).getByTestId('project-lead-expert')).toHaveTextContent('Dr. E. Popescu');
     expect(within(front).getByRole('link', { name: /website/i })).toHaveAttribute('href', 'https://example.com');
     expect(within(front).getByRole('button', { name: /copy project link/i })).toBeInTheDocument();
+    expect(within(front).getByTestId('copy-project-link').closest('.project-footer-left')).not.toBeNull();
+    expect(within(front).getByTestId('project-website-link').closest('.project-footer-center')).not.toBeNull();
     expect(within(front).queryByRole('button', { name: /volunteer/i })).not.toBeInTheDocument();
     expect(within(front).getByTestId('flip-to-back')).toBeInTheDocument();
     expect(container.querySelector('[data-testid="project-card-stage"]')).toHaveClass('card-flip-stage');

@@ -37,7 +37,7 @@ export const VolunteerModal = ({ isOpen, onClose, onSubmit, isOnline = true }: V
       await onSubmit(data);
       onClose();
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : 'Volunteer subscription could not be saved.');
+      setSubmitError(err instanceof Error ? err.message : 'Volunteer alert could not be saved.');
     }
   };
 
@@ -45,15 +45,16 @@ export const VolunteerModal = ({ isOpen, onClose, onSubmit, isOnline = true }: V
     <FormModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Volunteer Projects"
-      submitLabel="Subscribe for alerts"
+      title="Volunteer Alerts"
+      submitLabel="Subscribe to Volunteer alerts"
       isSubmitting={isSubmitting}
       isOnline={isOnline}
       submitError={submitError}
       onSubmit={handleSubmit(handleSubmitForm)}
+      initialFocus="#vol-full-name"
     >
       <p className="text-sm text-text-muted">
-        Subscribe once and we will match you with citizen science projects near your city when they need local participation.
+        Subscribe once and we will match you with citizen science projects near your city when they need volunteers.
       </p>
 
       <div className="grid gap-4 sm:grid-cols-2">

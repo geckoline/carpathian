@@ -52,8 +52,10 @@ describe('App Store', () => {
     expect(added.yearRange).toMatch(/^\d{4}-\d{4}$/);
   });
 
-  it('addProject throws when leadExpertId is missing', () => {
-    expect(() => useAppStore.getState().addProject({ name: 'Bad' })).toThrow('Every project must include a leading expert');
+  it('addProject skips when leadExpertId is missing', () => {
+    const initialCount = useAppStore.getState().data.projects.length;
+    useAppStore.getState().addProject({ name: 'Bad' });
+    expect(useAppStore.getState().data.projects.length).toBe(initialCount);
   });
 
   it('addExpert generates defaults for missing fields', () => {

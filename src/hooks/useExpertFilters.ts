@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useAppStore } from '@/store/appStore';
-import { ExpertData } from '@/types/expert';
+import type { ExpertData } from '@/types/expert';
 import { filterExpertsBySearch } from '@/utils/fuzzySearch';
 
 export const useExpertFilters = (experts?: ExpertData[]) => {

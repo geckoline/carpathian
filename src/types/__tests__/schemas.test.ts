@@ -52,21 +52,8 @@ describe('Zod Schemas', () => {
       expertise: ['Alpine Eco', 'Climate Resilience'],
       email: 'elena@example.com',
       linkedin: 'https://linkedin.com/in/elena',
-      avatarUrl: '/profile-pictures/123e4567-e89b-12d3-a456-426614174001.jpg',
     };
     expect(ExpertSchema.parse(validExpert)).toEqual(validExpert);
-  });
-
-  it('rejects unsafe relative expert avatar paths', () => {
-    expect(() => ExpertSchema.parse({
-      id: '123e4567-e89b-12d3-a456-426614174001',
-      name: 'Dr. Elena Popescu',
-      institution: 'Univ. of Bucharest',
-      country: 'Romania',
-      bio: 'Leading research on Carpathian biodiversity for over 15 years.',
-      expertise: ['Alpine Eco'],
-      avatarUrl: '../profile-pictures/avatar.jpg',
-    })).toThrow();
   });
 
   it('validates a global volunteer subscription', () => {

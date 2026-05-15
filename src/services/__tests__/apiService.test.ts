@@ -136,7 +136,9 @@ describe('apiService mock fallback', () => {
         data: [{
           id: '123e4567-e89b-12d3-a456-426614174001',
           name: 'Supabase Expert',
+          institution_id: 'inst',
           institution: 'Inst',
+          institution_website: null,
           country: 'Romania',
           degree: 'PhD',
           bio: 'A valid expert biography for service mapping.',
@@ -148,7 +150,6 @@ describe('apiService mock fallback', () => {
           scopus: 'https://scopus.com/authid/example',
           orcid: null,
           google_scholar: null,
-          avatar_url: null,
           is_cs: true,
         }],
         error: null,
@@ -161,7 +162,41 @@ describe('apiService mock fallback', () => {
     expect(mockSupabaseFrom).toHaveBeenCalledWith('app_experts');
     expect(expert!.linkedin).toBeUndefined();
     expect(expert!.publications).toBe(0);
+    expect(expert!.institutionId).toBe('inst');
+    expect(expert!.institutionWebsite).toBeUndefined();
     expect(ExpertSchema.safeParse(expert).success).toBe(true);
+  });
+
+  it('upserts an institution before inserting an expert', async () => {
+    const upsert = vi.fn().mockResolvedValue({ error: null });
+    const insert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({ data: { id: 'expert-1' }, error: null }),
+      }),
+    });
+    mockSupabaseFrom.mockImplementation((table: string) => {
+      if (table === 'institutions') return { upsert };
+      if (table === 'experts') return { insert };
+      throw new Error(`Unexpected table ${table}`);
+    });
+
+    await apiService.addExpert({
+      name: 'New Expert',
+      institution: 'University of Bucharest',
+      country: 'Romania',
+      bio: 'A valid expert biography for insertion.',
+      expertise: ['Ecology'],
+      email: 'new@example.com',
+    });
+
+    expect(upsert).toHaveBeenCalledWith({
+      id: 'university-of-bucharest',
+      name: 'University of Bucharest',
+      website: null,
+    }, { onConflict: 'id' });
+    expect(insert).toHaveBeenCalledWith(expect.objectContaining({
+      institution_id: 'university-of-bucharest',
+    }));
   });
 
   it('requires a leading expert before inserting a project', async () => {

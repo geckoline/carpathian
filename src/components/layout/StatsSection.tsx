@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import type { ProjectData } from '@/types/project';
 import type { ExpertData } from '@/types/expert';
 import AnimatedCounter from '@/components/ui/AnimatedCounter';
 
-export const StatsSection = ({ projects, experts }: { projects: ProjectData[]; experts: ExpertData[] }) => {
+export const StatsSection = memo(({ projects, experts }: { projects: ProjectData[]; experts: ExpertData[] }) => {
   const stats = useMemo(() => {
     const activeProjects = projects.filter(p => p.status === 'active').length;
     const countries = [...new Set(projects.map(p => p.country).filter(Boolean))].length;
@@ -34,6 +34,6 @@ export const StatsSection = ({ projects, experts }: { projects: ProjectData[]; e
       </div>
     </section>
   );
-};
+});
 
 export default StatsSection;

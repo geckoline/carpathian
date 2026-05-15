@@ -1,0 +1,172 @@
+/* Respect reduced motion globally */
+html.reduced-motion-forced *,
+html.reduced-motion-forced *::before,
+html.reduced-motion-forced *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  html.reduced-motion-forced *,
+  html.reduced-motion-forced *::before,
+  html.reduced-motion-forced *::after {
+    animation-duration: 0s !important;
+    transition-duration: 0s !important;
+  }
+}
+
+html.high-contrast {
+  --color-app-bg: #000000;
+  --color-panel-border: #ffffff;
+  --color-soft-border: #ffffff;
+  --color-panel-surface: #000000;
+  --color-panel-surface-soft: #000000;
+  --color-paper-warm: #000000;
+  --color-paper-line: #ffffff;
+  --color-field-note: #ffffff;
+  --color-surface-muted: #000000;
+  --color-text-muted: #f5f5f5;
+  --shadow-card: none;
+  --shadow-card-hover: none;
+  --shadow-panel: none;
+  --shadow-surface: none;
+}
+
+html.high-contrast body {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+html.high-contrast .card-face,
+html.high-contrast .project-card-backdrop,
+html.high-contrast .expert-card-backdrop,
+html.high-contrast .notebook-panel,
+html.high-contrast .notebook-detail-item,
+html.high-contrast [role="dialog"] > div,
+html.high-contrast .card-flip-stage > section,
+html.high-contrast input,
+html.high-contrast textarea,
+html.high-contrast select {
+  background: #000 !important;
+  color: #fff !important;
+  border-color: #fff !important;
+  box-shadow: none !important;
+}
+
+html.high-contrast button,
+html.high-contrast a {
+  background: #111 !important;
+  color: #fff !important;
+  border-color: #fff !important;
+  box-shadow: none !important;
+}
+
+html.high-contrast svg,
+html.high-contrast svg * {
+  color: currentColor !important;
+}
+
+html.theme-dark {
+  --color-app-bg: #0f1d16;
+  --color-panel-border: #294232;
+  --color-soft-border: #304b3a;
+  --color-panel-surface: #14241b;
+  --color-panel-surface-soft: #192c21;
+  --color-paper-warm: #1d2c20;
+  --color-paper-line: #304b3a;
+  --color-field-note: #b8cbbf;
+  --color-surface-muted: #14241b;
+  --color-text-muted: #c9d8ce;
+  --shadow-card: 0 20px 55px -30px rgb(0 0 0 / 0.85);
+  --shadow-card-hover: 0 24px 60px -28px rgb(0 0 0 / 0.9);
+  --shadow-panel: 0 24px 60px -32px rgb(0 0 0 / 0.9);
+  --shadow-surface: 0 26px 78px -36px rgb(0 0 0 / 0.92);
+}
+
+html.theme-dark body {
+  background: radial-gradient(circle at top left, rgb(34 197 94 / 0.16), transparent 34rem), linear-gradient(180deg, #0f1d16 0%, #14241b 58rem);
+  color: #ecf5ee;
+}
+
+html.theme-dark input,
+html.theme-dark textarea,
+html.theme-dark select,
+html.theme-dark .bg-white,
+html.theme-dark .card-face.card,
+html.theme-dark [role="dialog"] > div {
+  background-color: #14241b !important;
+  color: #ecf5ee !important;
+  border-color: #294232 !important;
+}
+
+html.theme-dark .project-card-backdrop,
+html.theme-dark .expert-card-backdrop {
+  background: radial-gradient(circle at top right, rgb(34 197 94 / 0.12), transparent 28%), linear-gradient(180deg, #14241b 0%, #1a2e22 100%);
+}
+
+html.theme-dark .meta-chip,
+html.theme-dark .detail-item,
+html.theme-dark .notebook-panel,
+html.theme-dark .notebook-detail-item,
+html.theme-dark .stat-card,
+html.theme-dark .tag,
+html.theme-dark .social-pill,
+html.theme-dark .bio-box {
+  background: rgb(255 255 255 / 0.08);
+  color: #ecf5ee;
+  border-color: rgb(255 255 255 / 0.12);
+}
+
+html.theme-reduced-color {
+  --color-app-bg: #f6f7f4;
+  --color-panel-border: #d7ddd5;
+  --color-soft-border: #d7ddd5;
+  --color-panel-surface: #fffefa;
+  --color-panel-surface-soft: #f6f7f4;
+  --color-paper-warm: #fff9ee;
+  --color-paper-line: #e0e3da;
+  --color-field-note: #5f675f;
+  --color-surface-muted: #f4f5f2;
+  --color-text-muted: #5f675f;
+  --shadow-card: 0 10px 30px -24px rgb(0 0 0 / 0.45);
+  --shadow-card-hover: 0 14px 36px -24px rgb(0 0 0 / 0.5);
+  --shadow-panel: 0 16px 36px -28px rgb(0 0 0 / 0.45);
+  --shadow-surface: 0 20px 58px -36px rgb(0 0 0 / 0.42);
+}
+
+html.theme-reduced-color body {
+  background: linear-gradient(180deg, #f6f7f4 0%, #ffffff 54rem);
+}
+
+html.theme-reduced-color .project-front .header,
+html.theme-reduced-color .project-back .header,
+html.theme-reduced-color .expert-front .header,
+html.theme-reduced-color .expert-back .header {
+  background: linear-gradient(145deg, #315b45 0%, #6f8f7b 100%);
+}
+
+html.high-contrast body,
+html.high-contrast input,
+html.high-contrast textarea,
+html.high-contrast select,
+html.high-contrast .bg-white,
+html.high-contrast .card-face.card,
+html.high-contrast .project-card-backdrop,
+html.high-contrast .expert-card-backdrop,
+html.high-contrast .notebook-panel,
+html.high-contrast .notebook-detail-item,
+html.high-contrast [role="dialog"] > div {
+  background: #000 !important;
+  color: #fff !important;
+  border-color: #fff !important;
+  box-shadow: none !important;
+}

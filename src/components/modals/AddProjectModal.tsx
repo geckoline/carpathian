@@ -103,6 +103,7 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit, isOnline = true }: 
       onSubmit={handleSubmit(handleSubmitForm)}
       submitDisabled={experts.length === 0}
       submitTestId="add-project-submit"
+      initialFocus="#add-project-name"
     >
       {/* Name */}
         <div>

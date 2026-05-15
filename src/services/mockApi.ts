@@ -139,7 +139,6 @@ const getMockExperts = (): ExpertData[] => {
   if (mockExpertsCache) return mockExpertsCache;
   mockExpertsCache = mockExpertSeeds.map((expert, index) => ({
     ...expert,
-    avatarUrl: expert.avatarUrl ?? `/profile-pictures/${expert.id}.jpg`,
     orcid: expert.orcid ?? getMockOrcid(index),
     headline: getExpertHeadline(expert),
     expertiseSubtitle: getExpertiseSubtitle(expert),
