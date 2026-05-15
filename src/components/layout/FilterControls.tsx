@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, memo } from 'react';
 import { useAppStore, type FilterState } from '@/store/appStore';
 import { useDebounce } from '@/hooks/useDebounce';
 import type { ProjectData } from '@/types/project';
@@ -30,29 +30,42 @@ const isCategoryAvailable = (options: ProjectFilterOptions, fieldFilter: string)
 const labelClass = 'mb-1 block text-[0.68rem] font-semibold uppercase tracking-wide text-[var(--color-field-note)] sm:text-xs';
 const controlClass = 'w-full rounded-lg border border-[var(--color-soft-border)] bg-[var(--color-panel-surface)] px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 sm:px-3';
 
-export const FilterControls = ({ projects, idPrefix = 'project-filters', variant = 'full' }: FilterControlsProps) => {
+const FilterControlsInner = ({ projects, idPrefix = 'project-filters', variant = 'full' }: FilterControlsProps) => {
   const storeProjects = useAppStore(s => s.data.projects);
-  const filters = useAppStore(s => s.filters);
+  const searchTerm = useAppStore(s => s.filters.searchTerm);
+  const statusFilter = useAppStore(s => s.filters.statusFilter);
+  const fieldFilter = useAppStore(s => s.filters.fieldFilter);
+  const countryFilter = useAppStore(s => s.filters.countryFilter);
   const setSearchTerm = useAppStore(s => s.setSearchTerm);
   const setStatusFilter = useAppStore(s => s.setStatusFilter);
   const setFieldFilter = useAppStore(s => s.setFieldFilter);
   const setCountryFilter = useAppStore(s => s.setCountryFilter);
   const clearFilters = useAppStore(s => s.clearFilters);
   const optionProjects = projects ?? storeProjects;
-  const [localSearch, setLocalSearch] = useState(filters.searchTerm);
+  const [localSearch, setLocalSearch] = useState(searchTerm);
   const debouncedSearch = useDebounce(localSearch, 300);
-  const options = useMemo(() => getProjectFilterOptions(optionProjects, filters), [optionProjects, filters]);
-  const normalizedFieldFilter = normalizeCategoryId(filters.fieldFilter) ?? filters.fieldFilter;
+
+  const filters = useMemo<FilterState>(() => ({
+    searchTerm, statusFilter, fieldFilter, countryFilter,
+    activeTab: 'projects', sortKey: 'name', sortDirection: 'asc',
+  }), [searchTerm, statusFilter, fieldFilter, countryFilter]);
+
+  const options = useMemo(
+    () => getProjectFilterOptions(optionProjects, filters),
+    [optionProjects, searchTerm, statusFilter, fieldFilter, countryFilter]
+  );
+  const normalizedFieldFilter = normalizeCategoryId(fieldFilter) ?? fieldFilter;
   const hasActiveFilters = hasActiveProjectFilters(filters);
 
   useEffect(() => {
-    if (debouncedSearch === filters.searchTerm) return;
+    if (debouncedSearch === searchTerm) return;
     setSearchTerm(debouncedSearch);
-  }, [debouncedSearch, filters.searchTerm, setSearchTerm]);
+  }, [debouncedSearch, searchTerm, setSearchTerm]);
 
   useEffect(() => {
-    setLocalSearch(filters.searchTerm);
-  }, [filters.searchTerm]);
+    if (localSearch === searchTerm) return;
+    setLocalSearch(searchTerm);
+  }, [searchTerm]);
 
   const clearInvalidLinkedFilters = (nextFilters: FilterState, nextOptions: ProjectFilterOptions, changedAxis: 'status' | 'field' | 'country') => {
     if (changedAxis !== 'status' && nextFilters.statusFilter !== 'all' && !nextOptions.statuses.includes(nextFilters.statusFilter)) {
@@ -110,7 +123,7 @@ export const FilterControls = ({ projects, idPrefix = 'project-filters', variant
         <label htmlFor={`${idPrefix}-status-filter`} className={labelClass}>Status</label>
         <select
           id={`${idPrefix}-status-filter`}
-          value={filters.statusFilter}
+          value={statusFilter}
           onChange={(event) => handleStatusChange(event.target.value as FilterState['statusFilter'])}
           className={controlClass}
         >
@@ -140,7 +153,7 @@ export const FilterControls = ({ projects, idPrefix = 'project-filters', variant
         <label htmlFor={`${idPrefix}-country-filter`} className={labelClass}>Country</label>
         <select
           id={`${idPrefix}-country-filter`}
-          value={filters.countryFilter}
+          value={countryFilter}
           onChange={(event) => handleCountryChange(event.target.value)}
           className={controlClass}
         >
@@ -163,5 +176,7 @@ export const FilterControls = ({ projects, idPrefix = 'project-filters', variant
     </div>
   );
 };
+
+export const FilterControls = memo(FilterControlsInner);
 
 export default FilterControls;
