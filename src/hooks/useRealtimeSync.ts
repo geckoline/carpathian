@@ -3,7 +3,10 @@ import { useAppStore } from '@/store/appStore';
 import { loadAppData } from '@/services/loadAppData';
 
 export const useRealtimeSync = () => {
-  const { setProjects, setExperts, setLoading, setError } = useAppStore();
+  const setProjects = useAppStore(s => s.setProjects);
+  const setExperts = useAppStore(s => s.setExperts);
+  const setLoading = useAppStore(s => s.setLoading);
+  const setError = useAppStore(s => s.setError);
 
   useEffect(() => {
     let cancelled = false;

@@ -25,7 +25,7 @@ export const serpapiService = {
       const parsed = new URL(url);
       if (!parsed.hostname.includes('scholar.google')) return null;
       const match = parsed.search.match(/user=([A-Za-z0-9_-]+)/);
-      return match ? match[1] : null;
+      return match ? match[1]! : null;
     } catch {
       return null;
     }

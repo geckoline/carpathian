@@ -1,5 +1,5 @@
-import { ProjectData, ProjectSchema } from '@/types/project';
-import { ExpertData, ExpertSchema } from '@/types/expert';
+import type { ProjectData } from '@/types/project';
+import type { ExpertData } from '@/types/expert';
 import { generateRealisticPolygonWKT } from '@/utils/polygonUtils';
 import { getCategoryLabel, normalizeCategoryId } from '@/utils/categories';
 
@@ -56,7 +56,9 @@ const getMockOrcid = (index: number) => {
   return `https://orcid.org/0000-0002-${middle}-${tail}`;
 };
 
-const mockProjects: ProjectData[] = (() => {
+let mockProjectsCache: ProjectData[] | null = null;
+const getMockProjects = (): ProjectData[] => {
+  if (mockProjectsCache) return mockProjectsCache;
   const raw = [
     { id: '123e4567-e89b-12d3-a456-426614174000', name: 'Carpathian Forest Watch', status: 'active' as const, field: 'Biodiversity', description: 'Monitoring deforestation rates and biodiversity loss across the northern Carpathian mountain range.', yearRange: '2021-2025', leadExpertId: '123e4567-e89b-12d3-a456-426614174001', leadExpertName: 'Dr. E. Popescu', website: 'https://example.com/project', lat: 47.5, lng: 25.0, area: 'carpathians', country: 'Romania', contact: 'info@carpathian.org', isCitizenScience: true, displayLocation: '3 Countries' },
     { id: '123e4567-e89b-12d3-a456-426614174002', name: 'Alpine River Restoration', status: 'planned' as const, field: 'Water', description: 'Restoring natural flow regimes and riparian habitats in high-altitude catchments.', yearRange: '2024-2027', lat: 49.0, lng: 20.0, area: 'tatras', country: 'Slovakia', isCitizenScience: true, displayLocation: 'Slovakia', leadExpertId: '123e4567-e89b-12d3-a456-426614174014', leadExpertName: 'Dr. Jan Novak' },
@@ -71,7 +73,7 @@ const mockProjects: ProjectData[] = (() => {
     { id: '123e4567-e89b-12d3-a456-426614174052', name: 'Carpathian Climate Policy Observatory', status: 'active' as const, field: 'Climate Change', description: 'Synthesizing regional climate adaptation evidence for policy and protected-area planning.', yearRange: '2020-2026', lat: 48.2, lng: 16.4, area: 'vienna', country: 'Austria', isCitizenScience: false, displayLocation: 'Austria', leadExpertId: '123e4567-e89b-12d3-a456-426614174016', leadExpertName: 'Prof. Stefan Weber', linkedExpertIds: ['123e4567-e89b-12d3-a456-426614174040'] },
     { id: '123e4567-e89b-12d3-a456-426614174053', name: 'Transboundary Land Use Foresight', status: 'planned' as const, field: 'Spatial Planning', description: 'Combining remote sensing and policy scenarios to understand future Carpathian land-use pressure.', yearRange: '2026-2029', lat: 48.1, lng: 25.9, area: 'chernivtsi', country: 'Ukraine', isCitizenScience: false, displayLocation: 'Ukraine', leadExpertId: '123e4567-e89b-12d3-a456-426614174018', leadExpertName: 'Dr. Viktor Petrenko', linkedExpertIds: ['123e4567-e89b-12d3-a456-426614174029'] },
   ];
-  return raw.map((p, i) => {
+  mockProjectsCache = raw.map((p, i) => {
     const categoryId = normalizeCategoryId(p.field) ?? 'biodiversity';
     const normalized = { ...p, categoryId, field: getCategoryLabel(categoryId) };
     return {
@@ -84,7 +86,8 @@ const mockProjects: ProjectData[] = (() => {
       location: generateRealisticPolygonWKT(p.lat, p.lng, i),
     };
   });
-})();
+  return mockProjectsCache;
+};
 
 const mockExpertSeeds: ExpertData[] = [
   { id: '123e4567-e89b-12d3-a456-426614174001', name: 'Dr. Elena Popescu', institution: 'Univ. of Bucharest', country: 'Romania', degree: 'PhD, Ecology', bio: 'Leading research on Carpathian biodiversity for over 15 years.', expertise: ['Alpine Eco', 'Climate Resilience'], publications: 42, projects: 15, isCitizenScience: true, email: 'elena@example.com', linkedin: 'https://linkedin.com/in/elena', scopus: 'https://scopus.com/authid/elena', googleScholar: 'https://scholar.google.com/citations?user=abc123' },
@@ -131,19 +134,24 @@ const mockExpertSeeds: ExpertData[] = [
   { id: '123e4567-e89b-12d3-a456-426614174051', name: 'Dr. Alzbeta Tothova', institution: 'Slovak Hydrometeorological Inst.', country: 'Slovakia', degree: 'PhD, Climatology', bio: 'Analyzes long-term climate trends and extreme event frequency in the Tatra mountains.', expertise: ['Climate Trends', 'Extreme Event Analysis'], publications: 20, projects: 7, isCitizenScience: true, email: 'alzbeta@example.com', linkedin: 'https://linkedin.com/in/alzbeta', scopus: 'https://scopus.com/authid/alzbeta', googleScholar: 'https://scholar.google.com/citations?user=alzbeta' },
 ];
 
-const mockExperts: ExpertData[] = mockExpertSeeds.map((expert, index) => ({
-  ...expert,
-  avatarUrl: expert.avatarUrl ?? `/profile-pictures/${expert.id}.jpg`,
-  orcid: expert.orcid ?? getMockOrcid(index),
-  headline: getExpertHeadline(expert),
-  expertiseSubtitle: getExpertiseSubtitle(expert),
-}));
+let mockExpertsCache: ExpertData[] | null = null;
+const getMockExperts = (): ExpertData[] => {
+  if (mockExpertsCache) return mockExpertsCache;
+  mockExpertsCache = mockExpertSeeds.map((expert, index) => ({
+    ...expert,
+    avatarUrl: expert.avatarUrl ?? `/profile-pictures/${expert.id}.jpg`,
+    orcid: expert.orcid ?? getMockOrcid(index),
+    headline: getExpertHeadline(expert),
+    expertiseSubtitle: getExpertiseSubtitle(expert),
+  }));
+  return mockExpertsCache;
+};
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const mockApi = {
-  async getProjects(): Promise<ProjectData[]> { await delay(300); return mockProjects.map(p => ProjectSchema.parse(p)); },
-  async getProject(id: string): Promise<ProjectData | null> { await delay(200); const p = mockProjects.find(x => x.id === id); return p ? ProjectSchema.parse(p) : null; },
-  async getExperts(): Promise<ExpertData[]> { await delay(300); return mockExperts.map(e => ExpertSchema.parse(e)); },
-  async getExpert(id: string): Promise<ExpertData | null> { await delay(200); const e = mockExperts.find(x => x.id === id); return e ? ExpertSchema.parse(e) : null; },
+  async getProjects(): Promise<ProjectData[]> { await delay(300); return getMockProjects(); },
+  async getProject(id: string): Promise<ProjectData | null> { await delay(200); const p = getMockProjects().find(x => x.id === id); return p ?? null; },
+  async getExperts(): Promise<ExpertData[]> { await delay(300); return getMockExperts(); },
+  async getExpert(id: string): Promise<ExpertData | null> { await delay(200); const e = getMockExperts().find(x => x.id === id); return e ?? null; },
 };

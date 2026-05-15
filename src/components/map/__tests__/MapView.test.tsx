@@ -4,6 +4,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MapView } from '../MapView';
 
+const createMockAppStore = vi.hoisted(() => (globalThis as any).__createMockAppStore);
 const mapMocks = vi.hoisted(() => ({
   flyTo: vi.fn(),
   fitBounds: vi.fn(),
@@ -64,22 +65,22 @@ vi.mock('leaflet', () => {
 });
 
 vi.mock('@/store/appStore', () => ({
-  useAppStore: vi.fn((selector?: Function) => {
-    const state = {
-      data: {
-        projects: [
-          { id: '1', name: 'P1', status: 'active', field: 'Bio', lat: 47.5, lng: 25.0 },
-          { id: '2', name: 'P2', status: 'past', field: 'Hydro', lat: 48.0, lng: 26.0 },
-        ],
-      },
-      a11y: { reducedMotion: false },
-      ui: { selectedProjectId: storeMocks.selectedProjectId, hoveredProjectId: storeMocks.hoveredProjectId },
-      filters: { searchTerm: '', statusFilter: 'all', fieldFilter: 'all', countryFilter: 'all', activeTab: 'projects', sortKey: 'name', sortDirection: 'asc' },
-      setSelectedProjectId: storeMocks.setSelectedProjectId,
-      setHoveredProjectId: storeMocks.setHoveredProjectId,
-    };
-    return selector ? selector(state) : state;
-  }),
+  useAppStore: vi.fn((sel?: any) => createMockAppStore({
+    data: {
+      projects: [
+        { id: '1', name: 'P1', status: 'active', field: 'Bio', lat: 47.5, lng: 25.0 },
+        { id: '2', name: 'P2', status: 'past', field: 'Hydro', lat: 48.0, lng: 26.0 },
+      ],
+      experts: [],
+      loading: false,
+      error: null,
+    },
+    a11y: { fontSize: 16, highContrast: false, reducedMotion: false },
+    ui: { selectedProjectId: storeMocks.selectedProjectId, hoveredProjectId: storeMocks.hoveredProjectId, selectedExpertId: null, expertImportDialog: null },
+    filters: { searchTerm: '', statusFilter: 'all', fieldFilter: 'all', countryFilter: 'all', activeTab: 'projects', sortKey: 'name', sortDirection: 'asc' },
+    setSelectedProjectId: storeMocks.setSelectedProjectId,
+    setHoveredProjectId: storeMocks.setHoveredProjectId,
+  }).useAppStore(sel)),
 }));
 
 vi.mock('../ProjectPolygon', () => ({
@@ -160,7 +161,7 @@ describe('MapView', () => {
     const user = userEvent.setup();
     render(<MapView />);
 
-    await user.click(screen.getAllByTestId('marker')[0]);
+    await user.click(screen.getAllByTestId('marker')[0]!);
 
     expect(storeMocks.setSelectedProjectId).toHaveBeenCalledWith('1');
   });
@@ -175,7 +176,7 @@ describe('MapView', () => {
 
     render(<MapView />);
 
-    await user.click(screen.getAllByTestId('marker')[0]);
+    await user.click(screen.getAllByTestId('marker')[0]!);
 
     expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' });
     sidebarCard.remove();
@@ -280,7 +281,7 @@ describe('MapView', () => {
     document.body.appendChild(card);
 
     render(<MapView />);
-    await user.click(screen.getAllByRole('button', { name: /scroll to card/i })[0]);
+    await user.click(screen.getAllByRole('button', { name: /scroll to card/i })[0]!);
 
     expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' });
     card.remove();

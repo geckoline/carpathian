@@ -4,18 +4,21 @@ import type { ProjectData } from '@/types/project';
 
 const normalizeSearchTerm = (searchTerm: string) => searchTerm.trim();
 
+const fuseCache = new Map<object, Fuse<unknown>>();
+
+const getCachedFuse = <T>(items: T[], options: IFuseOptions<T>): Fuse<T> => {
+  const cached = fuseCache.get(items as object) as Fuse<T> | undefined;
+  if (cached) return cached;
+  const fuse = new Fuse(items, { includeScore: true, ignoreLocation: true, minMatchCharLength: 2, threshold: 0.38, ...options });
+  fuseCache.set(items as object, fuse as Fuse<unknown>);
+  return fuse;
+};
+
 const filterWithFuse = <T>(items: T[], searchTerm: string, options: IFuseOptions<T>) => {
   const term = normalizeSearchTerm(searchTerm);
   if (!term) return items;
 
-  const fuse = new Fuse(items, {
-    includeScore: true,
-    ignoreLocation: true,
-    minMatchCharLength: 2,
-    threshold: 0.38,
-    ...options,
-  });
-
+  const fuse = getCachedFuse(items, options);
   return fuse.search(term).map((result) => result.item);
 };
 

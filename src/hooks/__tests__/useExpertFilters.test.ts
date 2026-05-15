@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useExpertFilters } from '../useExpertFilters';
-import type { FilterState } from '@/store/appStore';
+
+const createMockAppStore = vi.hoisted(() => (globalThis as any).__createMockAppStore);
 
 const mockExperts = [
   { id: '1', name: 'Dr. Elena Popescu', institution: 'Univ. of Bucharest', country: 'Romania', degree: 'PhD', bio: 'Leading research on biodiversity', expertise: ['Alpine Eco', 'Climate'] },
@@ -9,24 +10,23 @@ const mockExperts = [
   { id: '3', name: 'Dr. Laura Munteanu', institution: 'Carpathian Wildlife Inst.', country: 'Romania', degree: 'PhD', bio: 'Studies wolf pack dynamics', expertise: ['Wildlife Tracking', 'GIS'] },
 ];
 
-const defaultFilters: FilterState = {
-  searchTerm: '', statusFilter: 'all', fieldFilter: 'all', countryFilter: 'all', activeTab: 'projects', sortKey: 'name', sortDirection: 'asc',
-};
-
 const storeState: {
   data: { experts: typeof mockExperts };
-  filters: FilterState;
+  filters: { searchTerm: string; statusFilter: string; fieldFilter: string; countryFilter: string; activeTab: string; sortKey: string; sortDirection: string };
 } = {
   data: { experts: mockExperts },
-  filters: { ...defaultFilters },
+  filters: { searchTerm: '', statusFilter: 'all', fieldFilter: 'all', countryFilter: 'all', activeTab: 'projects', sortKey: 'name', sortDirection: 'asc' },
 };
 
 vi.mock('@/store/appStore', () => ({
-  useAppStore: (sel: any) => typeof sel === 'function' ? sel(storeState) : storeState,
+  useAppStore: vi.fn((sel?: any) => createMockAppStore({
+    data: { experts: storeState.data.experts as any, loading: false, error: null },
+    filters: storeState.filters as any,
+  }).useAppStore(sel)),
 }));
 
 beforeEach(() => {
-  storeState.filters = { ...defaultFilters };
+  storeState.filters = { searchTerm: '', statusFilter: 'all', fieldFilter: 'all', countryFilter: 'all', activeTab: 'projects', sortKey: 'name', sortDirection: 'asc' };
 });
 
 describe('useExpertFilters', () => {
@@ -39,14 +39,14 @@ describe('useExpertFilters', () => {
     storeState.filters.fieldFilter = 'alpine';
     const { result } = renderHook(() => useExpertFilters());
     expect(result.current.filteredExperts).toHaveLength(1);
-    expect(result.current.filteredExperts[0].name).toBe('Dr. Elena Popescu');
+    expect(result.current.filteredExperts[0]!.name).toBe('Dr. Elena Popescu');
   });
 
   it('filters by search term in name', () => {
     storeState.filters.searchTerm = 'marek';
     const { result } = renderHook(() => useExpertFilters());
     expect(result.current.filteredExperts).toHaveLength(1);
-    expect(result.current.filteredExperts[0].name).toBe('Dr. Marek Kowalski');
+    expect(result.current.filteredExperts[0]!.name).toBe('Dr. Marek Kowalski');
   });
 
   it('filters by search term in institution', () => {
@@ -59,7 +59,7 @@ describe('useExpertFilters', () => {
     storeState.filters.searchTerm = 'jagelonian';
     const { result } = renderHook(() => useExpertFilters());
     expect(result.current.filteredExperts).toHaveLength(1);
-    expect(result.current.filteredExperts[0].name).toBe('Dr. Marek Kowalski');
+    expect(result.current.filteredExperts[0]!.name).toBe('Dr. Marek Kowalski');
   });
 
   it('combines field and search filters', () => {
@@ -67,14 +67,14 @@ describe('useExpertFilters', () => {
     storeState.filters.searchTerm = 'elena';
     const { result } = renderHook(() => useExpertFilters());
     expect(result.current.filteredExperts).toHaveLength(1);
-    expect(result.current.filteredExperts[0].name).toBe('Dr. Elena Popescu');
+    expect(result.current.filteredExperts[0]!.name).toBe('Dr. Elena Popescu');
   });
 
   it('uses passed experts instead of store', () => {
-    const externalExperts = [mockExperts[0]];
+    const externalExperts = [mockExperts[0]!];
     const { result } = renderHook(() => useExpertFilters(externalExperts));
     expect(result.current.filteredExperts).toHaveLength(1);
-    expect(result.current.filteredExperts[0].name).toBe('Dr. Elena Popescu');
+    expect(result.current.filteredExperts[0]!.name).toBe('Dr. Elena Popescu');
   });
 
   it('filters by country', () => {

@@ -1,16 +1,19 @@
+import { useMemo } from 'react';
 import type { ProjectData } from '@/types/project';
 import type { ExpertData } from '@/types/expert';
 import AnimatedCounter from '@/components/ui/AnimatedCounter';
 
 export const StatsSection = ({ projects, experts }: { projects: ProjectData[]; experts: ExpertData[] }) => {
-  const activeProjects = projects.filter(p => p.status === 'active').length;
-  const countries = [...new Set(projects.map(p => p.country).filter(Boolean))].length;
-  const stats = [
-    { id: 'projects', label: 'Total Projects', value: projects.length },
-    { id: 'active', label: 'Active Projects', value: activeProjects },
-    { id: 'countries', label: 'Countries', value: countries },
-    { id: 'experts', label: 'Experts', value: experts.length },
-  ];
+  const stats = useMemo(() => {
+    const activeProjects = projects.filter(p => p.status === 'active').length;
+    const countries = [...new Set(projects.map(p => p.country).filter(Boolean))].length;
+    return [
+      { id: 'projects', label: 'Total Projects', value: projects.length },
+      { id: 'active', label: 'Active Projects', value: activeProjects },
+      { id: 'countries', label: 'Countries', value: countries },
+      { id: 'experts', label: 'Experts', value: experts.length },
+    ];
+  }, [projects, experts]);
 
   return (
     <section className="mb-4 sm:mb-6" aria-label="Platform statistics">

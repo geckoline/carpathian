@@ -3,19 +3,9 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AddExpertModal } from '@/components/modals/AddExpertModal';
 
-const mockSetAddExpertOpen = vi.fn();
-const mockSubmit = vi.fn();
-const mockOnClose = vi.fn();
+const createMockAppStore = vi.hoisted(() => (globalThis as any).__createMockAppStore);
 
-vi.mock('@/store/appStore', () => ({
-  useAppStore: vi.fn((selector) => {
-    const state = {
-      isOnline: true,
-      setAddExpertOpen: mockSetAddExpertOpen,
-    };
-    return selector ? selector(state) : state;
-  }),
-}));
+vi.mock('@/store/appStore', () => createMockAppStore());
 
 vi.mock('@/services/apiService', () => ({
   apiService: {
@@ -30,6 +20,9 @@ vi.mock('@/services/importValidator', () => ({
 }));
 
 describe('AddExpertModal', () => {
+  const mockOnClose = vi.fn();
+  const mockSubmit = vi.fn().mockResolvedValue(undefined);
+
   beforeEach(() => {
     vi.clearAllMocks();
   });

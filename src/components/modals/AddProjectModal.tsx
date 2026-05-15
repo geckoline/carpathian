@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Modal } from '@/components/common/Modal';
+import { FormModal } from '@/components/modals/FormModal';
 import { MapDrawingWrapper } from '@/components/map/MapDrawingWrapper';
 import { useAppStore } from '@/store/appStore';
 import { getCategoryOptions } from '@/utils/categories';
@@ -41,6 +41,7 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit, isOnline = true }: 
     formState: { errors, isSubmitting },
     setValue,
     watch,
+    getValues,
   } = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
@@ -55,14 +56,10 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit, isOnline = true }: 
   });
 
   useEffect(() => {
-    if (draftPolygon) setValue('areaCoords', draftPolygon);
-  }, [draftPolygon, setValue]);
-
-  useEffect(() => {
-    if (!watch('leadExpertId') && experts[0]?.id) {
+    if (!getValues('leadExpertId') && experts[0]?.id) {
       setValue('leadExpertId', experts[0].id, { shouldValidate: true });
     }
-  }, [experts, setValue, watch]);
+  }, [experts, setValue, getValues]);
 
   const areaCoords = watch('areaCoords');
 
@@ -94,20 +91,20 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit, isOnline = true }: 
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Add New Project" size="lg">
-      {/* ✅ Added noValidate to prevent jsdom native validation from blocking submission */}
-      <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-4" noValidate>
-        {!isOnline && (
-          <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2" role="alert">
-            You are offline. Project submissions are disabled until your connection is restored.
-          </p>
-        )}
-        {submitError && (
-          <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2" role="alert">
-            {submitError}
-          </p>
-        )}
-        {/* Name */}
+    <FormModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title="Add New Project"
+      size="lg"
+      submitLabel="Add Project"
+      isSubmitting={isSubmitting}
+      isOnline={isOnline}
+      submitError={submitError}
+      onSubmit={handleSubmit(handleSubmitForm)}
+      submitDisabled={experts.length === 0}
+      submitTestId="add-project-submit"
+    >
+      {/* Name */}
         <div>
           <label htmlFor="add-project-name" className="block text-sm font-medium mb-1">Project Name *</label>
           <Controller
@@ -118,7 +115,7 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit, isOnline = true }: 
                 {...field}
                 id="add-project-name"
                 className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                  errors.name ? 'border-red-500' : 'border-gray-300'
+                  errors.name ? 'border-red-500' : 'border-[var(--color-soft-border)]'
                 }`}
                 aria-invalid={!!errors.name}
               />
@@ -135,7 +132,7 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit, isOnline = true }: 
               name="status"
               control={control}
               render={({ field }) => (
-                <select {...field} id="add-project-status" className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500">
+                <select {...field} id="add-project-status" className="w-full px-3 py-2 border border-[var(--color-soft-border)] rounded focus:outline-none focus:ring-2 focus:ring-primary-500">
                   <option value="planned">Planned</option>
                   <option value="active">Active</option>
                   <option value="past">Past</option>
@@ -149,7 +146,7 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit, isOnline = true }: 
               name="field"
               control={control}
               render={({ field }) => (
-                <select {...field} id="add-project-field" data-testid="add-project-field-input" className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500">
+                <select {...field} id="add-project-field" data-testid="add-project-field-input" className="w-full px-3 py-2 border border-[var(--color-soft-border)] rounded focus:outline-none focus:ring-2 focus:ring-primary-500">
                   {categoryOptions.map((category) => (
                     <option key={category.id} value={category.id}>{category.label}</option>
                   ))}
@@ -169,7 +166,7 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit, isOnline = true }: 
                 {...field}
                 id="add-project-lead-expert"
                 className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                  errors.leadExpertId ? 'border-red-500' : 'border-gray-300'
+                  errors.leadExpertId ? 'border-red-500' : 'border-[var(--color-soft-border)]'
                 }`}
                 aria-invalid={!!errors.leadExpertId}
                 disabled={experts.length === 0}
@@ -200,7 +197,7 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit, isOnline = true }: 
             control={control}
             render={({ field }) => (
               <textarea {...field} id="add-project-description" rows={4} className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                errors.description ? 'border-red-500' : 'border-gray-300'
+                errors.description ? 'border-red-500' : 'border-[var(--color-soft-border)]'
               }`} />
             )}
           />
@@ -215,7 +212,7 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit, isOnline = true }: 
               name="location"
               control={control}
               render={({ field }) => (
-                <input {...field} id="add-project-location" className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                <input {...field} id="add-project-location" className="w-full px-3 py-2 border border-[var(--color-soft-border)] rounded focus:outline-none focus:ring-2 focus:ring-primary-500" />
               )}
             />
           </div>
@@ -225,7 +222,7 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit, isOnline = true }: 
               name="yearRange"
               control={control}
               render={({ field }) => (
-                <input {...field} id="add-project-year" placeholder="2024-2028" className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                <input {...field} id="add-project-year" placeholder="2024-2028" className="w-full px-3 py-2 border border-[var(--color-soft-border)] rounded focus:outline-none focus:ring-2 focus:ring-primary-500" />
               )}
             />
             {errors.yearRange && <p className="text-xs text-red-600 mt-1">{errors.yearRange.message}</p>}
@@ -235,7 +232,7 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit, isOnline = true }: 
         {/* Map Picker + Drawing */}
         <div>
           <label className="block text-sm font-medium mb-1">Project Area (Optional)</label>
-          <div className="h-64 border border-gray-300 rounded overflow-hidden">
+          <div className="h-64 border border-[var(--color-soft-border)] rounded overflow-hidden">
             <MapDrawingWrapper 
               onPolygonCreated={handlePolygonCreated}
               areaCoords={areaCoords}
@@ -262,18 +259,8 @@ export const AddProjectModal = ({ isOpen, onClose, onSubmit, isOnline = true }: 
 
         {/* Actions */}
         <div className="flex justify-end gap-3 pt-4 border-t">
-          <button type="button" onClick={handleClose} className="px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50">Cancel</button>
-          <button 
-            type="submit" 
-            disabled={isSubmitting || !isOnline || experts.length === 0}
-            data-testid="add-project-submit"
-            className="px-4 py-2 text-sm bg-primary-500 text-white rounded hover:bg-primary-600 disabled:opacity-50"
-          >
-            {isSubmitting ? 'Saving...' : 'Add Project'}
-          </button>
         </div>
-      </form>
-    </Modal>
+    </FormModal>
   );
 };
 

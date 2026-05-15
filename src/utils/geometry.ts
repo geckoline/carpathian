@@ -25,7 +25,7 @@ function douglasPeucker(points: [number, number][], tolerance: number): [number,
   let maxIdx = 0;
 
   for (let i = 1; i < points.length - 1; i++) {
-    const dist = perpendicularDistance(points[i], points[0], points[points.length - 1]);
+    const dist = perpendicularDistance(points[i]!, points[0]!, points[points.length - 1]!);
     if (dist > maxDist) {
       maxDist = dist;
       maxIdx = i;
@@ -38,7 +38,7 @@ function douglasPeucker(points: [number, number][], tolerance: number): [number,
     return [...left.slice(0, -1), ...right];
   }
 
-  return [points[0], points[points.length - 1]];
+  return [points[0]!, points[points.length - 1]!];
 }
 
 export function simplifyPolygon(

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useProjectSubmission } from '../useProjectSubmission';
 
+const createMockAppStore = vi.hoisted(() => (globalThis as any).__createMockAppStore);
 const mockAddProject = vi.fn();
 const mockSetStatusMessage = vi.fn();
 
@@ -9,14 +10,11 @@ let mockOnline = true;
 let mockExperts: Array<{ id: string; name: string }> = [{ id: 'exp-1', name: 'Dr. Test' }];
 
 vi.mock('@/store/appStore', () => ({
-  useAppStore: (sel: any) => {
-    const state = {
-      isOnline: mockOnline,
-      addProject: mockAddProject,
-      data: { experts: mockExperts },
-    };
-    return typeof sel === 'function' ? sel(state) : state;
-  },
+  useAppStore: vi.fn((sel?: any) => createMockAppStore({
+    isOnline: mockOnline,
+    addProject: mockAddProject,
+    data: { experts: mockExperts as any, loading: false, error: null },
+  }).useAppStore(sel)),
 }));
 
 vi.mock('@/services/apiService', () => ({

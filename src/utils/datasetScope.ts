@@ -1,4 +1,4 @@
-import type { DatasetMode } from '@/store/appStore';
+import type { DatasetMode } from '@/types/app';
 import type { ExpertData } from '@/types/expert';
 import type { ProjectData } from '@/types/project';
 

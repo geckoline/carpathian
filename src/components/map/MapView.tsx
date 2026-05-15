@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useState, type ComponentType, type ReactNode } from 'react';
+import { Suspense, lazy, useEffect, useState, useMemo, type ComponentType, type ReactNode } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { useAppStore } from '@/store/appStore';
@@ -67,10 +67,20 @@ type ClusterIconContext = {
   getChildCount: () => number;
 };
 
+const createClusterIcon = (cluster: ClusterIconContext) => {
+  const count = cluster.getChildCount();
+  const label = `${count} projects in this area`;
+  return L.divIcon({
+    html: `<div role="img" aria-label="${label}" title="${label}" style="background:#006633; color:#fff; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; font-weight:bold; border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.3);">${count}</div>`,
+    className: 'cluster-marker',
+    iconSize: L.point(40, 40),
+  });
+};
+
 const mapControlClass = (isActive: boolean) => `inline-flex items-center gap-2 px-4 py-1.5 text-sm border rounded-full transition font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 ${
   isActive
     ? 'bg-primary-500 text-white border-primary-500 shadow-sm'
-    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+    : 'bg-white text-gray-700 border-[var(--color-soft-border)] hover:bg-gray-100'
 }`;
 
 const MapController = ({ filteredProjects }: { filteredProjects: ProjectData[] }) => {
@@ -146,14 +156,13 @@ export const MapView = ({ projects: propProjects }: { projects?: ProjectData[] }
   };
 
   const toggleLabels = () => setShowLabels(prev => !prev);
-  const projectMarkers = displayProjects.map((project) => (
+  const projectMarkers = useMemo(() => displayProjects.map((project) => (
     <Marker
       key={project.id}
       position={[project.lat, project.lng]}
       icon={createCustomIcon(project.status)}
       eventHandlers={{
-        click: (e) => {
-          e.sourceTarget.openPopup();
+        click: () => {
           setSelectedProjectId(project.id);
           scrollElementIntoView(`map-sidebar-card-${project.id}`, reducedMotion);
         },
@@ -174,7 +183,7 @@ export const MapView = ({ projects: propProjects }: { projects?: ProjectData[] }
         </div>
       </Popup>
     </Marker>
-  ));
+  )), [displayProjects, setSelectedProjectId, reducedMotion]);
 
   return (
     <div className="flex h-full min-h-[420px] w-full flex-col overflow-hidden">
@@ -251,15 +260,7 @@ export const MapView = ({ projects: propProjects }: { projects?: ProjectData[] }
               maxClusterRadius={50}
               showCoverageOnHover={false}
               spiderfyOnMaxZoom
-              iconCreateFunction={(cluster: ClusterIconContext) => {
-                const count = cluster.getChildCount();
-                const label = `${count} projects in this area`;
-                return L.divIcon({
-                  html: `<div role="button" aria-label="${label}" title="${label}" style="background:#006633; color:#fff; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; font-weight:bold; border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.3);">${count}</div>`,
-                  className: 'cluster-marker',
-                  iconSize: L.point(40, 40),
-                });
-              }}
+              iconCreateFunction={createClusterIcon}
             >
               {projectMarkers}
             </MarkerClusterGroup>

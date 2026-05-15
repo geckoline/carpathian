@@ -3,7 +3,10 @@ import { useAppStore, type ThemeMode } from '@/store/appStore';
 import { useLocalStorage } from './useLocalStorage';
 
 export const useApplyAccessibility = () => {
-  const { a11y, setA11y, theme = 'light', setTheme } = useAppStore();
+  const a11y = useAppStore(s => s.a11y);
+  const setA11y = useAppStore(s => s.setA11y);
+  const theme = useAppStore(s => s.theme) ?? 'light';
+  const setTheme = useAppStore(s => s.setTheme);
 
   const [, setStoredA11y] = useLocalStorage('ccs-a11y-settings', a11y);
   const [, setStoredTheme] = useLocalStorage<ThemeMode>('ccs-theme', theme);

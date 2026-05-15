@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom/vitest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import MapSidebar from '../MapSidebar';
 import { useAppStore } from '@/store/appStore';
 import type { ProjectData } from '@/types/project';
@@ -35,7 +36,7 @@ describe('MapSidebar', () => {
         sortKey: 'name',
         sortDirection: 'asc',
       },
-      ui: { isMapVisible: true, selectedExpertId: null, selectedProjectId: null, isAddExpertOpen: false, expertImportDialog: null, hoveredProjectId: null },
+      ui: { selectedExpertId: null, selectedProjectId: null, expertImportDialog: null, hoveredProjectId: null },
       a11y: { fontSize: 16, highContrast: false, reducedMotion: false },
     });
   });
@@ -83,19 +84,18 @@ describe('MapSidebar', () => {
 
   it('centers and pulses the selected map sidebar card', async () => {
     vi.useFakeTimers();
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+
     render(<MapSidebar projects={[mappedProject]} />);
 
     const card = screen.getByRole('button', { name: /select mapped project on the map/i });
-    const scrollIntoView = vi.fn();
-    card.scrollIntoView = scrollIntoView;
 
     await act(async () => {
       useAppStore.setState({
         ui: {
-          isMapVisible: true,
           selectedExpertId: null,
           selectedProjectId: mappedProject.id,
-          isAddExpertOpen: false,
           expertImportDialog: null,
           hoveredProjectId: null,
         },
@@ -110,5 +110,10 @@ describe('MapSidebar', () => {
     });
 
     expect(card).not.toHaveClass('map-sidebar-card-pulse');
+  });
+
+  it('has no accessibility violations', async () => {
+    const { container } = render(<MapSidebar projects={[mappedProject]} />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

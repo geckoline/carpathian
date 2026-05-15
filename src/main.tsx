@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
 import App from './App';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 
 const rootElement = document.getElementById('citizen-science-root');
 if (!rootElement) {
@@ -11,6 +12,8 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>
 );

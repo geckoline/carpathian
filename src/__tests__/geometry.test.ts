@@ -63,8 +63,8 @@ describe('generateAutoCircle', () => {
 
   it('first and last point are the same (closed circle)', () => {
     const result = generateAutoCircle([47.5, 25], 25, 32);
-    expect(result[0][0]).toBeCloseTo(result[result.length - 1][0], 10);
-    expect(result[0][1]).toBeCloseTo(result[result.length - 1][1], 10);
+    expect(result[0]![0]).toBeCloseTo(result[result.length - 1]![0], 10);
+    expect(result[0]![1]).toBeCloseTo(result[result.length - 1]![1], 10);
   });
 
   it('center remains inside the generated circle', () => {

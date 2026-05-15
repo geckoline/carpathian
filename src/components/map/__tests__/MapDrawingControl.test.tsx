@@ -2,6 +2,8 @@ import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, waitFor } from '@testing-library/react';
 
+const createMockAppStore = vi.hoisted(() => (globalThis as any).__createMockAppStore);
+
 const mapMock = vi.hoisted(() => ({
   addLayer: vi.fn(),
   addControl: vi.fn(),
@@ -62,10 +64,9 @@ vi.mock('leaflet', () => ({
 vi.mock('leaflet-draw', () => ({}));
 
 vi.mock('@/store/appStore', () => ({
-  useAppStore: vi.fn((selector?: Function) => {
-    const state = { setDraftPolygon: leafletMock.setDraftPolygon };
-    return selector ? selector(state) : state;
-  }),
+  useAppStore: vi.fn((sel?: any) => createMockAppStore({
+    setDraftPolygon: leafletMock.setDraftPolygon,
+  }).useAppStore(sel)),
 }));
 
 const flushPromises = async () => {

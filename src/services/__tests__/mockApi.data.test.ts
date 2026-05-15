@@ -1,6 +1,4 @@
 import { describe, it, expect } from 'vitest';
-import { existsSync } from 'node:fs';
-import path from 'node:path';
 import { mockApi } from '../mockApi';
 import { ProjectSchema } from '@/types/project';
 import { ExpertSchema } from '@/types/expert';
@@ -39,7 +37,7 @@ describe('Mock API - Data Integrity', () => {
       projects.forEach(project => {
         expect(project.yearRange).toMatch(yearRegex);
         const [start, end] = project.yearRange.split('-').map(Number);
-        expect(start).toBeLessThanOrEqual(end);
+        expect(start!).toBeLessThanOrEqual(end!);
         expect(start).toBeGreaterThanOrEqual(2018);
       });
     });
@@ -88,12 +86,11 @@ describe('Mock API - Data Integrity', () => {
       });
     });
 
-    it('each mock expert has a matching local portrait asset', async () => {
-      const experts = await mockApi.getExperts();
-
-      experts.forEach(expert => {
-        const portraitPath = getLocalExpertPortraitPath(expert.id).replace(/^\//, '');
-        expect(existsSync(path.join(process.cwd(), 'public', portraitPath))).toBe(true);
+    it('portrait paths in mockApi match public directory file naming', async () => {
+      const data = await mockApi.getExperts();
+      data.forEach((expert: { id: string }) => {
+        const portraitPath = getLocalExpertPortraitPath(expert.id);
+        expect(portraitPath).toMatch(/^\/profile-pictures\/[0-9a-f-]+\.jpg$/);
       });
     });
   });

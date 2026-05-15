@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">80.76% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>21/26</span>
+                <span class='fraction'>26/26</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">33.33% </span>
+                <span class="strong">83.33% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/6</span>
+                <span class='fraction'>5/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">70% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>7/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">95.23% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>20/21</span>
+                <span class='fraction'>21/21</span>
             </div>
         
             
@@ -107,39 +107,39 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">74x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">80x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">74x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">80x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">74x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">80x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -156,15 +156,15 @@ export const useRealtimeSync = () =&gt; {
 &nbsp;
     loadAppData()
       .then(({ projects, experts }) =&gt; {
-        <span class="missing-if-branch" title="if path not taken" >I</span>if (cancelled) <span class="cstat-no" title="statement not covered" >return;</span>
+        if (cancelled) return;
         setProjects(projects);
         setExperts(experts);
       })
-      .<span class="fstat-no" title="function not covered" >catch((e</span>rr) =&gt; {
-<span class="cstat-no" title="statement not covered" >        if (!cancelled) <span class="cstat-no" title="statement not covered" >setError(err.message);</span></span>
+      .catch((err) =&gt; {
+        <span class="missing-if-branch" title="else path not taken" >E</span>if (!cancelled) setError(err.message);
       })
       .finally(() =&gt; {
-        <span class="missing-if-branch" title="else path not taken" >E</span>if (!cancelled) setLoading(false);
+        if (!cancelled) setLoading(false);
       });
 &nbsp;
     return () =&gt; {
@@ -173,8 +173,8 @@ export const useRealtimeSync = () =&gt; {
   }, [setProjects, setExperts, setLoading, setError]);
 &nbsp;
   useEffect(() =&gt; {
-    const <span class="fstat-no" title="function not covered" >handleOnline = () =&gt; <span class="cstat-no" title="statement not covered" >u</span>seAppStore.getState().setOnlineStatus(true);</span>
-    const <span class="fstat-no" title="function not covered" >handleOffline = () =&gt; <span class="cstat-no" title="statement not covered" >u</span>seAppStore.getState().setOnlineStatus(false);</span>
+    const handleOnline = () =&gt; useAppStore.getState().setOnlineStatus(true);
+    const handleOffline = () =&gt; useAppStore.getState().setOnlineStatus(false);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     return () =&gt; {
@@ -190,7 +190,7 @@ export const useRealtimeSync = () =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-05-14T19:45:58.766Z
+                at 2026-05-14T19:58:35.139Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

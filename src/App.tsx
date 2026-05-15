@@ -1,4 +1,4 @@
-import { Suspense, lazy, useState, useMemo } from 'react';
+import { Suspense, lazy, useState, useMemo, useCallback } from 'react';
 import { useAppStore } from '@/store/appStore';
 import { useRealtimeSync } from '@/hooks/useRealtimeSync';
 import { useUrlSync } from '@/hooks/useUrlSync';
@@ -15,7 +15,11 @@ import FilterBar from '@/components/layout/FilterBar';
 import MapSidebar from '@/components/map/MapSidebar';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import AccessibilityControls from '@/components/layout/AccessibilityControls';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
+import { VirtualizedCardGrid } from '@/components/ui/VirtualizedCardGrid';
+import { ExportButton } from '@/components/ui/ExportButton';
+import { downloadAsCSV, downloadAsJSON } from '@/utils/dataExport';
 import { getDatasetExperts, getDatasetProjects } from '@/utils/datasetScope';
 
 const MapView = lazy(() => import('@/components/map/MapView'));
@@ -27,22 +31,32 @@ export default function App() {
   useRealtimeSync();
   useUrlSync();
   useApplyAccessibility();
-  const {
-    dataset, isOnline,
-    filters, data, setActiveTab, setDataset, clearFilters,
-  } = useAppStore();
+  const dataset = useAppStore(s => s.dataset);
+  const isOnline = useAppStore(s => s.isOnline);
+  const activeTab = useAppStore(s => s.filters.activeTab);
+  const searchTerm = useAppStore(s => s.filters.searchTerm);
+  const statusFilter = useAppStore(s => s.filters.statusFilter);
+  const fieldFilter = useAppStore(s => s.filters.fieldFilter);
+  const countryFilter = useAppStore(s => s.filters.countryFilter);
+  const storeProjects = useAppStore(s => s.data.projects);
+  const storeExperts = useAppStore(s => s.data.experts);
+  const dataLoading = useAppStore(s => s.data.loading);
+  const dataError = useAppStore(s => s.data.error);
+  const setActiveTab = useAppStore(s => s.setActiveTab);
+  const setDataset = useAppStore(s => s.setDataset);
+  const clearFilters = useAppStore(s => s.clearFilters);
 
   const projectsToFilter = useMemo(
-    () => getDatasetProjects(dataset, data.projects),
-    [dataset, data.projects]
+    () => getDatasetProjects(dataset, storeProjects),
+    [dataset, storeProjects]
   );
   const expertsToFilter = useMemo(
-    () => getDatasetExperts(dataset, data.projects, data.experts),
-    [dataset, data.projects, data.experts]
+    () => getDatasetExperts(dataset, storeProjects, storeExperts),
+    [dataset, storeProjects, storeExperts]
   );
   const { filteredProjects } = useProjectFilters(projectsToFilter);
   const { filteredExperts } = useExpertFilters(expertsToFilter);
-  const isLoading = data.loading && data.projects.length === 0 && !data.error;
+  const isLoading = dataLoading && storeProjects.length === 0 && !dataError;
 
   const addProjectModal = useModal();
   const addExpertModal = useModal();
@@ -51,12 +65,17 @@ export default function App() {
   const { submitProject } = useProjectSubmission(setStatusMessage);
   const { submitVolunteerSubscription } = useVolunteerSubscription(setStatusMessage);
   const addExpert = useAppStore(s => s.addExpert);
+  const renderCardItem = useCallback((item: any) =>
+    activeTab === 'projects'
+      ? <ProjectCard key={item.id} {...item} />
+      : <ExpertCard key={item.id} {...item} />
+  , [activeTab]);
 
   const activeProjects = filteredProjects;
   const activeExperts = filteredExperts;
-  const activeItems = filters.activeTab === 'projects' ? activeProjects : activeExperts;
-  const hasActiveFilters = filters.searchTerm !== '' || filters.statusFilter !== 'all' || filters.fieldFilter !== 'all' || filters.countryFilter !== 'all';
-  const emptyState = filters.activeTab === 'projects'
+  const activeItems = activeTab === 'projects' ? activeProjects : activeExperts;
+  const hasActiveFilters = searchTerm !== '' || statusFilter !== 'all' || fieldFilter !== 'all' || countryFilter !== 'all';
+  const emptyState = activeTab === 'projects'
     ? {
         title: 'No projects found',
         description: 'Adjust your filters or add a project to start building the map.',
@@ -68,11 +87,11 @@ export default function App() {
           : 'Adjust your filters to find experts across the Carpathian network.',
       };
 
-  if (data.error) {
+  if (dataError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4 text-red-600 p-6 text-center" role="alert">
         <p className="text-xl font-semibold">Failed to load platform data</p>
-        <p className="text-sm text-text-muted max-w-md">{data.error}</p>
+        <p className="text-sm text-text-muted max-w-md">{dataError}</p>
         <button onClick={() => window.location.reload()} className="mt-2 px-4 py-2 text-sm bg-primary-500 text-white rounded hover:bg-primary-600">Retry</button>
       </div>
     );
@@ -114,6 +133,7 @@ export default function App() {
           <button
             role="tab"
             aria-selected={dataset === 'cs'}
+            aria-controls="dataset-panel"
             onClick={() => setDataset('cs')}
             className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition focus:outline-none focus:ring-2 focus:ring-primary-500 sm:flex-none sm:px-4 ${dataset === 'cs' ? 'bg-[var(--color-panel-surface)] text-primary-700 shadow-sm' : 'text-text-muted hover:text-primary-600'}`}
           >
@@ -122,6 +142,7 @@ export default function App() {
           <button
             role="tab"
             aria-selected={dataset === 'all'}
+            aria-controls="dataset-panel"
             onClick={() => setDataset('all')}
             className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition focus:outline-none focus:ring-2 focus:ring-primary-500 sm:flex-none sm:px-4 ${dataset === 'all' ? 'bg-[var(--color-panel-surface)] text-primary-700 shadow-sm' : 'text-text-muted hover:text-primary-600'}`}
           >
@@ -130,12 +151,14 @@ export default function App() {
         </div>
       </div>
 
-      <section className="px-4 md:px-6 lg:px-8 max-w-7xl mx-auto w-full mb-6 sm:mb-8">
+      <section id="dataset-panel" role="tabpanel" className="px-4 md:px-6 lg:px-8 max-w-7xl mx-auto w-full mb-6 sm:mb-8">
         <div className="flex flex-col lg:flex-row min-h-[460px] gap-4 sm:gap-6 lg:h-[70vh] lg:min-h-[500px]">
           <div className="h-[460px] flex-1 min-w-0 rounded-[var(--radius-panel)] overflow-hidden border border-[var(--color-panel-border)] shadow-[var(--shadow-panel)] relative bg-[var(--color-panel-surface)] sm:h-[560px] lg:h-auto">
-            <Suspense fallback={<div className="h-full w-full bg-surface-muted animate-pulse flex items-center justify-center text-text-muted">Loading map...</div>}>
-              <MapView projects={projectsToFilter} />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<div className="h-full w-full bg-surface-muted animate-pulse flex items-center justify-center text-text-muted">Loading map...</div>}>
+                <MapView projects={projectsToFilter} />
+              </Suspense>
+            </ErrorBoundary>
           </div>
           <aside className="w-full lg:w-[380px] lg:flex-shrink-0">
             <MapSidebar
@@ -152,50 +175,77 @@ export default function App() {
       <section className="px-4 md:px-6 lg:px-8 max-w-7xl mx-auto w-full pb-8">
         <FilterBar />
 
-        <div className="flex gap-2 mb-4" aria-label="View tabs">
-          <button onClick={() => setActiveTab('projects')} className={`px-3 py-1 rounded text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-primary-500 ${filters.activeTab === 'projects' ? 'bg-primary-500 text-white' : 'bg-white text-primary-500 border border-primary-500'}`} aria-pressed={filters.activeTab === 'projects'}>Projects</button>
-          <button onClick={() => setActiveTab('experts')} className={`px-3 py-1 rounded text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-primary-500 ${filters.activeTab === 'experts' ? 'bg-primary-500 text-white' : 'bg-white text-primary-500 border border-primary-500'}`} aria-pressed={filters.activeTab === 'experts'}>Experts</button>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex gap-2" role="tablist" aria-label="Content view">
+            <button
+              role="tab"
+              aria-selected={activeTab === 'projects'}
+              aria-controls="view-panel"
+              onClick={() => setActiveTab('projects')}
+              className={`px-3 py-1 rounded text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-primary-500 ${activeTab === 'projects' ? 'bg-primary-500 text-white' : 'bg-white text-primary-500 border border-primary-500'}`}
+            >
+              Projects
+            </button>
+            <button
+              role="tab"
+              aria-selected={activeTab === 'experts'}
+              aria-controls="view-panel"
+              onClick={() => setActiveTab('experts')}
+              className={`px-3 py-1 rounded text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-primary-500 ${activeTab === 'experts' ? 'bg-primary-500 text-white' : 'bg-white text-primary-500 border border-primary-500'}`}
+            >
+              Experts
+            </button>
+          </div>
+          <ExportButton
+            onExportCSV={() => downloadAsCSV(activeItems as unknown as Record<string, unknown>[], `${activeTab}-${new Date().toISOString().slice(0, 10)}.csv`)}
+            onExportJSON={() => downloadAsJSON(activeItems as unknown[], `${activeTab}-${new Date().toISOString().slice(0, 10)}.json`)}
+            disabled={activeItems.length === 0}
+          />
         </div>
 
-        <section aria-live="polite" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" role="status">
+        <section id="view-panel" role="tabpanel" className="mt-3">
           {isLoading ? (
-            <><SkeletonCard type="project" /><SkeletonCard type="project" /></>
-          ) : (
-            <>
-              {filters.activeTab === 'projects' && activeProjects.map(p => (
-                <ProjectCard key={p.id} {...p} />
-              ))}
-              {filters.activeTab === 'experts' && activeExperts.map(e => (
-                <ExpertCard key={e.id} {...e} />
-              ))}
-            </>
-          )}
-          {(!isLoading && activeItems.length === 0) && (
-            <div className="col-span-full rounded-[var(--radius-panel)] border border-dashed border-[var(--color-panel-border)] bg-[var(--color-panel-surface)] shadow-[var(--shadow-panel)] px-6 py-12 text-center text-text-muted">
-              <h2 className="text-lg font-semibold text-primary-700">{emptyState.title}</h2>
-              <p className="mx-auto mt-2 max-w-xl text-sm">{emptyState.description}</p>
-              {hasActiveFilters && (
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="mt-4 rounded-full border border-primary-500 px-4 py-2 text-sm font-medium text-primary-700 hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                >
-                  Clear filters
-                </button>
-              )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              <SkeletonCard type="project" />
+              <SkeletonCard type="project" />
             </div>
+          ) : activeItems.length === 0 ? (
+            <div className="grid grid-cols-1 gap-4 sm:gap-6">
+              <div className="col-span-full rounded-[var(--radius-panel)] border-2 border-dashed border-[var(--color-soft-border)] bg-gradient-to-b from-[var(--color-panel-surface)] to-[var(--color-panel-surface-soft)] shadow-[var(--shadow-panel)] px-6 py-16 text-center text-text-muted">
+                <h2 className="text-lg font-semibold text-primary-700">{emptyState.title}</h2>
+                <p className="mx-auto mt-2 max-w-xl text-sm">{emptyState.description}</p>
+                {hasActiveFilters && (
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="mt-4 rounded-full border border-primary-500 px-4 py-2 text-sm font-medium text-primary-700 hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  >
+                    Clear filters
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <VirtualizedCardGrid
+              items={activeItems}
+              renderItem={renderCardItem}
+              minVirtualizeCount={50}
+            />
           )}
         </section>
       </section>
 
       {addProjectModal.isOpen && (
-        <Suspense fallback={null}>
-          <AddProjectModal isOpen={addProjectModal.isOpen} onClose={addProjectModal.close} onSubmit={async (data) => { await submitProject(data); addProjectModal.close(); }} isOnline={isOnline} />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <AddProjectModal isOpen={addProjectModal.isOpen} onClose={addProjectModal.close} onSubmit={async (data) => { await submitProject(data); addProjectModal.close(); }} isOnline={isOnline} />
+          </Suspense>
+        </ErrorBoundary>
       )}
       {addExpertModal.isOpen && (
-        <Suspense fallback={null}>
-          <AddExpertModal
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <AddExpertModal
             isOpen={addExpertModal.isOpen}
             onClose={addExpertModal.close}
             onSubmit={async (data) => {
@@ -221,11 +271,14 @@ export default function App() {
             isOnline={isOnline}
           />
         </Suspense>
+        </ErrorBoundary>
       )}
       {volunteerModal.isOpen && (
-        <Suspense fallback={null}>
-          <VolunteerModal isOpen={volunteerModal.isOpen} onClose={volunteerModal.close} onSubmit={async (data) => { await submitVolunteerSubscription(data); volunteerModal.close(); }} isOnline={isOnline} />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <VolunteerModal isOpen={volunteerModal.isOpen} onClose={volunteerModal.close} onSubmit={async (data) => { await submitVolunteerSubscription(data); volunteerModal.close(); }} isOnline={isOnline} />
+          </Suspense>
+        </ErrorBoundary>
       )}
     </main>
   );

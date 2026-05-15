@@ -13,7 +13,7 @@ const toGeometryWkt = (areaCoords?: [number, number][]) => {
   }
 
   const coords = areaCoords.map(([lat, lng]) => `${lng.toFixed(4)} ${lat.toFixed(4)}`).join(', ');
-  const [firstLat, firstLng] = areaCoords[0];
+  const [firstLat, firstLng] = areaCoords[0]!;
   return `geometry('POLYGON((${coords}, ${firstLng.toFixed(4)} ${firstLat.toFixed(4)}))', 4326)`;
 };
 

@@ -118,7 +118,7 @@ export const MapDrawingControl = ({ onPolygonCreated }: MapDrawingControlProps) 
       cancelled = true;
       cleanup?.();
     };
-  }, [map, onPolygonCreated]);
+  }, [map, onPolygonCreated, setDraftPolygon]);
 
   return null;
 };

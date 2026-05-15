@@ -2,8 +2,10 @@ import '@testing-library/jest-dom/vitest';
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import { AddProjectModal } from '../AddProjectModal';
 
+const createMockAppStore = vi.hoisted(() => (globalThis as any).__createMockAppStore);
 const storeMock = vi.hoisted(() => ({
   draftPolygon: null as [number, number][] | null,
   setDraftPolygon: vi.fn(),
@@ -22,14 +24,11 @@ vi.mock('@/components/common/Modal', () => ({
 
 // Mock store
 vi.mock('@/store/appStore', () => ({
-  useAppStore: vi.fn((selector?: Function) => {
-    const state = {
-      data: { experts: storeMock.experts },
-      draftPolygon: storeMock.draftPolygon,
-      setDraftPolygon: storeMock.setDraftPolygon,
-    };
-    return selector ? selector(state) : state;
-  }),
+  useAppStore: vi.fn((sel?: any) => createMockAppStore({
+    data: { experts: storeMock.experts, loading: false, error: null },
+    draftPolygon: storeMock.draftPolygon,
+    setDraftPolygon: storeMock.setDraftPolygon,
+  }).useAppStore(sel)),
 }));
 
 // Mock react-leaflet (needed because MapDrawingControl imports react-leaflet)
@@ -155,7 +154,7 @@ describe('AddProjectModal', () => {
     });
 
     expect(storeMock.setDraftPolygon).toHaveBeenLastCalledWith(null);
-    expect(mockOnSubmit.mock.calls[0][0].areaCoords).toBeUndefined();
+    expect(mockOnSubmit.mock.calls[0]![0].areaCoords).toBeUndefined();
   });
 
   it('validates polygon minimum points before submit', async () => {
@@ -202,5 +201,10 @@ describe('AddProjectModal', () => {
     render(<AddProjectModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} />);
     await user.click(screen.getByRole('button', { name: /cancel/i }));
     expect(mockOnClose).toHaveBeenCalled();
+  });
+
+  it('has no accessibility violations', async () => {
+    const { container } = render(<AddProjectModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

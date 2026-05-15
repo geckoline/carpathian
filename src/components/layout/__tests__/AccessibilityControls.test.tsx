@@ -2,16 +2,13 @@ import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import AccessibilityControls from '../AccessibilityControls';
 
-const mockSetA11y = vi.fn();
+const createMockAppStore = vi.hoisted(() => (globalThis as any).__createMockAppStore);
+const mockSetA11y = vi.hoisted(() => vi.fn());
 
-vi.mock('@/store/appStore', () => ({
-  useAppStore: vi.fn(() => ({
-    a11y: { fontSize: 16, highContrast: false, reducedMotion: false },
-    setA11y: mockSetA11y,
-  })),
-}));
+vi.mock('@/store/appStore', () => createMockAppStore({ setA11y: mockSetA11y }));
 
 describe('AccessibilityControls', () => {
   beforeEach(() => { mockSetA11y.mockClear(); });
@@ -69,7 +66,21 @@ describe('AccessibilityControls', () => {
     render(<AccessibilityControls />);
     await user.click(screen.getByLabelText('Accessibility settings'));
     const switches = screen.getAllByRole('switch');
-    await user.click(switches[0]);
+    await user.click(switches[0]!);
     expect(mockSetA11y).toHaveBeenCalledWith({ highContrast: true });
+  });
+
+  it('toggles reduced motion on click', async () => {
+    const user = userEvent.setup();
+    render(<AccessibilityControls />);
+    await user.click(screen.getByLabelText('Accessibility settings'));
+    const switches = screen.getAllByRole('switch');
+    await user.click(switches[1]!);
+    expect(mockSetA11y).toHaveBeenCalledWith({ reducedMotion: true });
+  });
+
+  it('has no accessibility violations', async () => {
+    const { container } = render(<AccessibilityControls />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

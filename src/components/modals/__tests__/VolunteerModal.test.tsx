@@ -2,6 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import { VolunteerModal } from '../VolunteerModal';
 
 vi.mock('@/components/common/Modal', () => ({
@@ -92,5 +93,10 @@ describe('VolunteerModal', () => {
 
     expect(screen.getByRole('alert')).toHaveTextContent(/offline/i);
     expect(screen.getByRole('button', { name: /subscribe for alerts/i })).toBeDisabled();
+  });
+
+  it('has no accessibility violations', async () => {
+    const { container } = render(<VolunteerModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

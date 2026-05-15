@@ -7,6 +7,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const readSource = (relativePath: string) => readFileSync(resolve(__dirname, relativePath), 'utf-8');
 
 describe('CSS safety checks', () => {
+  it('does not import from removed shadcn package', () => {
+    const css = readSource('../../src/index.css');
+    expect(css).not.toMatch(/@import\s+["']shadcn/i);
+  });
+
   it('app CSS contains no IE-specific filter properties', () => {
     const css = readSource('../../src/index.css');
     expect(css).not.toMatch(/progid:DXImageTransform/i);

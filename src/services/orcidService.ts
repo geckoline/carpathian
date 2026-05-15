@@ -26,7 +26,7 @@ export const orcidService = {
       const parsed = new URL(url);
       if (!parsed.hostname.endsWith('orcid.org')) return null;
       const match = parsed.pathname.match(/^\/(\d{4}-\d{4}-\d{4}-\d{3}[\dX])\/?$/);
-      return match ? match[1] : null;
+      return match ? match[1]! : null;
     } catch {
       return null;
     }

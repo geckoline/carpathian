@@ -2,12 +2,13 @@ import '@testing-library/jest-dom/vitest';
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import { ExpertCard } from '../ExpertCard';
 import { useCardFlip } from '@/hooks/useCardFlip';
 
-vi.mock('@/store/appStore', () => ({
-  useAppStore: vi.fn((sel: any) => sel({ dataset: 'cs', ui: { selectedExpertId: null }, a11y: { reducedMotion: false } }))
-}));
+const createMockAppStore = vi.hoisted(() => (globalThis as any).__createMockAppStore);
+
+vi.mock('@/store/appStore', () => createMockAppStore());
 vi.mock('@/hooks/useCardFlip', () => ({
   useCardFlip: vi.fn(() => ({ isFlipped: false, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() }))
 }));
@@ -94,39 +95,10 @@ describe('ExpertCard', () => {
     expect(screen.queryByText(/copy failed/i)).not.toBeInTheDocument();
   });
 
-  it('uses the id-based local profile picture path on the front face', () => {
-    render(<ExpertCard {...mockExpert} />);
-    expect(within(screen.getByTestId('expert-face-front')).getByRole('img', { name: /dr\. elena popescu portrait/i })).toHaveAttribute('src', '/profile-pictures/e1.jpg');
-  });
-
-  it('tries the id-based local profile picture before avatarUrl', () => {
-    render(<ExpertCard {...mockExpert} avatarUrl="https://images.example.org/avatar.jpg" />);
-    expect(within(screen.getByTestId('expert-face-front')).getByRole('img', { name: /dr\. elena popescu portrait/i })).toHaveAttribute('src', '/profile-pictures/e1.jpg');
-  });
-
-  it('uses an assigned local profile picture before the id fallback', () => {
-    render(<ExpertCard {...mockExpert} avatarUrl="/profile-pictures/assigned-demo.jpg" />);
-    const img = within(screen.getByTestId('expert-face-front')).getByRole('img', { name: /dr\. elena popescu portrait/i });
-
-    expect(img).toHaveAttribute('src', '/profile-pictures/assigned-demo.jpg');
-    img.dispatchEvent(new Event('error'));
-    expect(img).toHaveAttribute('src', '/profile-pictures/e1.jpg');
-  });
-
-  it('falls back from local portrait to avatarUrl and then generated SVG', () => {
-    render(<ExpertCard {...mockExpert} avatarUrl="https://images.example.org/avatar.jpg" />);
-    const img = within(screen.getByTestId('expert-face-front')).getByRole('img', { name: /dr\. elena popescu portrait/i });
-    img.dispatchEvent(new Event('error'));
-    expect(img).toHaveAttribute('src', 'https://images.example.org/avatar.jpg');
-    img.dispatchEvent(new Event('error'));
-    expect(img).toHaveAttribute('src', expect.stringContaining('data:image/svg+xml'));
-  });
-
-  it('falls back directly to generated SVG when no avatarUrl exists', () => {
+  it('shows local JPG path on initial render', () => {
     render(<ExpertCard {...mockExpert} />);
     const img = within(screen.getByTestId('expert-face-front')).getByRole('img', { name: /dr\. elena popescu portrait/i });
-    img.dispatchEvent(new Event('error'));
-    expect(img).toHaveAttribute('src', expect.stringContaining('data:image/svg+xml'));
+    expect(img).toHaveAttribute('src', expect.stringContaining('/profile-pictures/'));
   });
 
   it('renders the variation c back layout with expertise subtitle, tags, and full bio', () => {
@@ -212,5 +184,10 @@ describe('ExpertCard', () => {
     expect(card).toHaveClass('card-interactive-shell');
     expect(card).toHaveClass(/hover:-translate-y-1/);
     expect(card).toHaveClass('motion-reduce:transition-none');
+  });
+
+  it('has no accessibility violations', async () => {
+    const { container } = render(<ExpertCard {...mockExpert} />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

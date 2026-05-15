@@ -79,14 +79,14 @@ describe('apiService mock fallback', () => {
     const [project] = await apiService.getProjects();
 
     expect(mockSupabaseFrom).toHaveBeenCalledWith('app_projects');
-    expect(project.leadExpertId).toBe('123e4567-e89b-12d3-a456-426614174001');
-    expect(project.leadExpertName).toBe('Dr. Elena Popescu');
-    expect(project.linkedExpertIds).toEqual([
+    expect(project!.leadExpertId).toBe('123e4567-e89b-12d3-a456-426614174001');
+    expect(project!.leadExpertName).toBe('Dr. Elena Popescu');
+    expect(project!.linkedExpertIds).toEqual([
       '123e4567-e89b-12d3-a456-426614174001',
       '123e4567-e89b-12d3-a456-426614174004',
     ]);
-    expect(project.website).toBeUndefined();
-    expect(project.categoryId).toBe('biodiversity');
+    expect(project!.website).toBeUndefined();
+    expect(project!.categoryId).toBe('biodiversity');
     expect(ProjectSchema.safeParse(project).success).toBe(true);
   });
 
@@ -125,8 +125,8 @@ describe('apiService mock fallback', () => {
 
     const [project] = await apiService.getProjects();
 
-    expect(project.isCitizenScience).toBe(false);
-    expect(project.linkedExpertIds).toEqual(['123e4567-e89b-12d3-a456-426614174001']);
+    expect(project!.isCitizenScience).toBe(false);
+    expect(project!.linkedExpertIds).toEqual(['123e4567-e89b-12d3-a456-426614174001']);
   });
 
   it('normalizes nullable Supabase expert fields before validation', async () => {
@@ -159,8 +159,8 @@ describe('apiService mock fallback', () => {
     const [expert] = await apiService.getExperts();
 
     expect(mockSupabaseFrom).toHaveBeenCalledWith('app_experts');
-    expect(expert.linkedin).toBeUndefined();
-    expect(expert.publications).toBe(0);
+    expect(expert!.linkedin).toBeUndefined();
+    expect(expert!.publications).toBe(0);
     expect(ExpertSchema.safeParse(expert).success).toBe(true);
   });
 
@@ -238,5 +238,105 @@ describe('apiService mock fallback', () => {
       { subscription_id: 'sub-1', category_id: 'biodiversity' },
       { subscription_id: 'sub-1', category_id: 'water' },
     ]);
+  });
+
+  it('handles null project fields with fallback values', async () => {
+    const query = {
+      select: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({
+        data: [{
+          id: 'proj-null',
+          name: 'Null Fields Project',
+          status: null,
+          category_id: null,
+          field: 'Biodiversity',
+          description: null,
+          location: null,
+          display_location: null,
+          region_label: null,
+          year_range: null,
+          start_year: null,
+          end_year: null,
+          lat: null,
+          lng: null,
+          lead_expert_id: 'expert-1',
+          lead_expert_name: 'Lead Expert',
+          linked_expert_ids: null,
+          website: null,
+          area: null,
+          country: null,
+          contact: null,
+          is_cs: null,
+        }],
+        error: null,
+      }),
+    };
+    mockSupabaseFrom.mockReturnValue(query);
+
+    const [project] = await apiService.getProjects();
+
+    expect(project!.status).toBe('planned');
+    expect(project!.description).toBe('Project description will be added soon.');
+    expect(project!.location).toBe('Carpathian region');
+    expect(project!.lat).toBe(47.5);
+    expect(project!.lng).toBe(25.0);
+    expect(project!.yearRange).toBe(`${new Date().getFullYear()}-${new Date().getFullYear()}`);
+    expect(project!.isCitizenScience).toBe(false);
+  });
+
+  it('throws error on volunteer subscription with no valid categories', async () => {
+    const subscriptionInsert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({ data: { id: 'sub-1' }, error: null }),
+      }),
+    });
+    mockSupabaseFrom.mockImplementation((table: string) => {
+      if (table === 'volunteer_subscriptions') return { insert: subscriptionInsert };
+      throw new Error(`Unexpected table ${table}`);
+    });
+
+    await expect(apiService.addVolunteerSubscription({
+      fullName: 'Test', email: 'a@b.com', city: 'City', country: 'CO',
+      latitude: 45, longitude: 25, radiusKm: 50,
+      categoryIds: ['nonexistent-category'],
+      consent: true,
+    })).rejects.toThrow(/at least one valid category/i);
+  });
+
+  it('parses year range from start_year and end_year when year_range is missing', async () => {
+    const query = {
+      select: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({
+        data: [{
+          id: 'proj-1',
+          name: 'Test',
+          status: 'active',
+          category_id: 'biodiversity',
+          field: 'Biodiversity',
+          description: 'A valid description.',
+          location: 'Loc',
+          display_location: 'Loc',
+          region_label: null,
+          year_range: null,
+          start_year: 2020,
+          end_year: 2025,
+          lat: 47.5,
+          lng: 25,
+          lead_expert_id: 'expert-1',
+          lead_expert_name: 'Expert',
+          linked_expert_ids: null,
+          website: null,
+          area: null,
+          country: null,
+          contact: null,
+          is_cs: true,
+        }],
+        error: null,
+      }),
+    };
+    mockSupabaseFrom.mockReturnValue(query);
+
+    const [project] = await apiService.getProjects();
+    expect(project!.yearRange).toBe('2020-2025');
   });
 });

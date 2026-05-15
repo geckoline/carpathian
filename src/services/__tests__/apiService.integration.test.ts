@@ -45,7 +45,7 @@ describe('apiService - Mock Fallback', () => {
     const result = await apiService.getProjectsMock();
 
     expect(result).toHaveLength(1);
-    expect(result[0].id).toBe(mockProject.id);
+    expect(result[0]!.id).toBe(mockProject.id);
     expect(mockApi.getProjects).toHaveBeenCalledTimes(1);
   });
 
@@ -53,7 +53,7 @@ describe('apiService - Mock Fallback', () => {
     vi.mocked(mockApi.getProjects).mockResolvedValue([mockProject]);
 
     const result = await apiService.getProjectsMock();
-    expect(ProjectSchema.safeParse(result[0]).success).toBe(true);
+    expect(ProjectSchema.safeParse(result[0]!).success).toBe(true);
   });
 
   it('rejects projects with invalid coordinates', async () => {
@@ -61,7 +61,7 @@ describe('apiService - Mock Fallback', () => {
     vi.mocked(mockApi.getProjects).mockResolvedValue([invalid]);
 
     const result = await apiService.getProjectsMock();
-    expect(ProjectSchema.safeParse(result[0]).success).toBe(false);
+    expect(ProjectSchema.safeParse(result[0]!).success).toBe(false);
   });
 
   it('returns experts via getExpertsMock', async () => {
@@ -70,7 +70,7 @@ describe('apiService - Mock Fallback', () => {
     const result = await apiService.getExpertsMock();
 
     expect(result).toHaveLength(1);
-    expect(result[0].id).toBe(mockExpert.id);
+    expect(result[0]!.id).toBe(mockExpert.id);
     expect(mockApi.getExperts).toHaveBeenCalledTimes(1);
   });
 
@@ -78,6 +78,6 @@ describe('apiService - Mock Fallback', () => {
     vi.mocked(mockApi.getExperts).mockResolvedValue([mockExpert]);
 
     const result = await apiService.getExpertsMock();
-    expect(ExpertSchema.safeParse(result[0]).success).toBe(true);
+    expect(ExpertSchema.safeParse(result[0]!).success).toBe(true);
   });
 });

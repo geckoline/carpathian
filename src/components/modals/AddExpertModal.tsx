@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Modal } from '@/components/common/Modal';
+import { FormModal } from '@/components/modals/FormModal';
 import { ImportConflictDialog, type ConflictField } from '@/components/modals/ImportConflictDialog';
 import { ExpertFormSchema, type ExpertFormData, type ExpertData } from '@/types/expert';
 import { importValidator } from '@/services/importValidator';
@@ -149,31 +149,29 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={handleClose} title="Add New Expert" size="lg">
-        <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-4" noValidate>
-          {!isOnline && (
-            <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2" role="alert">
-              You are offline. Expert submissions are disabled until your connection is restored.
-            </p>
-          )}
-          {submitError && (
-            <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2" role="alert">
-              {submitError}
-            </p>
-          )}
-
-          <div className="grid grid-cols-2 gap-4">
+      <FormModal
+        isOpen={isOpen}
+        onClose={handleClose}
+        title="Add New Expert"
+        size="lg"
+        submitLabel="Add Expert"
+        isSubmitting={isSubmitting}
+        isOnline={isOnline}
+        submitError={submitError}
+        onSubmit={handleSubmit(handleSubmitForm)}
+      >
+        <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="expert-name" className="block text-sm font-medium mb-1">Name *</label>
               <Controller name="name" control={control} render={({ field }) => (
-                <input {...field} id="expert-name" className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.name ? 'border-red-500' : 'border-gray-300'}`} aria-invalid={!!errors.name} />
+                <input {...field} id="expert-name" className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.name ? 'border-red-500' : 'border-[var(--color-soft-border)]'}`} aria-invalid={!!errors.name} />
               )} />
               {errors.name && <p className="text-xs text-red-600 mt-1">{errors.name.message}</p>}
             </div>
             <div>
               <label htmlFor="expert-institution" className="block text-sm font-medium mb-1">Institution *</label>
               <Controller name="institution" control={control} render={({ field }) => (
-                <input {...field} id="expert-institution" className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.institution ? 'border-red-500' : 'border-gray-300'}`} aria-invalid={!!errors.institution} />
+                <input {...field} id="expert-institution" className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.institution ? 'border-red-500' : 'border-[var(--color-soft-border)]'}`} aria-invalid={!!errors.institution} />
               )} />
               {errors.institution && <p className="text-xs text-red-600 mt-1">{errors.institution.message}</p>}
             </div>
@@ -183,14 +181,14 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
             <div>
               <label htmlFor="expert-country" className="block text-sm font-medium mb-1">Country *</label>
               <Controller name="country" control={control} render={({ field }) => (
-                <input {...field} id="expert-country" className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.country ? 'border-red-500' : 'border-gray-300'}`} aria-invalid={!!errors.country} />
+                <input {...field} id="expert-country" className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.country ? 'border-red-500' : 'border-[var(--color-soft-border)]'}`} aria-invalid={!!errors.country} />
               )} />
               {errors.country && <p className="text-xs text-red-600 mt-1">{errors.country.message}</p>}
             </div>
             <div>
               <label htmlFor="expert-degree" className="block text-sm font-medium mb-1">Degree</label>
               <Controller name="degree" control={control} render={({ field }) => (
-                <input {...field} id="expert-degree" className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                <input {...field} id="expert-degree" className="w-full px-3 py-2 border border-[var(--color-soft-border)] rounded focus:outline-none focus:ring-2 focus:ring-primary-500" />
               )} />
             </div>
           </div>
@@ -198,7 +196,7 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
           <div>
             <label htmlFor="expert-headline" className="block text-sm font-medium mb-1">Headline</label>
             <Controller name="headline" control={control} render={({ field }) => (
-              <input {...field} id="expert-headline" className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500" />
+              <input {...field} id="expert-headline" className="w-full px-3 py-2 border border-[var(--color-soft-border)] rounded focus:outline-none focus:ring-2 focus:ring-primary-500" />
             )} />
             {errors.headline && <p className="text-xs text-red-600 mt-1">{errors.headline.message}</p>}
           </div>
@@ -206,7 +204,7 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
           <div>
             <label htmlFor="expert-bio" className="block text-sm font-medium mb-1">Bio *</label>
             <Controller name="bio" control={control} render={({ field }) => (
-              <textarea {...field} id="expert-bio" rows={3} className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.bio ? 'border-red-500' : 'border-gray-300'}`} aria-invalid={!!errors.bio} />
+              <textarea {...field} id="expert-bio" rows={3} className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.bio ? 'border-red-500' : 'border-[var(--color-soft-border)]'}`} aria-invalid={!!errors.bio} />
             )} />
             {errors.bio && <p className="text-xs text-red-600 mt-1">{errors.bio.message}</p>}
           </div>
@@ -242,7 +240,7 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
             <div className="mb-3">
               <label htmlFor="expert-email" className="block text-sm font-medium mb-1">Email *</label>
               <Controller name="email" control={control} render={({ field }) => (
-                <input {...field} id="expert-email" type="email" className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.email ? 'border-red-500' : 'border-gray-300'}`} aria-invalid={!!errors.email} />
+                <input {...field} id="expert-email" type="email" className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.email ? 'border-red-500' : 'border-[var(--color-soft-border)]'}`} aria-invalid={!!errors.email} />
               )} />
               {errors.email && <p className="text-xs text-red-600 mt-1">{errors.email.message}</p>}
             </div>
@@ -252,13 +250,13 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
                 <label htmlFor="expert-google-scholar" className="block text-sm font-medium mb-1">Google Scholar URL *</label>
                 <div className="flex gap-2">
                   <Controller name="googleScholar" control={control} render={({ field }) => (
-                    <input {...field} id="expert-google-scholar" type="url" placeholder="https://scholar.google.com/citations?user=..." className={`flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.googleScholar ? 'border-red-500' : 'border-gray-300'}`} aria-invalid={!!errors.googleScholar} />
+                    <input {...field} id="expert-google-scholar" type="url" placeholder="https://scholar.google.com/citations?user=..." className={`flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.googleScholar ? 'border-red-500' : 'border-[var(--color-soft-border)]'}`} aria-invalid={!!errors.googleScholar} />
                   )} />
                   <button
                     type="button"
                     onClick={() => handleFetchProfile('google_scholar')}
                     disabled={!watch('googleScholar') || validatingField === 'google_scholar'}
-                    className="px-3 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 whitespace-nowrap"
+                    className="px-3 py-2 text-sm border border-[var(--color-soft-border)] rounded hover:bg-gray-50 disabled:opacity-50 whitespace-nowrap"
                   >
                     {validatingField === 'google_scholar' ? 'Fetching...' : 'Fetch Profile'}
                   </button>
@@ -270,13 +268,13 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
                 <label htmlFor="expert-orcid" className="block text-sm font-medium mb-1">ORCID URL *</label>
                 <div className="flex gap-2">
                   <Controller name="orcid" control={control} render={({ field }) => (
-                    <input {...field} id="expert-orcid" type="url" placeholder="https://orcid.org/0000-0002-..." className={`flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.orcid ? 'border-red-500' : 'border-gray-300'}`} aria-invalid={!!errors.orcid} />
+                    <input {...field} id="expert-orcid" type="url" placeholder="https://orcid.org/0000-0002-..." className={`flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.orcid ? 'border-red-500' : 'border-[var(--color-soft-border)]'}`} aria-invalid={!!errors.orcid} />
                   )} />
                   <button
                     type="button"
                     onClick={() => handleFetchProfile('orcid')}
                     disabled={!watch('orcid') || validatingField === 'orcid'}
-                    className="px-3 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 whitespace-nowrap"
+                    className="px-3 py-2 text-sm border border-[var(--color-soft-border)] rounded hover:bg-gray-50 disabled:opacity-50 whitespace-nowrap"
                   >
                     {validatingField === 'orcid' ? 'Fetching...' : 'Fetch Profile'}
                   </button>
@@ -292,30 +290,19 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
               <div>
                 <label htmlFor="expert-linkedin" className="block text-sm font-medium mb-1">LinkedIn</label>
                 <Controller name="linkedin" control={control} render={({ field }) => (
-                  <input {...field} id="expert-linkedin" type="url" className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                  <input {...field} id="expert-linkedin" type="url" className="w-full px-3 py-2 border border-[var(--color-soft-border)] rounded focus:outline-none focus:ring-2 focus:ring-primary-500" />
                 )} />
               </div>
               <div>
                 <label htmlFor="expert-scopus" className="block text-sm font-medium mb-1">Scopus</label>
                 <Controller name="scopus" control={control} render={({ field }) => (
-                  <input {...field} id="expert-scopus" type="url" className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                  <input {...field} id="expert-scopus" type="url" className="w-full px-3 py-2 border border-[var(--color-soft-border)] rounded focus:outline-none focus:ring-2 focus:ring-primary-500" />
                 )} />
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t">
-            <button type="button" onClick={handleClose} className="px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50">Cancel</button>
-            <button
-              type="submit"
-              disabled={isSubmitting || !isOnline}
-              className="px-4 py-2 text-sm bg-primary-500 text-white rounded hover:bg-primary-600 disabled:opacity-50"
-            >
-              {isSubmitting ? 'Saving...' : 'Add Expert'}
-            </button>
-          </div>
-        </form>
-      </Modal>
+      </FormModal>
 
       <ImportConflictDialog
         isOpen={conflictFields !== null}

@@ -8,7 +8,7 @@ beforeEach(() => {
     theme: 'light',
     filters: { searchTerm: '', statusFilter: 'all', fieldFilter: 'all', countryFilter: 'all', activeTab: 'projects', sortKey: 'name', sortDirection: 'asc' },
     data: { projects: [], experts: [], loading: false, error: null },
-    ui: { isMapVisible: true, selectedExpertId: null, selectedProjectId: null, hoveredProjectId: null, isAddExpertOpen: false, expertImportDialog: null },
+    ui: { selectedExpertId: null, selectedProjectId: null, hoveredProjectId: null, expertImportDialog: null },
     draftPolygon: null,
     a11y: { fontSize: 16, highContrast: false, reducedMotion: false },
     isOnline: true,
@@ -33,7 +33,7 @@ describe('App Store', () => {
 
     useAppStore.getState().setProjects([validProject]);
     expect(useAppStore.getState().data.projects).toHaveLength(1);
-    expect(useAppStore.getState().data.projects[0].name).toBe('Valid Project');
+    expect(useAppStore.getState().data.projects[0]!.name).toBe('Valid Project');
   });
 
   it('addProject generates missing fields with defaults', () => {
@@ -44,7 +44,7 @@ describe('App Store', () => {
       leadExpertName: 'Dr. Elena Popescu',
     });
 
-    const added = useAppStore.getState().data.projects[0];
+    const added = useAppStore.getState().data.projects[0]!;
     expect(added.id).toMatch(/^[0-9a-f-]+$/);
     expect(added.status).toBe('planned');
     expect(added.lat).toBe(47.5);
@@ -58,7 +58,7 @@ describe('App Store', () => {
 
   it('addExpert generates defaults for missing fields', () => {
     useAppStore.getState().addExpert({ id: 'exp-1', name: 'Dr. Test' });
-    const added = useAppStore.getState().data.experts[0];
+    const added = useAppStore.getState().data.experts[0]!;
     expect(added.name).toBe('Dr. Test');
     expect(added.institution).toBe('Independent');
     expect(added.country).toBe('Unknown');
@@ -113,14 +113,6 @@ describe('App Store', () => {
     expect(useAppStore.getState().filters.statusFilter).toBe('all');
   });
 
-  it('toggleMap flips visibility', () => {
-    expect(useAppStore.getState().ui.isMapVisible).toBe(true);
-    useAppStore.getState().toggleMap();
-    expect(useAppStore.getState().ui.isMapVisible).toBe(false);
-    useAppStore.getState().toggleMap();
-    expect(useAppStore.getState().ui.isMapVisible).toBe(true);
-  });
-
   it('sets selected project/expert IDs', () => {
     useAppStore.getState().setSelectedProjectId('proj-1');
     expect(useAppStore.getState().ui.selectedProjectId).toBe('proj-1');
@@ -160,10 +152,7 @@ describe('App Store', () => {
     expect(useAppStore.getState().draftPolygon).toBeNull();
   });
 
-  it('setAddExpertOpen and setExpertImportDialog control UI state', () => {
-    useAppStore.getState().setAddExpertOpen(true);
-    expect(useAppStore.getState().ui.isAddExpertOpen).toBe(true);
-
+  it('setExpertImportDialog controls UI state', () => {
     useAppStore.getState().setExpertImportDialog({ isOpen: true, importedData: null, existingData: null });
     expect(useAppStore.getState().ui.expertImportDialog).toEqual({ isOpen: true, importedData: null, existingData: null });
 
@@ -181,6 +170,6 @@ describe('App Store', () => {
     useAppStore.getState().setStatusFilter('active');
     const filtered = useAppStore.getState().data.projects.filter(p => p.status === useAppStore.getState().filters.statusFilter);
     expect(filtered).toHaveLength(1);
-    expect(filtered[0].name).toBe('Active Bio');
+    expect(filtered[0]!.name).toBe('Active Bio');
   });
 });

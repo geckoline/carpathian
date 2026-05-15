@@ -4,7 +4,8 @@ import { useState } from 'react';
 import Modal from '@/components/common/Modal';
 
 export const AccessibilityControls = () => {
-  const { a11y, setA11y } = useAppStore();
+  const a11y = useAppStore(s => s.a11y);
+  const setA11y = useAppStore(s => s.setA11y);
   const [isOpen, setIsOpen] = useState(false);
   const updateFontSize = (value: string) => setA11y({ fontSize: Number(value) });
 

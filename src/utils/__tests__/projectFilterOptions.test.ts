@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getProjectFilterOptions } from '../projectFilterOptions';
-import type { FilterState } from '@/store/appStore';
+import type { FilterState } from '@/types/app';
 import type { ProjectData } from '@/types/project';
 
 const baseFilters: FilterState = {

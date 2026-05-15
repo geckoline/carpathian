@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import type { KeyboardEvent, MouseEvent } from 'react';
 import type { DatasetMode } from '@/store/appStore';
 import { buildCardShareUrl, type ShareCardKind } from '@/utils/cardShare';
@@ -46,11 +46,14 @@ type UseCardShareOptions = {
 
 export const useCardShare = ({ kind, id, dataset }: UseCardShareOptions) => {
   const shareUrl = useMemo(() => buildCardShareUrl({ kind, id, dataset }), [dataset, id, kind]);
+  const [copied, setCopied] = useState(false);
 
-  const copy = async (event: MouseEvent | KeyboardEvent) => {
+  const copy = useCallback(async (event: MouseEvent | KeyboardEvent) => {
     event.stopPropagation();
     await copyShareUrl(shareUrl);
-  };
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [shareUrl]);
 
-  return { copy, shareUrl };
+  return { copy, copied, shareUrl };
 };

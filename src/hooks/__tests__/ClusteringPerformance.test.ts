@@ -11,11 +11,12 @@ const generateProjects = (count: number) => Array.from({ length: count }, (_, i)
   description: 'Test', location: 'Carpathians', yearRange: '2021-25'
 }));
 
-vi.mock('@/store/appStore', () => ({
-  useAppStore: vi.fn()
-}));
+vi.mock('@/store/appStore', () => {
+  const mock = (globalThis as any).__createMockAppStore();
+  return { useAppStore: vi.fn(mock.useAppStore) };
+});
 
-describe('Map Clustering Performance QA', () => {
+describe('Map Clustering Performance QA', { timeout: 30000 }, () => {
   beforeEach(() => { vi.useFakeTimers(); });
 
   it('handles 500 projects without blocking main thread', () => {

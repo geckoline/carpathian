@@ -1,4 +1,4 @@
-import type { FilterState } from '@/store/appStore';
+import type { FilterState } from '@/types/app';
 import type { ProjectData } from '@/types/project';
 import { getCategoryOptions, normalizeCategoryId, type CategoryOption } from '@/utils/categories';
 import { filterProjectsBySearch } from '@/utils/fuzzySearch';
@@ -30,15 +30,11 @@ const projectMatchesFacetFilters = (
   return matchesStatus && matchesField && matchesCountry;
 };
 
-const projectsForAxis = (projects: ProjectData[], filters: FilterState, axis: ProjectFilterAxis) => {
-  const searchScopedProjects = filterProjectsBySearch(projects, filters.searchTerm);
-  return searchScopedProjects.filter((project) => projectMatchesFacetFilters(project, filters, axis));
-};
-
 export const getProjectFilterOptions = (projects: ProjectData[], filters: FilterState): ProjectFilterOptions => {
-  const statusProjects = projectsForAxis(projects, filters, 'status');
-  const categoryProjects = projectsForAxis(projects, filters, 'field');
-  const countryProjects = projectsForAxis(projects, filters, 'country');
+  const searchScopedProjects = filterProjectsBySearch(projects, filters.searchTerm);
+  const statusProjects = searchScopedProjects.filter((project) => projectMatchesFacetFilters(project, filters, 'status'));
+  const categoryProjects = searchScopedProjects.filter((project) => projectMatchesFacetFilters(project, filters, 'field'));
+  const countryProjects = searchScopedProjects.filter((project) => projectMatchesFacetFilters(project, filters, 'country'));
 
   const availableStatuses = new Set<ProjectStatusOption>(statusProjects.map((project) => project.status));
   const availableCategoryIds = new Set(

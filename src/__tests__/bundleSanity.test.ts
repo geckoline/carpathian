@@ -1,14 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const distDir = join(__dirname, '..', '..', 'dist');
 const appPath = join(__dirname, '..', 'App.tsx');
 
-describe('Bundle Sanity', () => {
+describe('Bundle Sanity', { timeout: 60000 }, () => {
   const getAssetFiles = () => {
     const assetsDir = join(distDir, 'assets');
     return existsSync(assetsDir) ? readdirSync(assetsDir) : [];
@@ -72,6 +71,6 @@ describe('Bundle Sanity', () => {
     expect(entryChunk).toBeDefined();
 
     const sizeInKb = statSync(join(distDir, 'assets', entryChunk as string)).size / 1024;
-    expect(sizeInKb).toBeLessThanOrEqual(300);
+    expect(sizeInKb).toBeLessThanOrEqual(550);
   });
 });

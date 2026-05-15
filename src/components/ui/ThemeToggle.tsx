@@ -2,10 +2,11 @@ import { Moon, Sun, Droplets } from 'lucide-react';
 import { useAppStore } from '@/store/appStore';
 
 export const ThemeToggle = () => {
-  const { theme, setTheme } = useAppStore();
+  const theme = useAppStore(s => s.theme);
+  const setTheme = useAppStore(s => s.setTheme);
 
   return (
-    <div className="flex items-center gap-1 bg-white rounded-lg shadow-sm border border-surface-muted p-1">
+    <div className="flex items-center gap-1 bg-[var(--color-panel-surface)] rounded-lg shadow-[var(--shadow-panel)] border border-[var(--color-soft-border)] p-1">
       <button
         onClick={() => setTheme('light')}
         className={`p-1.5 rounded transition ${theme === 'light' ? 'bg-primary-500 text-white' : 'text-text-muted hover:bg-surface-muted'}`}

@@ -96,7 +96,7 @@ describe('loadAppData', () => {
     const result = await loadAppData();
 
     expect(result.projects).toHaveLength(1);
-    expect(result.projects[0].id).toBe(project.id);
+    expect(result.projects[0]!.id).toBe(project.id);
     expect(result.experts).toHaveLength(1);
   });
 

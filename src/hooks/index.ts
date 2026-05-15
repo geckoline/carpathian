@@ -5,7 +5,6 @@ export { useCardFlip } from './useCardFlip';
 export { useLocalStorage } from './useLocalStorage';
 export { useApplyAccessibility } from './useApplyAccessibility';
 export { useDebounce } from './useDebounce';
-export { useOnlineStatus } from './useOnlineStatus';
 export { useCardShare } from './useCardShare';
 export { useUrlSync } from './useUrlSync';
 export { usePolygonLayer } from './usePolygonLayer';

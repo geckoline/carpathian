@@ -10,18 +10,18 @@ export type PolygonStyle = {
 
 export const STATUS_COLORS: Record<string, string> = {
   active: '#006633',
-  past: '#999999',
+  past: '#6B7280',
   planned: '#ff9900',
 };
 
 export const getPolygonStyle = (status: string, field?: string): PolygonStyle => {
   const baseStyles: Record<string, PolygonStyle> = {
     active: { color: '#006633', fillColor: '#006633', fillOpacity: 0.3, weight: 3 },
-    past: { color: '#999999', fillColor: '#999999', fillOpacity: 0.2, weight: 2 },
+    past: { color: '#6B7280', fillColor: '#6B7280', fillOpacity: 0.2, weight: 2 },
     planned: { color: '#ff9900', fillColor: '#ff9900', fillOpacity: 0.25, weight: 3, dashArray: '5, 5' },
   };
 
-  const style = baseStyles[status] || baseStyles.active;
+  const style = baseStyles[status] ?? baseStyles.active!;
   const fieldType = field?.toLowerCase() || '';
 
   const fieldStyles: Record<string, Partial<PolygonStyle>> = {
@@ -47,10 +47,10 @@ export const getPolygonStyle = (status: string, field?: string): PolygonStyle =>
 
   const fieldOverride = fieldStyles[fieldType];
   if (fieldOverride) {
-    return { ...style, ...fieldOverride, dashArray: style.dashArray ?? null };
+    return { ...style, ...fieldOverride, dashArray: style.dashArray ?? null } as PolygonStyle;
   }
 
-  return { ...style, dashArray: style.dashArray ?? null };
+  return { ...style, dashArray: style.dashArray ?? null } as PolygonStyle;
 };
 
 export const generateMockPolygon = (lat: number, lng: number, radiusKm = 15, points = 8): LatLngTuple[] => {
@@ -74,14 +74,14 @@ export const generateRealisticPolygonWKT = (lat: number, lng: number, seed: numb
   const points: string[] = [];
 
   for (let i = 0; i < numPoints; i++) {
-    const angle = (2 * Math.PI * i) / numPoints + IRREGULARITY_OFFSETS[i % IRREGULARITY_OFFSETS.length] * 0.08;
-    const variation = 0.75 + ((IRREGULARITY_OFFSETS[i % IRREGULARITY_OFFSETS.length] + 1) * 0.15);
+    const angle = (2 * Math.PI * i) / numPoints + IRREGULARITY_OFFSETS[i % IRREGULARITY_OFFSETS.length]! * 0.08;
+    const variation = 0.75 + ((IRREGULARITY_OFFSETS[i % IRREGULARITY_OFFSETS.length]! + 1) * 0.15);
     const r = radius * variation;
     const dlat = (r / earthRadius) * Math.cos(angle) * (180 / Math.PI);
     const dlng = (r / (earthRadius * Math.cos((Math.PI * lat) / 180))) * Math.sin(angle) * (180 / Math.PI);
     points.push(`${(lng + dlng).toFixed(4)} ${(lat + dlat).toFixed(4)}`);
   }
-  points.push(points[0]);
+  points.push(points[0]!);
 
   return `geometry('POLYGON((${points.join(', ')}))', 4326)`;
 };

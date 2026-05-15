@@ -105,7 +105,7 @@ describe('dataset tabs', () => {
         sortKey: 'name',
         sortDirection: 'asc',
       },
-      ui: { isMapVisible: true, selectedExpertId: null, selectedProjectId: null, isAddExpertOpen: false, expertImportDialog: null, hoveredProjectId: null },
+      ui: { selectedExpertId: null, selectedProjectId: null, expertImportDialog: null, hoveredProjectId: null },
     });
   });
 
@@ -128,7 +128,7 @@ describe('dataset tabs', () => {
     render(<App />);
 
     await waitFor(() => expect(screen.getByTestId('stat-experts')).toHaveTextContent('2'));
-    await user.click(screen.getByRole('button', { name: /experts/i }));
+    await user.click(screen.getByRole('tab', { name: /experts/i }));
 
     expect(screen.getAllByText('Dr. CS Lead').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Dr. Linked Contributor').length).toBeGreaterThan(0);

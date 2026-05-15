@@ -8,7 +8,6 @@ from (values
   ('0e3b230a-0509-55d8-96a0-9875f387a2be'::uuid, '/profile-pictures/123e4567-e89b-12d3-a456-426614174016.jpg'::text),
   ('0ff1e264-520d-543a-87dd-181a491e667e'::uuid, '/profile-pictures/123e4567-e89b-12d3-a456-426614174017.jpg'::text),
   ('123e4567-e89b-12d3-a456-426614174001'::uuid, '/profile-pictures/123e4567-e89b-12d3-a456-426614174001.jpg'::text),
-  ('123e4567-e89b-12d3-a456-426614174004'::uuid, '/profile-pictures/123e4567-e89b-12d3-a456-426614174004.jpg'::text),
   ('123e4567-e89b-12d3-a456-426614174006'::uuid, '/profile-pictures/123e4567-e89b-12d3-a456-426614174006.jpg'::text),
   ('123e4567-e89b-12d3-a456-426614174009'::uuid, '/profile-pictures/123e4567-e89b-12d3-a456-426614174009.jpg'::text),
   ('123e4567-e89b-12d3-a456-426614174014'::uuid, '/profile-pictures/123e4567-e89b-12d3-a456-426614174014.jpg'::text),
@@ -32,7 +31,6 @@ from (values
   ('c8691da2-158a-5ed6-8537-0e6f140801f2'::uuid, '/profile-pictures/123e4567-e89b-12d3-a456-426614174035.jpg'::text),
   ('cadb7952-2bba-5609-88d4-8e47ec4e7920'::uuid, '/profile-pictures/123e4567-e89b-12d3-a456-426614174036.jpg'::text),
   ('ce1ae2d5-3454-5952-97ff-36ff935bcfe9'::uuid, '/profile-pictures/123e4567-e89b-12d3-a456-426614174037.jpg'::text),
-  ('db680066-c83d-5ed7-89a4-1d79466ea62d'::uuid, '/profile-pictures/123e4567-e89b-12d3-a456-426614174038.jpg'::text),
   ('e4d80b30-151e-51b5-9f4f-18a3b82718e6'::uuid, '/profile-pictures/123e4567-e89b-12d3-a456-426614174039.jpg'::text),
   ('e7263999-68b6-5a23-b530-af25b7efd632'::uuid, '/profile-pictures/123e4567-e89b-12d3-a456-426614174040.jpg'::text),
   ('e99caacd-6c45-5906-bd9f-b79e62f25963'::uuid, '/profile-pictures/123e4567-e89b-12d3-a456-426614174041.jpg'::text)

@@ -1,35 +1,12 @@
 import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import type { ProjectData } from '@/types/project';
-import type { ExpertData, ExpertFormData } from '@/types/expert';
+import type { ExpertData } from '@/types/expert';
 import { getCategoryLabel, normalizeCategoryWithFallback } from '@/utils/categories';
+import type { DatasetMode, ThemeMode, SortKey, SortDirection, FilterState, A11yState, ExpertImportDialog } from '@/types/app';
 
-export type DatasetMode = 'cs' | 'all';
-export type ThemeMode = 'light' | 'dark' | 'reduced';
-export type SortKey = 'name' | 'status' | 'field' | 'yearRange';
-export type SortDirection = 'asc' | 'desc';
-
-export type FilterState = {
-  searchTerm: string;
-  statusFilter: 'all' | 'active' | 'past' | 'planned';
-  fieldFilter: string;
-  countryFilter: string;
-  activeTab: 'projects' | 'experts';
-  sortKey: SortKey;
-  sortDirection: SortDirection;
-};
-
-export type A11yState = {
-  fontSize: number;
-  highContrast: boolean;
-  reducedMotion: boolean;
-};
-
-export type ExpertImportDialog = {
-  isOpen: boolean;
-  importedData: Partial<ExpertFormData> | null;
-  existingData: Partial<ExpertFormData> | null;
-};
+export type { DatasetMode, ThemeMode, SortKey, SortDirection, FilterState, A11yState, ExpertImportDialog };
 
 export type AppState = {
   dataset: DatasetMode;
@@ -37,11 +14,9 @@ export type AppState = {
   isOnline: boolean;
   filters: FilterState;
   ui: {
-    isMapVisible: boolean;
     selectedExpertId: string | null;
     selectedProjectId: string | null;
     hoveredProjectId: string | null;
-    isAddExpertOpen: boolean;
     expertImportDialog: ExpertImportDialog | null;
   };
   data: { projects: ProjectData[]; experts: ExpertData[]; loading: boolean; error: string | null };
@@ -59,7 +34,6 @@ export type AppState = {
   setSortKey: (key: SortKey) => void;
   setSortDirection: (direction: SortDirection) => void;
   clearFilters: () => void;
-  toggleMap: () => void;
   setSelectedExpertId: (id: string | null) => void;
   setSelectedProjectId: (id: string | null) => void;
   setHoveredProjectId: (id: string | null) => void;
@@ -71,7 +45,6 @@ export type AppState = {
   addProject: (project: Partial<ProjectData>) => void;
   addExpert: (expert: Partial<ExpertData>) => void;
   setDraftPolygon: (coords: [number, number][] | null) => void;
-  setAddExpertOpen: (open: boolean) => void;
   setExpertImportDialog: (dialog: ExpertImportDialog | null) => void;
 };
 
@@ -80,17 +53,16 @@ const initialFilters: FilterState = {
 };
 
 export const useAppStore = create<AppState>()(
-  immer((set) => ({
-    dataset: 'cs',
+  immer(devtools(
+    (set) => ({
+      dataset: 'cs',
     theme: 'light',
     isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
     filters: { ...initialFilters },
     ui: {
-      isMapVisible: true,
       selectedExpertId: null,
       selectedProjectId: null,
       hoveredProjectId: null,
-      isAddExpertOpen: false,
       expertImportDialog: null,
     },
     data: { projects: [], experts: [], loading: false, error: null },
@@ -108,7 +80,6 @@ export const useAppStore = create<AppState>()(
     setSortKey: (key) => set((s) => { s.filters.sortKey = key; }),
     setSortDirection: (direction) => set((s) => { s.filters.sortDirection = direction; }),
     clearFilters: () => set((s) => { s.filters = { ...initialFilters }; }),
-    toggleMap: () => set((s) => { s.ui.isMapVisible = !s.ui.isMapVisible; }),
     setSelectedExpertId: (id) => set((s) => { s.ui.selectedExpertId = id; }),
     setSelectedProjectId: (id) => set((s) => { s.ui.selectedProjectId = id; }),
     setHoveredProjectId: (id) => set((s) => { s.ui.hoveredProjectId = id; }),
@@ -117,28 +88,30 @@ export const useAppStore = create<AppState>()(
     setLoading: (loading) => set((s) => { s.data.loading = loading; }),
     setError: (error) => set((s) => { s.data.error = error; }),
     setA11y: (updates) => set((s) => { Object.assign(s.a11y, updates); }),
-    addProject: (project) => set((s) => {
+    addProject: (project) => {
       if (!project.leadExpertId || !project.leadExpertName) {
         throw new Error('Every project must include a leading expert that exists in the expert dataset.');
       }
-      const categoryId = normalizeCategoryWithFallback(project.categoryId, project.field);
-      const complete = {
-        id: project.id || crypto.randomUUID(),
-        name: project.name || 'Untitled',
-        status: project.status || 'planned',
-        categoryId,
-        field: getCategoryLabel(categoryId),
-        description: project.description || '',
-        location: project.location || `geometry('POINT(${project.lng || 25.0} ${project.lat || 47.5})', 4326)`,
-        displayLocation: project.displayLocation || project.location || 'Unknown',
-        yearRange: project.yearRange || `${new Date().getFullYear()}-${new Date().getFullYear() + 4}`,
-        lat: project.lat || 47.5,
-        lng: project.lng || 25.0,
-        isCitizenScience: project.isCitizenScience ?? true,
-        ...project,
-      } as ProjectData;
-      s.data.projects.push(complete);
-    }),
+      set((s) => {
+        const categoryId = normalizeCategoryWithFallback(project.categoryId, project.field);
+        const complete = {
+          id: project.id || crypto.randomUUID(),
+          name: project.name || 'Untitled',
+          status: project.status || 'planned',
+          categoryId,
+          field: getCategoryLabel(categoryId),
+          description: project.description || '',
+          location: project.location || `geometry('POINT(${project.lng || 25.0} ${project.lat || 47.5})', 4326)`,
+          displayLocation: project.displayLocation || project.location || 'Unknown',
+          yearRange: project.yearRange || `${new Date().getFullYear()}-${new Date().getFullYear() + 4}`,
+          lat: project.lat || 47.5,
+          lng: project.lng || 25.0,
+          isCitizenScience: project.isCitizenScience ?? true,
+          ...project,
+        } as ProjectData;
+        s.data.projects.push(complete);
+      });
+    },
     addExpert: (expert) => set((s) => {
       const complete = {
         id: expert.id || crypto.randomUUID(),
@@ -155,7 +128,8 @@ export const useAppStore = create<AppState>()(
       s.data.experts.push(complete);
     }),
     setDraftPolygon: (coords) => set((s) => { s.draftPolygon = coords; }),
-    setAddExpertOpen: (open) => set((s) => { s.ui.isAddExpertOpen = open; }),
     setExpertImportDialog: (dialog) => set((s) => { s.ui.expertImportDialog = dialog; }),
-  }))
+    }),
+    { name: 'carpathian-store', enabled: process.env.NODE_ENV === 'development' }
+  ))
 );

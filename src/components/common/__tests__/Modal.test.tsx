@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Modal from '../Modal';
 
 describe('Modal', () => {
@@ -19,16 +19,15 @@ describe('Modal', () => {
   it('renders in a top-layer modal portal with map-safe z-index', () => {
     render(<Modal isOpen={true} onClose={vi.fn()} title="Test"><p>Content</p></Modal>);
     const dialog = screen.getByRole('dialog');
-    expect(dialog.parentElement).toBe(document.body);
+    expect(document.body.contains(dialog)).toBe(true);
     expect(dialog).toHaveAttribute('data-testid', 'modal-overlay');
     expect(dialog).toHaveClass('z-[4000]');
   });
 
-  it('calls onClose on ESC key', async () => {
+  it('calls onClose on ESC key', () => {
     const onClose = vi.fn();
-    const user = userEvent.setup();
     render(<Modal isOpen={true} onClose={onClose} title="Test"><button>OK</button></Modal>);
-    await user.keyboard('{Escape}');
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
@@ -52,5 +51,10 @@ describe('Modal', () => {
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(dialog).toHaveAttribute('aria-labelledby', 'modal-title');
+  });
+
+  it('has no accessibility violations', async () => {
+    const { container } = render(<Modal isOpen={true} onClose={vi.fn()} title="Test"><p>Content</p></Modal>);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

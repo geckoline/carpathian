@@ -76,7 +76,7 @@ describe('ImportConflictDialog', () => {
       />
     );
     const checkboxes = screen.getAllByRole('checkbox') as HTMLInputElement[];
-    fireEvent.click(checkboxes[1]); // uncheck institution
+    fireEvent.click(checkboxes[1]!); // uncheck institution
     fireEvent.click(screen.getByRole('button', { name: /confirm/i }));
     expect(onConfirm).toHaveBeenCalledWith(['name', 'country']);
   });

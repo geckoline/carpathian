@@ -72,12 +72,10 @@ beforeEach(() => {
       sortDirection: 'asc',
     },
     ui: {
-      isMapVisible: true,
       selectedExpertId: null,
       selectedProjectId: null,
-      isAddExpertOpen: false,
-      expertImportDialog: null,
       hoveredProjectId: null,
+      expertImportDialog: null,
     },
   });
 });
@@ -150,7 +148,7 @@ describe('M4W1: Direct Demo Entry', () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole('button', { name: /experts/i }));
+    await user.click(screen.getByRole('tab', { name: /experts/i }));
 
     expect(await screen.findByRole('heading', { name: /no linked experts found/i })).toBeInTheDocument();
     expect(screen.getByText(/citizen science experts appear here when they are linked/i)).toBeInTheDocument();

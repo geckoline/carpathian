@@ -80,7 +80,7 @@ export const ImportConflictDialog = ({ isOpen, onClose, fields, onConfirm }: Imp
         <button
           type="button"
           onClick={onClose}
-          className="px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50"
+          className="px-4 py-2 text-sm border border-[var(--color-soft-border)] rounded hover:bg-gray-50"
         >
           Cancel
         </button>

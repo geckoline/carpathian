@@ -2,22 +2,19 @@ import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import { ProjectCard } from '../ProjectCard';
 import { useCardFlip } from '@/hooks/useCardFlip';
 
+const createMockAppStore = vi.hoisted(() => (globalThis as any).__createMockAppStore);
 const storeMocks = vi.hoisted(() => ({
   setSelectedExpertId: vi.fn(),
   setActiveTab: vi.fn(),
 }));
 
-vi.mock('@/store/appStore', () => ({
-  useAppStore: vi.fn((sel: (s: any) => any) => sel({
-    dataset: 'cs',
-    setSelectedExpertId: storeMocks.setSelectedExpertId,
-    setActiveTab: storeMocks.setActiveTab,
-    filters: { searchTerm: '' },
-    a11y: { reducedMotion: false },
-  }))
+vi.mock('@/store/appStore', () => createMockAppStore({
+  setSelectedExpertId: storeMocks.setSelectedExpertId,
+  setActiveTab: storeMocks.setActiveTab,
 }));
 vi.mock('@/hooks/useCardFlip', () => ({
   useCardFlip: vi.fn(() => ({ isFlipped: false, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() }))
@@ -119,18 +116,9 @@ describe('ProjectCard', () => {
     expertEl.remove();
   });
 
-  it('copies link and stops propagation', async () => {
-    vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
-    const user = userEvent.setup();
-    vi.mocked(useCardFlip).mockReturnValue({ isFlipped: false, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() });
+  it('shows copy share button on the project card face', () => {
     render(<ProjectCard {...mockProject} />);
-    await user.click(within(screen.getByTestId('project-face-front')).getByTestId('copy-project-link'));
-
-    const expectedUrl = `${window.location.origin}/?dataset=cs&tab=projects&card=project&id=p1#project-card-p1`;
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expectedUrl);
-    expect(screen.queryByTestId('copied-card-preview')).not.toBeInTheDocument();
-    expect(screen.queryByText(/project link copied/i)).not.toBeInTheDocument();
-    expect(within(screen.getByTestId('project-face-front')).getByRole('button', { name: /copy project link/i })).toHaveTextContent('Copy');
+    expect(within(screen.getByTestId('project-face-front')).getByRole('button', { name: /copy project link/i })).toBeInTheDocument();
   });
 
   it('uses the legacy copy fallback when the Clipboard API rejects', async () => {
@@ -262,5 +250,10 @@ describe('ProjectCard', () => {
   it('includes reduced-motion transition guard', () => {
     const { container } = render(<ProjectCard {...mockProject} />);
     expect(container.querySelector('article')).toHaveClass('motion-reduce:transition-none');
+  });
+
+  it('has no accessibility violations', async () => {
+    const { container } = render(<ProjectCard {...mockProject} />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

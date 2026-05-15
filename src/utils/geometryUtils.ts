@@ -14,14 +14,14 @@ export function parseGeometryString(wkt: string): ParsedGeometry {
   if (cleaned.startsWith('POINT(')) {
     const inner = cleaned.slice(6, -1).trim();
     const parts = inner.split(/\s+/).map(Number);
-    if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) return null;
-    return { type: 'Point', coordinates: [parts[1], parts[0]] };
+    if (parts.length !== 2 || isNaN(parts[0]!) || isNaN(parts[1]!)) return null;
+    return { type: 'Point', coordinates: [parts[1]!, parts[0]!] };
   }
 
   if (cleaned.startsWith('POLYGON((')) {
     const inner = cleaned.slice(9, -2).trim();
     const rings = inner.split('),(');
-    const ring = rings[0];
+    const ring = rings[0]!;
     const coords = ring.split(',').map(p => {
       const [lng, lat] = p.trim().split(/\s+/).map(Number);
       return [lat, lng] as LatLngTuple;

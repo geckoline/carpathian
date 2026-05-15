@@ -1,53 +1,14 @@
 import { useAppStore } from '@/store/appStore';
 import { useCardFlip } from '@/hooks/useCardFlip';
 import { useCardShare } from '@/hooks/useCardShare';
-import { getLocalExpertPortraitPath } from './expertProfileImage';
+import { makeSurfaceFlipHandler, extractFirstSentence } from '@/utils/cardInteraction';
+import { LinkedInIcon, ScopusIcon, GoogleScholarIcon, OrcidIcon } from '@/components/ui/SocialIcons';
+import { Mail } from 'lucide-react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { getLocalExpertPortraitPath, isLocalProfilePicture, buildUiAvatarUrl } from './expertProfileImage';
 
-const getInitials = (name: string) => {
-  const parts = name.replace(/^dr\.\s*/i, '').trim().split(/\s+/).filter(Boolean);
-  return parts.slice(0, 2).map((part) => part[0]?.toUpperCase()).join('') || '?';
-};
-
-const buildAvatarDataUrl = (name: string) => {
-  const initials = getInitials(name);
-  const seed = Array.from(name).reduce((total, char) => total + char.charCodeAt(0), 0);
-  const palettes = [
-    ['#f3d1b0', '#7bb2a2', '#4f392a'],
-    ['#efd9ad', '#98b7a5', '#553f2e'],
-    ['#edd5bf', '#8fb4c2', '#4b3f35'],
-  ] as const;
-  const [bgStart, bgEnd, hairColor] = palettes[seed % palettes.length];
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
-      <defs>
-        <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
-          <stop stop-color="${bgStart}"/>
-          <stop offset="1" stop-color="${bgEnd}"/>
-        </linearGradient>
-      </defs>
-      <rect width="180" height="180" fill="url(#bg)"/>
-      <circle cx="90" cy="70" r="34" fill="#f6e6d2"/>
-      <path d="M47 166c10-32 34-48 60-48 27 0 50 16 58 48" fill="#f6e6d2"/>
-      <path d="M54 68c2-17 11-30 24-39 14-10 32-13 47-5 17 7 30 27 24 52-8-9-15-13-22-15-10 10-29 18-53 18-7 0-13 0-18-2-2-3-2-5-2-9z" fill="${hairColor}"/>
-      <text x="90" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#fff">${initials}</text>
-    </svg>
-  `;
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-};
-
-const getExpertSummary = (bio: string) => {
-  const normalized = bio.trim();
-  const firstSentence = normalized.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim();
-  if (firstSentence) {
-    return firstSentence;
-  }
-  return normalized.slice(0, 110).trimEnd() + (normalized.length > 110 ? '...' : '');
-};
-
-const getFrontSubtitle = (bio: string) => getExpertSummary(bio);
+const getFrontSubtitle = (bio: string) => extractFirstSentence(bio, 110);
 const getBackSubtitle = (expertise: string[]) => expertise.slice(0, 3).join(' • ');
-const isLocalProfilePicture = (value?: string) =>
-  Boolean(value?.startsWith('/profile-pictures/') && !value.includes('..'));
 
 type SocialLink = {
   href: string;
@@ -103,59 +64,50 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
   const isSelected = selectedExpertId === id;
   const frontSubtitle = headline ?? getFrontSubtitle(bio);
   const backSubtitle = expertiseSubtitle ?? getBackSubtitle(expertise);
-  const fallbackAvatarUrl = buildAvatarDataUrl(name);
-  const idProfilePictureSrc = getLocalExpertPortraitPath(id);
-  const profilePictureSrc = isLocalProfilePicture(avatarUrl) ? avatarUrl : idProfilePictureSrc;
-  const secondaryAvatarSrc = profilePictureSrc === idProfilePictureSrc ? avatarUrl : idProfilePictureSrc;
-  const { copy: handleCopy } = useCardShare({
+  const portraitSrc = useMemo(
+    () => avatarUrl && isLocalProfilePicture(avatarUrl) ? avatarUrl : getLocalExpertPortraitPath(id),
+    [avatarUrl, id]
+  );
+  const fallbackSrc = useMemo(() => buildUiAvatarUrl(name), [name]);
+  const [useFallback, setUseFallback] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const img = new Image();
+    img.onload = () => { if (!cancelled) setUseFallback(false); };
+    img.onerror = () => { if (!cancelled) setUseFallback(true); };
+    img.src = portraitSrc;
+    return () => { cancelled = true; };
+  }, [portraitSrc]);
+
+  const { copy: handleCopy, copied } = useCardShare({
     kind: 'expert',
     id,
     dataset,
   });
-  const socialLinks: SocialLink[] = [
-    ...(email ? [{ href: `mailto:${email}`, label: 'Mail', ariaLabel: 'Send email', testKey: 'contact-email' }] : []),
-    ...(linkedin ? [{ href: linkedin, label: 'LinkedIn', ariaLabel: 'LinkedIn profile', testKey: 'linkedin', external: true }] : []),
-    ...(scopus ? [{ href: scopus, label: 'Scopus', ariaLabel: 'Scopus profile', testKey: 'scopus', external: true }] : []),
-    ...(googleScholar ? [{ href: googleScholar, label: 'Scholar', ariaLabel: 'Google Scholar profile', testKey: 'google-scholar', external: true }] : []),
-    ...(orcid ? [{ href: orcid, label: 'ORCID', ariaLabel: 'ORCID profile', testKey: 'orcid', external: true }] : []),
-  ];
+  const socialLinks = useMemo((): (SocialLink & { icon: React.ReactNode })[] => [
+    ...(email ? [{ href: `mailto:${email}`, label: 'Mail', icon: <Mail size={14} />, ariaLabel: 'Send email', testKey: 'contact-email' }] : []),
+    ...(linkedin ? [{ href: linkedin, label: 'LinkedIn', icon: <LinkedInIcon size={14} />, ariaLabel: 'LinkedIn profile', testKey: 'linkedin', external: true }] : []),
+    ...(scopus ? [{ href: scopus, label: 'Scopus', icon: <ScopusIcon size={14} />, ariaLabel: 'Scopus profile', testKey: 'scopus', external: true }] : []),
+    ...(googleScholar ? [{ href: googleScholar, label: 'Scholar', icon: <GoogleScholarIcon size={14} />, ariaLabel: 'Google Scholar profile', testKey: 'google-scholar', external: true }] : []),
+    ...(orcid ? [{ href: orcid, label: 'ORCID', icon: <OrcidIcon size={14} />, ariaLabel: 'ORCID profile', testKey: 'orcid', external: true }] : []),
+  ], [email, linkedin, scopus, googleScholar, orcid]);
 
-  const handleSurfaceFlip = (e: React.MouseEvent<HTMLElement>) => {
-    const target = e.target as HTMLElement;
-    if (target.closest('button, a, input, textarea, select, [role="button"], [data-no-card-flip="true"]')) {
-      return;
+  const handleSurfaceFlip = useCallback(makeSurfaceFlipHandler(toggle), [toggle]);
+  const handleFlipKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
+      e.preventDefault();
+      toggle();
     }
-    toggle();
-  };
+  }, [toggle]);
 
-  const handleAvatarError = (event: React.SyntheticEvent<HTMLImageElement>) => {
-    const image = event.currentTarget;
-    const fallbackStep = image.dataset.fallbackStep;
-
-    if (secondaryAvatarSrc && fallbackStep !== 'secondary-avatar') {
-      image.dataset.fallbackStep = 'secondary-avatar';
-      image.src = secondaryAvatarSrc;
-      return;
-    }
-
-    if (fallbackStep !== 'generated') {
-      image.dataset.fallbackStep = 'generated';
-      image.src = fallbackAvatarUrl;
-    }
-  };
-
-  const renderAvatar = (hidden = false) => (
+  const renderAvatar = useCallback((hidden = false) => (
     <div className="avatar profile-avatar" aria-hidden={hidden} data-testid="expert-avatar">
-      <img
-        src={profilePictureSrc}
-        alt={`${name} portrait`}
-        loading="lazy"
-        onError={handleAvatarError}
-      />
+      <img src={useFallback ? fallbackSrc : portraitSrc} alt={`${name} portrait`} loading="lazy" />
     </div>
-  );
+  ), [useFallback, fallbackSrc, portraitSrc, name]);
 
-  const renderSocialLinks = (surface: 'front' | 'back') => (
+  const renderSocialLinks = useCallback((surface: 'front' | 'back') => (
     <div className="social-row" data-testid={surface === 'front' ? 'expert-social-row' : `expert-${surface}-social-row`}>
       {socialLinks.map((link) => (
         <a
@@ -167,11 +119,14 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
           data-testid={`expert-${surface}-${link.testKey}-btn`}
           aria-label={link.ariaLabel}
         >
-          {link.label}
+          <span className="inline-flex items-center gap-1.5">
+            {link.icon}
+            <span>{link.label}</span>
+          </span>
         </a>
       ))}
     </div>
-  );
+  ), [socialLinks]);
 
   return (
     <article
@@ -193,6 +148,8 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
           aria-hidden={isFlipped}
           className={`card-face card expert-front ${isFlipped ? 'pointer-events-none' : ''}`}
           onClick={handleSurfaceFlip}
+          onKeyDown={handleFlipKeyDown}
+          tabIndex={0}
         >
           <header data-testid="expert-front-header" className="header profile-header profile-header-safe">
             <h3 id={`expert-card-title-${id}`}>{name}</h3>
@@ -222,7 +179,7 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
             {renderSocialLinks('front')}
             <div className="footer-actions footer-actions-spread">
               <button type="button" onClick={handleCopy} className="button outline" data-testid="copy-expert-link" aria-label="Copy expert link">
-                Copy
+                {copied ? 'Copied!' : 'Copy'}
               </button>
               <button type="button" onClick={toggle} disabled={isFlipping} className="button" data-testid="flip-to-back" aria-label="View expert details">
                 Details ↻
@@ -236,6 +193,8 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
           aria-hidden={!isFlipped}
           className={`card-face card card-face-back expert-back expert-card-backdrop ${!isFlipped ? 'pointer-events-none' : ''}`}
           onClick={handleSurfaceFlip}
+          onKeyDown={handleFlipKeyDown}
+          tabIndex={0}
         >
           <header className="header profile-header profile-header-safe">
             <h3>{name}</h3>
@@ -264,7 +223,7 @@ export const ExpertCard: React.FC<ExpertCardProps> = ({
             {renderSocialLinks('back')}
             <div className="footer-actions footer-actions-spread">
               <button type="button" onClick={handleCopy} className="button outline" data-testid="copy-expert-back-link" aria-label="Copy expert link">
-                Copy
+                {copied ? 'Copied!' : 'Copy'}
               </button>
               <button type="button" onClick={toggle} disabled={isFlipping} className="button" data-testid="flip-to-front" aria-label="Back to expert summary">
                 Back ↻

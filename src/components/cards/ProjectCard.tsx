@@ -1,8 +1,10 @@
+import { useMemo, useCallback } from 'react';
 import { useAppStore } from '@/store/appStore';
 import { useCardFlip } from '@/hooks/useCardFlip';
 import { useCardShare } from '@/hooks/useCardShare';
 import { highlightText } from '@/utils/highlightText';
 import { getCompactCategoryLabel, getProjectStatusLabel } from '@/utils/projectBadges';
+import { makeSurfaceFlipHandler, extractFirstSentence } from '@/utils/cardInteraction';
 
 export interface ProjectCardProps {
   id: string;
@@ -24,12 +26,6 @@ export interface ProjectCardProps {
   contact?: string;
   country?: string;
 }
-
-const getProjectSummary = (description: string) => {
-  const normalized = description.trim();
-  const firstSentence = normalized.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim();
-  return firstSentence && firstSentence.length <= 160 ? firstSentence : normalized.slice(0, 160).trimEnd() + '...';
-};
 
 const getRegionLabel = (regionLabel?: string, displayLocation?: string, location?: string) => {
   if (regionLabel) return regionLabel;
@@ -81,20 +77,32 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const reducedMotion = useAppStore((s) => s.a11y.reducedMotion);
   const setSelectedExpertId = useAppStore((s) => s.setSelectedExpertId);
   const setActiveTab = useAppStore((s) => s.setActiveTab);
-  const projectSummary = cardSummary ?? getProjectSummary(description);
-  const resolvedRegionLabel = getRegionLabel(regionLabel, displayLocation, location);
-  const focusLabel = focusSummary ?? getFocusLabel(field);
-  const outputsLabel = outputsSummary ?? getOutputsLabel(isCitizenScience);
-  const statusLabel = getProjectStatusLabel(status);
-  const compactFieldLabel = getCompactCategoryLabel(field);
-  const contactEmail = contact ?? 'citizen-science@carpathian.org';
-  const { copy: handleCopy } = useCardShare({
+  const projectSummary = useMemo(
+    () => cardSummary ?? extractFirstSentence(description, 160),
+    [cardSummary, description]
+  );
+  const resolvedRegionLabel = useMemo(
+    () => getRegionLabel(regionLabel, displayLocation, location),
+    [regionLabel, displayLocation, location]
+  );
+  const focusLabel = useMemo(
+    () => focusSummary ?? getFocusLabel(field),
+    [focusSummary, field]
+  );
+  const outputsLabel = useMemo(
+    () => outputsSummary ?? getOutputsLabel(isCitizenScience),
+    [outputsSummary, isCitizenScience]
+  );
+  const statusLabel = useMemo(() => getProjectStatusLabel(status), [status]);
+  const compactFieldLabel = useMemo(() => getCompactCategoryLabel(field), [field]);
+  const contactEmail = useMemo(() => contact ?? 'citizen-science@carpathian.org', [contact]);
+  const { copy: handleCopy, copied } = useCardShare({
     kind: 'project',
     id,
     dataset,
   });
 
-  const handleLeadExpertClick = (e: React.MouseEvent) => {
+  const handleLeadExpertClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (!leadExpertId) return;
 
@@ -104,15 +112,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       behavior: reducedMotion ? 'auto' : 'smooth',
       block: 'center',
     });
-  };
+  }, [leadExpertId, reducedMotion, setSelectedExpertId, setActiveTab]);
 
-  const handleSurfaceFlip = (e: React.MouseEvent<HTMLElement>) => {
-    const target = e.target as HTMLElement;
-    if (target.closest('button, a, input, textarea, select, [role="button"], [data-no-card-flip="true"]')) {
-      return;
+  const handleSurfaceFlip = useCallback(makeSurfaceFlipHandler(toggle), [toggle]);
+  const handleFlipKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
+      e.preventDefault();
+      toggle();
     }
-    toggle();
-  };
+  }, [toggle]);
 
   return (
     <article
@@ -134,6 +142,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           aria-hidden={isFlipped}
           className={`card-face card project-front ${isFlipped ? 'pointer-events-none' : ''}`}
           onClick={handleSurfaceFlip}
+          onKeyDown={handleFlipKeyDown}
+          tabIndex={0}
         >
           <header data-testid="project-front-header" className="header project-card-header">
             <div className="project-title-row" data-testid="project-title-row">
@@ -206,7 +216,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 data-testid="copy-project-link"
                 aria-label="Copy project link"
               >
-                Copy
+                {copied ? 'Copied!' : 'Copy'}
               </button>
             </div>
             <div className="footer-actions">
@@ -229,6 +239,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           aria-hidden={!isFlipped}
           className={`card-face card card-face-back project-back project-card-backdrop ${!isFlipped ? 'pointer-events-none' : ''}`}
           onClick={handleSurfaceFlip}
+          onKeyDown={handleFlipKeyDown}
+          tabIndex={0}
         >
           <header className="header project-card-header">
             <div className="project-title-row" data-testid="project-title-row">
@@ -283,7 +295,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 data-testid="copy-project-back-link"
                 aria-label="Copy project link"
               >
-                Copy
+                {copied ? 'Copied!' : 'Copy'}
               </button>
             </div>
             <div className="footer-actions">

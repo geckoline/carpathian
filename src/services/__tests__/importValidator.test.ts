@@ -121,8 +121,8 @@ describe('importValidator', () => {
         orcid: 'https://orcid.org/0000-0002-1825-0097',
       });
       expect(results).toHaveLength(1);
-      expect(results[0].source).toBe('orcid');
-      expect(results[0].valid).toBe(true);
+      expect(results[0]!.source).toBe('orcid');
+      expect(results[0]!.valid).toBe(true);
     });
 
     it('validates scholar when provided', async () => {
@@ -135,8 +135,8 @@ describe('importValidator', () => {
         googleScholar: 'https://scholar.google.com/citations?user=abc123',
       });
       expect(results).toHaveLength(1);
-      expect(results[0].source).toBe('google_scholar');
-      expect(results[0].valid).toBe(true);
+      expect(results[0]!.source).toBe('google_scholar');
+      expect(results[0]!.valid).toBe(true);
     });
 
     it('validates both when both provided', async () => {
@@ -155,8 +155,8 @@ describe('importValidator', () => {
         googleScholar: 'https://scholar.google.com/citations?user=abc123',
       });
       expect(results).toHaveLength(2);
-      expect(results[0].valid).toBe(true);
-      expect(results[1].valid).toBe(true);
+      expect(results[0]!.valid).toBe(true);
+      expect(results[1]!.valid).toBe(true);
     });
 
     it('returns empty array when neither provided', async () => {

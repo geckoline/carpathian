@@ -47,7 +47,7 @@ describe('Syntax regression checks', () => {
         
         const arrayMatches = line.matchAll(/\[([^\]]+)\]/g);
         for (const match of arrayMatches) {
-          const inner = match[1].trim();
+          const inner = match[1]!.trim();
           if ((inner.match(/\s+/g) || []).length > 0 && !inner.includes(',')) {
             if (inner.match(/^\d+\s+\d+$/)) {
               throw new Error(`Missing comma in array literal at ${file}:${idx + 1}: [${inner}]`);

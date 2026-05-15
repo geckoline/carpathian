@@ -1,4 +1,4 @@
-import type { DatasetMode, FilterState } from '@/store/appStore';
+import type { DatasetMode, FilterState } from '@/types/app';
 
 export type ShareCardKind = 'project' | 'expert';
 
