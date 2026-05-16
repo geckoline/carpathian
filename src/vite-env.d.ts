@@ -27,8 +27,3 @@ declare module '*.css' {
   const css: { [key: string]: string };
   export default css;
 }
-
-declare module 'leaflet-draw' {
-  const L: typeof import('leaflet');
-  export default L;
-}

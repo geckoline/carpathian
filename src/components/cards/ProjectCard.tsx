@@ -103,10 +103,18 @@ export const ProjectCard = memo<ProjectCardProps>(({
 
     setSelectedExpertId(expertId);
     setActiveTab('experts');
-    document.getElementById(`expert-card-${expertId}`)?.scrollIntoView({
-      behavior: reducedMotion ? 'auto' : 'smooth',
-      block: 'center',
-    });
+
+    const attemptScroll = (attempt: number) => {
+      const el = document.getElementById(`expert-card-${expertId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'center' });
+        el.classList.add('animate-pulse-ring');
+        setTimeout(() => el.classList.remove('animate-pulse-ring'), 3000);
+      } else if (attempt < 20) {
+        setTimeout(() => attemptScroll(attempt + 1), 100);
+      }
+    };
+    attemptScroll(0);
   }, [reducedMotion, setSelectedExpertId, setActiveTab]);
 
   return (

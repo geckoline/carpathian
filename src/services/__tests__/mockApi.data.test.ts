@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { mockApi } from '../mockApi';
+import { getLocalExpertPortraitPath, getLocalExpertPortraitPaths } from '@/components/cards/expertProfileImage';
 import { ProjectSchema } from '@/types/project';
 import { ExpertSchema } from '@/types/expert';
-import { getLocalExpertPortraitPath, getLocalExpertPortraitPaths } from '@/components/cards/expertProfileImage';
 
 describe('Mock API - Data Integrity', () => {
   describe('Project Data', () => {
@@ -98,6 +98,7 @@ describe('Mock API - Data Integrity', () => {
         ]);
       });
     });
+
   });
 
   describe('Cross-Reference Integrity', () => {

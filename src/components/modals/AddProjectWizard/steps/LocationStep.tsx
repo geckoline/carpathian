@@ -5,7 +5,6 @@ import { useAppStore } from '@/store/appStore';
 import { geocodeLocation, parseGeoJSON } from '@/utils/geocoding';
 import type { WizardFormData } from '../wizardTypes';
 import L from 'leaflet';
-import 'leaflet-draw';
 
 type LocationMode = 'simple' | 'draw' | 'import';
 

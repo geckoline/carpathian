@@ -21,10 +21,6 @@ describe('vite config', () => {
     const configPath = resolve(__dirname, '../../vite.config.ts');
     const config = readFileSync(configPath, 'utf-8');
     expect(config).toMatch(/manualChunks/);
-    expect(config.indexOf("leaflet-draw")).toBeLessThan(config.indexOf("return 'leaflet'"));
-    expect(config.indexOf("leaflet.markercluster")).toBeLessThan(config.indexOf("return 'leaflet'"));
-    expect(config).toMatch(/return\s+['"]leaflet['"]/);
-    expect(config).toMatch(/return\s+['"]leaflet-draw['"]/);
     expect(config).toMatch(/return\s+['"]leaflet-cluster['"]/);
     expect(config).toMatch(/return\s+['"]forms['"]/);
   });

@@ -187,7 +187,7 @@ describe('apiService mock fallback', () => {
     expect(expert!.publications).toBe(0);
     expect(expert!.institutionId).toBe('inst');
     expect(expert!.institutionWebsite).toBeUndefined();
-    expect(expert!.profileImageUrl).toBe('https://example.com/avatar.jpg');
+    expect(expert!.profileImageUrl).toBeUndefined();
     expect(ExpertSchema.safeParse(expert).success).toBe(true);
   });
 

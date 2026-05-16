@@ -22,7 +22,6 @@ describe('Bundle Sanity', { timeout: 60000 }, () => {
 
     expect(files.some(f => f.startsWith('vendor-'))).toBe(true);
     expect(files.some(f => f.startsWith('leaflet-'))).toBe(true);
-    expect(files.some(f => f.startsWith('leaflet-draw-'))).toBe(true);
     expect(files.some(f => f.startsWith('leaflet-cluster-'))).toBe(true);
     expect(files.some(f => f.startsWith('forms-'))).toBe(true);
     expect(files.some(f => f.startsWith('search-'))).toBe(true);

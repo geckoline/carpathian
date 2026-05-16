@@ -99,13 +99,23 @@ const getProjectExpertIds = (project: AppProjectRow): string[] => {
   return ids.filter((id): id is string => typeof id === 'string' && id.length > 0);
 };
 
+const isPlaceholderUrl = (url: string) => {
+  try {
+    const host = new URL(url).hostname;
+    return host === 'example.com' || host.endsWith('.example.com');
+  } catch {
+    return true;
+  }
+};
+
 const getExpertProfileImageUrl = (expert: AppExpertRow) => {
   const importMetadata = getRecord(expert.import_metadata);
   const scholar = getRecord(importMetadata?.scholar);
-  return optionalString(expert.avatar_url)
+  const url = optionalString(expert.avatar_url)
     ?? optionalString(expert.profile_image_url)
     ?? optionalString(importMetadata?.profileImageUrl)
     ?? optionalString(scholar?.thumbnail);
+  return url && !isPlaceholderUrl(url) ? url : undefined;
 };
 
 export const toProjectData = (project: AppProjectRow): ProjectData => {

@@ -40,17 +40,6 @@ vi.mock('react-leaflet', () => ({
   Polygon: ({ positions }: any) => <div data-testid="map-polygon" data-positions={JSON.stringify(positions)} />,
 }));
 
-vi.mock('leaflet-draw', () => ({
-  default: {
-    Event: { CREATED: 'draw:created' },
-    Control: {
-      Draw: vi.fn(() => ({ addTo: vi.fn() })),
-    },
-    FeatureGroup: vi.fn(() => ({ addLayer: vi.fn() })),
-    Polygon: vi.fn(),
-  },
-}));
-
 vi.mock('@/utils/geocoding', () => ({
   geocodeLocation: vi.fn(),
   getCountriesFromText: vi.fn(() => []),
