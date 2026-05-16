@@ -91,7 +91,7 @@ export const ExpertStep = () => {
                     type="checkbox"
                     checked={isSelected}
                     onChange={() => toggleExpert(expert.id)}
-                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    className="rounded border-[var(--color-soft-border)] text-primary-600 focus:ring-primary-500"
                   />
                   <div className="flex-1 min-w-0">
                     <p className="font-medium truncate">{expert.name}</p>

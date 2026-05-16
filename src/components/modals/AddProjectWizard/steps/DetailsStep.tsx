@@ -60,7 +60,7 @@ export const DetailsStep = () => {
                             field.onChange([...(field.value ?? []), code]);
                           }
                         }}
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                        className="rounded border-[var(--color-soft-border)] text-primary-600 focus:ring-primary-500"
                       />
                       {getCountryName(code)}
                     </label>
@@ -88,7 +88,7 @@ export const DetailsStep = () => {
                             field.onChange([...(field.value ?? []), code]);
                           }
                         }}
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                        className="rounded border-[var(--color-soft-border)] text-primary-600 focus:ring-primary-500"
                       />
                       {getCountryName(code)}
                     </label>

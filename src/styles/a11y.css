@@ -86,6 +86,7 @@ html.theme-dark {
   --color-field-note: #b8cbbf;
   --color-surface-muted: #14241b;
   --color-text-muted: #c9d8ce;
+  --color-text-primary: #ecf5ee;
   --shadow-card: 0 20px 55px -30px rgb(0 0 0 / 0.85);
   --shadow-card-hover: 0 24px 60px -28px rgb(0 0 0 / 0.9);
   --shadow-panel: 0 24px 60px -32px rgb(0 0 0 / 0.9);
@@ -137,6 +138,7 @@ html.theme-reduced-color {
   --color-field-note: #5f675f;
   --color-surface-muted: #f4f5f2;
   --color-text-muted: #5f675f;
+  --color-text-primary: #1a1a1a;
   --shadow-card: 0 10px 30px -24px rgb(0 0 0 / 0.45);
   --shadow-card-hover: 0 14px 36px -24px rgb(0 0 0 / 0.5);
   --shadow-panel: 0 16px 36px -28px rgb(0 0 0 / 0.45);

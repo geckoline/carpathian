@@ -3,3 +3,8 @@ dist
 .env
 .env.local
 .env.*.local
+coverage
+dist-types
+reports
+version5.html
+carpathian-complete.txt

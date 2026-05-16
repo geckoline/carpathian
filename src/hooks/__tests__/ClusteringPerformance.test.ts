@@ -1,6 +1,6 @@
 // src/hooks/__tests__/ClusteringPerformance.test.ts
 import '@testing-library/jest-dom/vitest';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useAppStore } from '@/store/appStore';
 
@@ -18,6 +18,7 @@ vi.mock('@/store/appStore', () => {
 
 describe('Map Clustering Performance QA', { timeout: 30000 }, () => {
   beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { vi.useRealTimers(); });
 
   it('handles 500 projects without blocking main thread', () => {
     const projects = generateProjects(500);

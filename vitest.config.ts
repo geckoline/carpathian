@@ -1,13 +1,12 @@
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-import tailwindcss from '@tailwindcss/vite';
+import { defineConfig, mergeConfig } from 'vitest/config';
+import viteConfigFn from './vite.config';
 import path from 'path';
 
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
+const viteConfig = viteConfigFn({ mode: 'test', command: 'serve' });
+
+export default mergeConfig(viteConfig, defineConfig({
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
       '@store': path.resolve(__dirname, './src/store'),
       '@components': path.resolve(__dirname, './src/components'),
       '@hooks': path.resolve(__dirname, './src/hooks'),
@@ -16,9 +15,6 @@ export default defineConfig({
       '@test-utils': path.resolve(__dirname, './src/test-utils'),
       'react-leaflet-markercluster/dist/styles.min.css': path.resolve(__dirname, './src/test-utils/cssStub.ts'),
     },
-  },
-  optimizeDeps: {
-    include: ['react', 'react-dom', 'zustand', 'immer', 'lucide-react'],
   },
   test: {
     globals: true,
@@ -38,4 +34,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

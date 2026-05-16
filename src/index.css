@@ -47,6 +47,7 @@
   --color-field-note: #627166;
   --color-surface-muted: #f8fafc;
   --color-text-muted: #64748b;
+  --color-text-primary: #1a1a1a;
 
   /* Status Tokens (Semantic) */
   --color-status-active: #059669;
@@ -75,8 +76,8 @@
 body {
   margin: 0;
   font-family: system-ui, "Segoe UI", Roboto, sans-serif;
-  background: radial-gradient(circle at top left, rgb(34 197 94 / 0.14), transparent 34rem), linear-gradient(180deg, var(--color-app-bg) 0%, #ffffff 52rem);
-  color: #1a1a1a;
+  background: radial-gradient(circle at top left, rgb(34 197 94 / 0.14), transparent 34rem), linear-gradient(180deg, var(--color-app-bg) 0%, var(--color-panel-surface) 52rem);
+  color: var(--color-text-primary);
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
 }

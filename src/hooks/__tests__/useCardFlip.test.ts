@@ -1,9 +1,10 @@
 // src/hooks/__tests__/useCardFlip.test.ts
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useCardFlip } from '../useCardFlip';
 
 describe('useCardFlip', () => {
+  afterEach(() => { vi.useRealTimers(); });
   it('starts unflipped and not flipping', () => {
     const { result } = renderHook(() => useCardFlip());
     expect(result.current.isFlipped).toBe(false);
@@ -25,7 +26,6 @@ describe('useCardFlip', () => {
     act(() => { vi.advanceTimersByTime(100); });
     act(() => { result.current.toggle(); });
     expect(result.current.isFlipped).toBe(false);
-    vi.useRealTimers();
   });
 
   it('calls onFlip callback when flipped', () => {
@@ -42,6 +42,5 @@ describe('useCardFlip', () => {
     expect(result.current.isFlipping).toBe(true);
     act(() => { vi.advanceTimersByTime(100); });
     expect(result.current.isFlipping).toBe(false);
-    vi.useRealTimers();
   });
 });

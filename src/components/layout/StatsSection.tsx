@@ -24,8 +24,8 @@ export const StatsSection = memo(({ projects, experts }: { projects: ProjectData
             data-testid={`stat-card-${stat.id}`}
             className="relative overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-soft-border)] bg-[var(--color-panel-surface)] p-4 text-center shadow-[var(--shadow-panel)] transition-all duration-500 sm:p-6 sm:hover:-translate-y-2 sm:hover:shadow-[var(--shadow-surface)]"
           >
-            <div className="absolute left-0 top-0 h-1.5 w-full bg-gradient-to-r from-[#006633] to-[#00a050] sm:h-2" />
-            <p className="mb-1 bg-gradient-to-r from-[#006633] to-[#008040] bg-clip-text text-2xl sm:text-4xl font-extrabold text-transparent sm:mb-2" data-testid={`stat-${stat.id}`}>
+            <div className="absolute left-0 top-0 h-1.5 w-full bg-gradient-to-r from-[var(--color-primary-700)] to-[var(--color-primary-500)] sm:h-2" />
+            <p className="mb-1 bg-gradient-to-r from-[var(--color-primary-700)] to-[var(--color-primary-600)] bg-clip-text text-2xl sm:text-4xl font-extrabold text-transparent sm:mb-2" data-testid={`stat-${stat.id}`}>
               <AnimatedCounter target={stat.value} />
             </p>
             <p className="text-xs font-semibold leading-tight text-[var(--color-field-note)] sm:text-lg">{stat.label}</p>

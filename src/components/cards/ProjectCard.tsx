@@ -164,12 +164,12 @@ export const ProjectCard = memo<ProjectCardProps>(({
                   <span>
                     <button
                       type="button"
-                      onClick={(e) => handleTeamMemberClick(e, teamMembers[0].id)}
+                      onClick={(e) => handleTeamMemberClick(e, teamMembers[0]!.id)}
                       className="team-pill"
-                      data-testid={`team-member-${teamMembers[0].id}`}
-                      aria-label={`Show expert ${teamMembers[0].name}`}
+                      data-testid={`team-member-${teamMembers[0]!.id}`}
+                      aria-label={`Show expert ${teamMembers[0]!.name}`}
                     >
-                      {teamMembers[0].name}
+                      {teamMembers[0]!.name}
                     </button>
                   </span>
                 ) : (
