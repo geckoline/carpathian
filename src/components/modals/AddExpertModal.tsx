@@ -455,7 +455,7 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
                     type="button"
                     onClick={() => handleFetchProfile('google_scholar')}
                     disabled={!watch('googleScholar') || validatingField === 'google_scholar'}
-                    className="px-3 py-2 text-sm border border-[var(--color-soft-border)] rounded hover:bg-gray-50 disabled:opacity-50 whitespace-nowrap"
+                    className="px-3 py-2 text-sm border border-[var(--color-soft-border)] rounded-full hover:bg-[var(--color-panel-surface-soft)] disabled:opacity-50 whitespace-nowrap transition"
                   >
                     {validatingField === 'google_scholar' ? 'Fetching...' : 'Fetch Profile'}
                   </button>
@@ -473,7 +473,7 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
                     type="button"
                     onClick={() => handleFetchProfile('orcid')}
                     disabled={!watch('orcid') || validatingField === 'orcid'}
-                    className="px-3 py-2 text-sm border border-[var(--color-soft-border)] rounded hover:bg-gray-50 disabled:opacity-50 whitespace-nowrap"
+                    className="px-3 py-2 text-sm border border-[var(--color-soft-border)] rounded-full hover:bg-[var(--color-panel-surface-soft)] disabled:opacity-50 whitespace-nowrap transition"
                   >
                     {validatingField === 'orcid' ? 'Fetching...' : 'Fetch Profile'}
                   </button>

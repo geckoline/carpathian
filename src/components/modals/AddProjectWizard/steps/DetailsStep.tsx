@@ -47,7 +47,7 @@ export const DetailsStep = () => {
                     <label
                       key={code}
                       className={`flex items-center gap-2 p-1.5 rounded cursor-pointer text-sm transition-colors ${
-                        isSelected ? 'bg-primary-50 text-primary-800' : 'hover:bg-gray-50'
+                        isSelected ? 'bg-primary-50 text-primary-800' : 'hover:bg-[var(--color-panel-surface-soft)]'
                       }`}
                     >
                       <input
@@ -75,7 +75,7 @@ export const DetailsStep = () => {
                     <label
                       key={code}
                       className={`flex items-center gap-2 p-1.5 rounded cursor-pointer text-sm transition-colors ${
-                        isSelected ? 'bg-primary-50 text-primary-800' : 'hover:bg-gray-50'
+                        isSelected ? 'bg-primary-50 text-primary-800' : 'hover:bg-[var(--color-panel-surface-soft)]'
                       }`}
                     >
                       <input

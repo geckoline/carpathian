@@ -54,7 +54,7 @@ describe('ProjectCard', () => {
     expect(within(front).getByTestId('project-field')).toHaveTextContent('Biodiversity');
     expect(within(front).getByText('Region')).toBeInTheDocument();
     expect(within(front).getByText('Timeline')).toBeInTheDocument();
-    expect(within(front).getByText('Team')).toBeInTheDocument();
+    expect(within(front).getByText('Expert')).toBeInTheDocument();
     expect(within(front).getByTestId('project-badge-row')).toBeInTheDocument();
     expect(within(front).getByTestId('project-title-row')).toHaveClass('project-title-row');
     expect(within(front).getByTestId('project-badge-row')).toHaveClass('project-badge-stack');

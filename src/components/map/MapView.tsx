@@ -78,10 +78,10 @@ const createClusterIcon = (cluster: ClusterIconContext) => {
 };
 
 const mapControlClass = (isActive: boolean) => `inline-flex items-center gap-2 px-4 py-1.5 text-sm border rounded-full transition font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-  isActive
-    ? 'bg-primary-500 text-white border-primary-500 shadow-sm'
-    : 'bg-white text-gray-700 border-[var(--color-soft-border)] hover:bg-gray-100'
-}`;
+    isActive
+      ? 'bg-primary-500 text-white border-primary-500 shadow-sm'
+      : 'bg-[var(--color-panel-surface)] text-text-muted border-[var(--color-soft-border)] hover:bg-[var(--color-panel-surface-soft)]'
+  }`;
 
 const MapController = ({ filteredProjects }: { filteredProjects: ProjectData[] }) => {
   const map = useMap();
@@ -186,7 +186,7 @@ export const MapView = ({ projects: propProjects }: { projects?: ProjectData[] }
           <strong className="block text-primary-700">{project.name}</strong>
           <span className="text-xs text-text-muted capitalize">{project.status} • {project.field}</span>
           <button
-            className="mt-2 text-xs px-2 py-1 bg-primary-500 text-white rounded hover:bg-primary-600 w-full"
+            className="mt-2 text-xs px-2 py-1 bg-primary-500 text-white rounded-full hover:bg-primary-600 w-full transition focus:outline-none focus:ring-2 focus:ring-primary-500"
             onClick={() => {
               scrollElementIntoView(`project-card-${project.id}`, reducedMotion);
             }}

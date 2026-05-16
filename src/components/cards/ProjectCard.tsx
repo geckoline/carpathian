@@ -94,9 +94,6 @@ export const ProjectCard = memo<ProjectCardProps>(({
   );
   const statusLabel = useMemo(() => getProjectStatusLabel(status), [status]);
   const compactFieldLabel = useMemo(() => getCompactCategoryLabel(field), [field]);
-  const visibleTeam = useMemo(() => teamMembers.slice(0, 3), [teamMembers]);
-  const extraCount = useMemo(() => Math.max(0, teamMembers.length - 3), [teamMembers]);
-
   const handleTeamMemberClick = useCallback((e: React.MouseEvent, expertId: string) => {
     e.stopPropagation();
     if (!expertId) return;
@@ -157,29 +154,40 @@ export const ProjectCard = memo<ProjectCardProps>(({
               </div>
               {countries && countries.length > 0 && (
                 <div className="meta-chip">
-                  <strong>Countries</strong>
+                  <strong>{countries.length === 1 ? 'Country' : 'Countries'}</strong>
                   <span data-testid="project-countries">{countries.map(getCountryName).join(', ')}</span>
                 </div>
               )}
               <div className="meta-chip team-meta-row" data-testid="project-team">
-                <strong>Team</strong>
-                <span className="team-pill-list">
-                  {visibleTeam.map((member) => (
+                <strong>{teamMembers.length === 1 ? 'Expert' : 'Experts'}</strong>
+                {teamMembers.length === 1 ? (
+                  <span>
                     <button
-                      key={member.id}
                       type="button"
-                      onClick={(e) => handleTeamMemberClick(e, member.id)}
+                      onClick={(e) => handleTeamMemberClick(e, teamMembers[0].id)}
                       className="team-pill"
-                      data-testid={`team-member-${member.id}`}
-                      aria-label={`Show expert ${member.name}`}
+                      data-testid={`team-member-${teamMembers[0].id}`}
+                      aria-label={`Show expert ${teamMembers[0].name}`}
                     >
-                      {member.name}
+                      {teamMembers[0].name}
                     </button>
-                  ))}
-                  {extraCount > 0 && (
-                    <span className="team-extra-badge" data-testid="team-extra-count">+{extraCount} more</span>
-                  )}
-                </span>
+                  </span>
+                ) : (
+                  <span className="flex flex-col gap-1.5">
+                    {teamMembers.map((member) => (
+                      <button
+                        key={member.id}
+                        type="button"
+                        onClick={(e) => handleTeamMemberClick(e, member.id)}
+                        className="team-pill self-start"
+                        data-testid={`team-member-${member.id}`}
+                        aria-label={`Show expert ${member.name}`}
+                      >
+                        {member.name}
+                      </button>
+                    ))}
+                  </span>
+                )}
               </div>
             </div>
             <p

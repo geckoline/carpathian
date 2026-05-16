@@ -48,7 +48,7 @@ export const WizardShell = ({
                   transition-colors duration-200
                   ${isActive ? 'bg-primary-500 text-white ring-2 ring-primary-200' : ''}
                   ${isCompleted ? 'bg-primary-100 text-primary-700' : ''}
-                  ${!isActive && !isCompleted ? 'bg-gray-100 text-gray-400' : ''}
+                  ${!isActive && !isCompleted ? 'bg-[var(--color-panel-surface-soft)] text-text-muted' : ''}
                 `}>
                   {isCompleted ? '✓' : i + 1}
                 </div>
@@ -56,7 +56,7 @@ export const WizardShell = ({
                   text-xs mt-1 hidden sm:block
                   ${isActive ? 'font-semibold text-primary-700' : ''}
                   ${isCompleted ? 'text-primary-600' : ''}
-                  ${!isActive && !isCompleted ? 'text-gray-400' : ''}
+                  ${!isActive && !isCompleted ? 'text-text-muted' : ''}
                 `}>
                   {step.label}
                 </span>
@@ -64,7 +64,7 @@ export const WizardShell = ({
             );
           })}
         </div>
-        <div className="mt-3 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+        <div className="mt-3 h-1.5 bg-[var(--color-soft-border)] rounded-full overflow-hidden">
           <div
             className="h-full bg-primary-500 rounded-full transition-all duration-300"
             style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
@@ -75,14 +75,14 @@ export const WizardShell = ({
       <form onSubmit={onSubmit}>
         {/* Offline banner */}
         {!isOnline && (
-          <p className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 mb-4" role="alert">
+          <p className="rounded-[var(--radius-panel)] border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 mb-4" role="alert">
             You are offline. Submissions are disabled until your connection is restored.
           </p>
         )}
 
         {/* Error banner */}
         {submitError && (
-          <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 mb-4" role="alert">
+          <p className="rounded-[var(--radius-panel)] border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 mb-4" role="alert">
             {submitError}
           </p>
         )}
@@ -98,7 +98,7 @@ export const WizardShell = ({
             <button
               type="button"
               onClick={onClose}
-              className="rounded border border-[var(--color-soft-border)] px-4 py-2 text-sm font-medium text-text-muted hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="rounded-full border border-[var(--color-soft-border)] px-4 py-2 text-sm font-medium text-text-muted hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
             >
               Cancel
             </button>
@@ -106,7 +106,7 @@ export const WizardShell = ({
               <button
                 type="button"
                 onClick={onReset}
-                className="rounded border border-[var(--color-soft-border)] px-3 py-2 text-sm font-medium text-text-muted hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="rounded-full border border-[var(--color-soft-border)] px-3 py-2 text-sm font-medium text-text-muted hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
               >
                 Reset
               </button>
@@ -117,7 +117,7 @@ export const WizardShell = ({
               <button
                 type="button"
                 onClick={onBack}
-                className="rounded border border-[var(--color-soft-border)] px-4 py-2 text-sm font-medium text-text-muted hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="rounded-full border border-[var(--color-soft-border)] px-4 py-2 text-sm font-medium text-text-muted hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
               >
                 Back
               </button>
@@ -127,7 +127,7 @@ export const WizardShell = ({
                 type="submit"
                 disabled={isSubmitting || !isOnline || !canGoNext}
                 data-testid={submitTestId}
-                className="rounded bg-primary-500 px-5 py-2 text-sm font-medium text-white hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
+                className="rounded-full bg-primary-500 px-5 py-2 text-sm font-medium text-white hover:bg-primary-600 transition focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
               >
                 {isSubmitting ? 'Saving...' : 'Add Project'}
               </button>
@@ -136,7 +136,7 @@ export const WizardShell = ({
                 type="button"
                 onClick={onNext}
                 disabled={!canGoNext}
-                className="rounded bg-primary-500 px-5 py-2 text-sm font-medium text-white hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
+                className="rounded-full bg-primary-500 px-5 py-2 text-sm font-medium text-white hover:bg-primary-600 transition focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
               >
                 Next
               </button>

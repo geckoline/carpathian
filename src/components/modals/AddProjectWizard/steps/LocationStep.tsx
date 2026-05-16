@@ -199,7 +199,7 @@ function DrawControls({ onPolygonCreated, hasArea, onResetArea }: {
           type="button"
           data-testid="mock-draw-button"
           onClick={() => onPolygonCreated([[47.5, 25.0], [47.6, 25.1], [47.4, 25.2]])}
-          className="px-3 py-1.5 text-xs font-medium rounded bg-gray-300 text-gray-600"
+          className="px-3 py-1.5 text-xs font-medium rounded-full bg-[var(--color-panel-surface-soft)] text-text-muted"
         >
           Mock Draw Polygon
         </button>
@@ -207,7 +207,7 @@ function DrawControls({ onPolygonCreated, hasArea, onResetArea }: {
           type="button"
           data-testid="mock-invalid-draw-button"
           onClick={() => onPolygonCreated([[47.5, 25.0], [47.6, 25.1]])}
-          className="px-3 py-1.5 text-xs font-medium rounded bg-gray-300 text-gray-600"
+          className="px-3 py-1.5 text-xs font-medium rounded-full bg-[var(--color-panel-surface-soft)] text-text-muted"
         >
           Mock Invalid Polygon
         </button>
@@ -215,7 +215,7 @@ function DrawControls({ onPolygonCreated, hasArea, onResetArea }: {
           <button
             type="button"
             onClick={onResetArea}
-            className="px-3 py-1.5 text-xs font-medium rounded border border-red-300 text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500"
+            className="px-3 py-1.5 text-xs font-medium rounded-full border border-red-300 text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500"
           >
             Reset Area
           </button>
@@ -231,7 +231,7 @@ function DrawControls({ onPolygonCreated, hasArea, onResetArea }: {
           <button
             type="button"
             onClick={startDrawing}
-            className="px-3 py-1.5 text-xs font-medium rounded bg-primary-500 text-white hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="px-3 py-1.5 text-xs font-medium rounded-full bg-primary-500 text-white hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             Draw Polygon
           </button>
@@ -239,7 +239,7 @@ function DrawControls({ onPolygonCreated, hasArea, onResetArea }: {
             <button
               type="button"
               onClick={onResetArea}
-              className="px-3 py-1.5 text-xs font-medium rounded border border-red-300 text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="px-3 py-1.5 text-xs font-medium rounded-full border border-red-300 text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500"
             >
               Reset Area
             </button>
@@ -247,21 +247,21 @@ function DrawControls({ onPolygonCreated, hasArea, onResetArea }: {
         </>
       ) : (
         <>
-          <span className="text-xs text-gray-700 self-center font-medium">
+          <span className="text-xs text-text-muted self-center font-medium">
             {vertexCount} point{vertexCount !== 1 ? 's' : ''} placed
           </span>
           <button
             type="button"
             onClick={finishDrawing}
             disabled={vertexCount < 3}
-            className="px-3 py-1.5 text-xs font-medium rounded bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="px-3 py-1.5 text-xs font-medium rounded-full bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-green-500"
           >
             Create Area
           </button>
           <button
             type="button"
             onClick={cancelDrawing}
-            className="px-3 py-1.5 text-xs font-medium rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400"
+            className="px-3 py-1.5 text-xs font-medium rounded-full border border-[var(--color-soft-border)] bg-[var(--color-panel-surface)] text-text-muted hover:bg-[var(--color-panel-surface-soft)] focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             Cancel
           </button>
@@ -365,10 +365,10 @@ export const LocationStep = () => {
             key={opt.value}
             type="button"
             onClick={() => handleModeChange(opt.value)}
-            className={`px-3 py-1.5 text-sm font-medium rounded border focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+            className={`px-3 py-1.5 text-sm font-medium rounded-full border focus:outline-none focus:ring-2 focus:ring-primary-500 ${
               mode === opt.value
                 ? 'bg-primary-500 text-white border-primary-500'
-                : 'bg-white text-text-muted border-[var(--color-soft-border)] hover:bg-gray-50'
+                : 'bg-[var(--color-panel-surface)] text-text-muted border-[var(--color-soft-border)] hover:bg-[var(--color-panel-surface-soft)]'
             }`}
           >
             {opt.label}
@@ -407,7 +407,7 @@ export const LocationStep = () => {
             type="button"
             onClick={handleSearch}
             disabled={geocoding || !searchText.trim()}
-            className="px-3 py-2 text-sm font-medium rounded bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="px-3 py-2 text-sm font-medium rounded-full bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             {geocoding ? 'Searching...' : 'Search'}
           </button>
@@ -495,7 +495,7 @@ export const LocationStep = () => {
             <button
               type="button"
               onClick={handleClearPolygon}
-              className="text-xs font-medium text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 rounded px-2 py-1"
+              className="text-xs font-medium text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full px-2 py-1"
             >
               Reset Area
             </button>

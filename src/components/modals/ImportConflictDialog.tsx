@@ -49,7 +49,7 @@ export const ImportConflictDialog = ({ isOpen, onClose, fields, onConfirm }: Imp
         <button
           type="button"
           onClick={toggleAll}
-          className="text-xs font-medium text-primary-600 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded px-2 py-1"
+          className="text-xs font-medium text-primary-600 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-full px-2 py-1"
         >
           {allSelected ? 'Deselect All' : 'Select All'}
         </button>
@@ -59,7 +59,7 @@ export const ImportConflictDialog = ({ isOpen, onClose, fields, onConfirm }: Imp
         {fields.map((field) => (
           <label
             key={field.key}
-            className="flex items-center gap-3 rounded-lg border border-[var(--color-panel-border)] p-3 text-sm hover:bg-surface-muted cursor-pointer"
+            className="flex items-center gap-3 rounded-[var(--radius-panel)] border border-[var(--color-panel-border)] p-3 text-sm hover:bg-surface-muted cursor-pointer"
           >
             <input
               type="checkbox"
@@ -80,7 +80,7 @@ export const ImportConflictDialog = ({ isOpen, onClose, fields, onConfirm }: Imp
         <button
           type="button"
           onClick={onClose}
-          className="px-4 py-2 text-sm border border-[var(--color-soft-border)] rounded hover:bg-gray-50"
+          className="px-4 py-2 text-sm border border-[var(--color-soft-border)] rounded-full hover:bg-[var(--color-panel-surface-soft)] transition"
         >
           Cancel
         </button>
@@ -88,7 +88,7 @@ export const ImportConflictDialog = ({ isOpen, onClose, fields, onConfirm }: Imp
           type="button"
           onClick={handleConfirm}
           disabled={selectedKeys.size === 0}
-          className="px-4 py-2 text-sm bg-primary-500 text-white rounded hover:bg-primary-600 disabled:opacity-50"
+          className="px-4 py-2 text-sm bg-primary-500 text-white rounded-full hover:bg-primary-600 disabled:opacity-50 transition"
         >
           Confirm ({selectedKeys.size} field{selectedKeys.size !== 1 ? 's' : ''})
         </button>

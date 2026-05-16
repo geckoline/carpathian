@@ -62,7 +62,7 @@ export const MapSidebar = ({ projects, filterProjects = projects, onAddProject, 
           <button
             type="button"
             onClick={onAddProject}
-            className="flex-1 rounded-lg bg-primary-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="flex-1 rounded-full bg-primary-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             + Add Project
           </button>
@@ -71,7 +71,7 @@ export const MapSidebar = ({ projects, filterProjects = projects, onAddProject, 
           <button
             type="button"
             onClick={onAddExpert}
-            className="flex-1 rounded-lg bg-primary-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="flex-1 rounded-full bg-primary-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             + Add Expert
           </button>
@@ -80,7 +80,7 @@ export const MapSidebar = ({ projects, filterProjects = projects, onAddProject, 
           <button
             type="button"
             onClick={onVolunteer}
-            className="flex-1 rounded-lg bg-primary-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="flex-1 rounded-full bg-primary-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             Volunteer alerts
           </button>
@@ -116,7 +116,7 @@ export const MapSidebar = ({ projects, filterProjects = projects, onAddProject, 
               >
                 <span className="absolute left-0 top-0 h-full w-2 bg-gradient-to-b from-primary-700 to-primary-500" aria-hidden="true" />
                 <span className="mb-2 flex items-start justify-between gap-3">
-                  <span className="text-sm font-semibold text-gray-900">{project.name}</span>
+                  <span className="text-sm font-semibold text-primary-900">{project.name}</span>
                   <span
                     className={`project-status-pill project-status-pill-${project.status} map-sidebar-status-pill badge-single-line`}
                     data-testid={`map-sidebar-status-${project.id}`}
@@ -124,7 +124,7 @@ export const MapSidebar = ({ projects, filterProjects = projects, onAddProject, 
                     {getProjectStatusLabel(project.status)}
                   </span>
                 </span>
-                <span className="flex items-center gap-2 text-xs text-gray-500">
+                <span className="flex items-center gap-2 text-xs text-text-muted">
                   <span>{project.displayLocation || project.regionLabel || project.countries?.join(', ') || 'Carpathian region'}</span>
                   <span
                     className="project-category-pill map-sidebar-category-pill badge-single-line ml-auto"

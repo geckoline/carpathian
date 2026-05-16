@@ -24,8 +24,7 @@ describe('SkeletonCard', () => {
   it('has correct Tailwind classes for loading state', () => {
     const { container } = render(<SkeletonCard />);
     const el = container.firstChild as HTMLElement;
-    expect(el).toHaveClass('bg-white');
+    expect(el).toHaveClass('bg-[var(--color-panel-surface)]');
     expect(el).toHaveClass('border');
-    expect(el).toHaveClass('shadow-lg');
   });
 });

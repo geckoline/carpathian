@@ -30,12 +30,12 @@ export const FormModal = ({
     <Modal isOpen={isOpen} onClose={onClose} title={title} size={size} initialFocus={initialFocus}>
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         {!isOnline && (
-          <p className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800" role="alert">
+          <p className="rounded-[var(--radius-panel)] border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800" role="alert">
             You are offline. Submissions are disabled until your connection is restored.
           </p>
         )}
         {submitError && (
-          <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+          <p className="rounded-[var(--radius-panel)] border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
             {submitError}
           </p>
         )}
@@ -46,7 +46,7 @@ export const FormModal = ({
               <button
                 type="button"
                 onClick={onReset}
-                className="rounded border border-[var(--color-soft-border)] px-4 py-2 text-sm font-medium text-text-muted hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="rounded-full border border-[var(--color-soft-border)] px-4 py-2 text-sm font-medium text-text-muted hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
               >
                 {resetLabel}
               </button>
@@ -54,12 +54,12 @@ export const FormModal = ({
             {secondaryAction}
           </div>
           <div className="flex justify-end gap-3">
-          <button type="button" onClick={onClose} className="rounded border border-[var(--color-soft-border)] px-4 py-2 text-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500">{cancelLabel}</button>
+          <button type="button" onClick={onClose} className="rounded-full border border-[var(--color-soft-border)] px-4 py-2 text-sm text-text-muted hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500 transition">{cancelLabel}</button>
           <button
             type="submit"
             disabled={isSubmitting || !isOnline || submitDisabled}
             data-testid={submitTestId}
-            className="rounded bg-primary-500 px-4 py-2 text-sm text-white hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
+            className="rounded-full bg-primary-500 px-4 py-2 text-sm text-white hover:bg-primary-600 transition focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
           >
             {isSubmitting ? 'Saving...' : submitLabel}
           </button>

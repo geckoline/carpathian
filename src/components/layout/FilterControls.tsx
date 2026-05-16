@@ -29,7 +29,7 @@ const isCategoryAvailable = (options: ProjectFilterOptions, fieldFilter: string)
 };
 
 const labelClass = 'mb-1 block text-[0.68rem] font-semibold uppercase tracking-wide text-[var(--color-field-note)] sm:text-xs';
-const controlClass = 'w-full rounded-lg border border-[var(--color-soft-border)] bg-[var(--color-panel-surface)] px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 sm:px-3';
+const controlClass = 'w-full rounded-[var(--radius-panel)] border border-[var(--color-soft-border)] bg-[var(--color-panel-surface)] px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 sm:px-3';
 
 const FilterControlsInner = ({ projects, idPrefix = 'project-filters', variant = 'full' }: FilterControlsProps) => {
   const storeProjects = useAppStore(s => s.data.projects);
@@ -103,8 +103,8 @@ const FilterControlsInner = ({ projects, idPrefix = 'project-filters', variant =
     : 'grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-[minmax(220px,1fr)_150px_220px_180px_auto] md:items-end';
   const searchFieldClass = variant === 'compact' ? 'col-span-2' : 'col-span-2 md:col-span-1';
   const clearButtonClass = variant === 'compact'
-    ? 'col-span-2 rounded-lg border border-[var(--color-soft-border)] px-3 py-2 text-sm font-medium text-primary-700 transition hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:border-[var(--color-soft-border)] disabled:text-gray-400 disabled:hover:bg-transparent'
-    : 'col-span-2 rounded-lg border border-[var(--color-soft-border)] px-3 py-2 text-sm font-medium text-primary-700 transition hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:border-[var(--color-soft-border)] disabled:text-gray-400 disabled:hover:bg-transparent md:col-span-1';
+    ? 'col-span-2 rounded-full border border-[var(--color-soft-border)] px-3 py-2 text-sm font-medium text-primary-700 transition hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:border-[var(--color-soft-border)] disabled:text-gray-400 disabled:hover:bg-transparent'
+    : 'col-span-2 rounded-full border border-[var(--color-soft-border)] px-3 py-2 text-sm font-medium text-primary-700 transition hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:border-[var(--color-soft-border)] disabled:text-gray-400 disabled:hover:bg-transparent md:col-span-1';
 
   return (
     <div className={gridClass} data-testid={`${idPrefix}-controls`}>

@@ -26,7 +26,7 @@ export const ExportButton = ({ onExportCSV, onExportJSON, disabled }: ExportButt
         type="button"
         onClick={() => setOpen(!open)}
         disabled={disabled}
-        className="flex items-center gap-1.5 rounded-lg border border-[var(--color-soft-border)] bg-[var(--color-panel-surface)] px-3 py-2 text-sm font-medium text-primary-700 transition hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
+        className="flex items-center gap-1.5 rounded-full border border-[var(--color-soft-border)] bg-[var(--color-panel-surface)] px-3 py-2 text-sm font-medium text-primary-700 transition hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
         aria-label="Export data"
         aria-expanded={open}
       >

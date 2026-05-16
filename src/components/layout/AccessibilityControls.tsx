@@ -39,7 +39,7 @@ export const AccessibilityControls = () => {
             <span className="text-sm">High Contrast</span>
             <button
               onClick={() => setA11y({ highContrast: !a11y.highContrast })}
-              className={`w-12 h-6 rounded-full p-1 transition-colors ${a11y.highContrast ? 'bg-primary-500' : 'bg-gray-300'}`}
+              className={`w-12 h-6 rounded-full p-1 transition-colors ${a11y.highContrast ? 'bg-primary-500' : 'bg-[var(--color-soft-border)]'}`}
               role="switch" aria-checked={a11y.highContrast} aria-label="Toggle high contrast"
             >
               <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${a11y.highContrast ? 'translate-x-6' : 'translate-x-0'}`} />
@@ -50,7 +50,7 @@ export const AccessibilityControls = () => {
             <span className="text-sm">Reduce Motion</span>
             <button
               onClick={() => setA11y({ reducedMotion: !a11y.reducedMotion })}
-              className={`w-12 h-6 rounded-full p-1 transition-colors ${a11y.reducedMotion ? 'bg-primary-500' : 'bg-gray-300'}`}
+              className={`w-12 h-6 rounded-full p-1 transition-colors ${a11y.reducedMotion ? 'bg-primary-500' : 'bg-[var(--color-soft-border)]'}`}
               role="switch" aria-checked={a11y.reducedMotion} aria-label="Toggle reduce motion"
             >
               <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${a11y.reducedMotion ? 'translate-x-6' : 'translate-x-0'}`} />

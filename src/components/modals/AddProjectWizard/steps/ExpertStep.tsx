@@ -84,7 +84,7 @@ export const ExpertStep = () => {
                 <label
                   key={expert.id}
                   className={`flex items-center gap-3 p-2 rounded cursor-pointer transition-colors text-sm ${
-                    isSelected ? 'bg-primary-50 border border-primary-200' : 'hover:bg-gray-50 border border-transparent'
+                    isSelected ? 'bg-primary-50 border border-primary-200' : 'hover:bg-[var(--color-panel-surface-soft)] border border-transparent'
                   }`}
                 >
                   <input
@@ -110,7 +110,7 @@ export const ExpertStep = () => {
         <button
           type="button"
           onClick={() => setShowAddExpertModal(true)}
-          className="text-sm font-medium text-primary-600 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded px-2 py-1"
+          className="text-sm font-medium text-primary-600 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-full px-2 py-1"
         >
           + Add new expert
         </button>

@@ -142,7 +142,7 @@ export default function App() {
       <div className="flex flex-col items-center justify-center min-h-screen gap-4 text-red-600 p-6 text-center" role="alert">
         <p className="text-xl font-semibold">Failed to load platform data</p>
         <p className="text-sm text-text-muted max-w-md">{dataError}</p>
-        <button onClick={() => window.location.reload()} className="mt-2 px-4 py-2 text-sm bg-primary-500 text-white rounded hover:bg-primary-600">Retry</button>
+        <button onClick={() => window.location.reload()} className="mt-2 px-4 py-2 text-sm bg-primary-500 text-white rounded-full hover:bg-primary-600 transition focus:outline-none focus:ring-2 focus:ring-primary-500">Retry</button>
       </div>
     );
   }
@@ -185,7 +185,7 @@ export default function App() {
             aria-selected={dataset === 'cs'}
             aria-controls="dataset-panel"
             onClick={() => setDataset('cs')}
-            className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition focus:outline-none focus:ring-2 focus:ring-primary-500 sm:flex-none sm:px-4 ${dataset === 'cs' ? 'bg-[var(--color-panel-surface)] text-primary-700 shadow-sm' : 'text-text-muted hover:text-primary-600'}`}
+            className={`flex-1 px-3 py-2 text-sm font-medium rounded-full transition focus:outline-none focus:ring-2 focus:ring-primary-500 sm:flex-none sm:px-4 ${dataset === 'cs' ? 'bg-[var(--color-panel-surface)] text-primary-700 shadow-sm' : 'text-text-muted hover:text-primary-600'}`}
           >
             Citizen Science
           </button>
@@ -194,7 +194,7 @@ export default function App() {
             aria-selected={dataset === 'all'}
             aria-controls="dataset-panel"
             onClick={() => setDataset('all')}
-            className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition focus:outline-none focus:ring-2 focus:ring-primary-500 sm:flex-none sm:px-4 ${dataset === 'all' ? 'bg-[var(--color-panel-surface)] text-primary-700 shadow-sm' : 'text-text-muted hover:text-primary-600'}`}
+            className={`flex-1 px-3 py-2 text-sm font-medium rounded-full transition focus:outline-none focus:ring-2 focus:ring-primary-500 sm:flex-none sm:px-4 ${dataset === 'all' ? 'bg-[var(--color-panel-surface)] text-primary-700 shadow-sm' : 'text-text-muted hover:text-primary-600'}`}
           >
             All Carpathian
           </button>
@@ -232,7 +232,7 @@ export default function App() {
               aria-selected={activeTab === 'projects'}
               aria-controls="view-panel"
               onClick={() => setActiveTab('projects')}
-              className={`px-3 py-1 rounded text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-primary-500 ${activeTab === 'projects' ? 'bg-primary-500 text-white' : 'bg-white text-primary-500 border border-primary-500'}`}
+              className={`px-3 py-1 rounded-full text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-primary-500 ${activeTab === 'projects' ? 'bg-primary-500 text-white' : 'border border-[var(--color-soft-border)] text-text-muted hover:bg-[var(--color-panel-surface-soft)]'}`}
             >
               Projects
             </button>
@@ -241,7 +241,7 @@ export default function App() {
               aria-selected={activeTab === 'experts'}
               aria-controls="view-panel"
               onClick={() => setActiveTab('experts')}
-              className={`px-3 py-1 rounded text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-primary-500 ${activeTab === 'experts' ? 'bg-primary-500 text-white' : 'bg-white text-primary-500 border border-primary-500'}`}
+              className={`px-3 py-1 rounded-full text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-primary-500 ${activeTab === 'experts' ? 'bg-primary-500 text-white' : 'border border-[var(--color-soft-border)] text-text-muted hover:bg-[var(--color-panel-surface-soft)]'}`}
             >
               Experts
             </button>
