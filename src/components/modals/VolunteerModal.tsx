@@ -15,6 +15,7 @@ interface VolunteerModalProps {
 }
 
 const categoryOptions = getCategoryOptions();
+const allCategoryIds = categoryOptions.map((c) => c.id);
 
 export const VolunteerModal = ({ isOpen, onClose, onSubmit, isOnline = true }: VolunteerModalProps) => {
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -26,7 +27,7 @@ export const VolunteerModal = ({ isOpen, onClose, onSubmit, isOnline = true }: V
     resolver: zodResolver(VolunteerSubscriptionSchema),
     defaultValues: {
       fullName: '', email: '', city: '', country: '',
-      latitude: 47.5, longitude: 25, radiusKm: 50,
+      zipCode: '', radiusKm: 50,
       categoryIds: [], note: '', consent: false,
     },
   });
@@ -37,7 +38,7 @@ export const VolunteerModal = ({ isOpen, onClose, onSubmit, isOnline = true }: V
       await onSubmit(data);
       onClose();
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : 'Volunteer alert could not be saved.');
+      setSubmitError(err instanceof Error ? err.message : 'Volunteer subscription could not be saved.');
     }
   };
 
@@ -45,8 +46,8 @@ export const VolunteerModal = ({ isOpen, onClose, onSubmit, isOnline = true }: V
     <FormModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Volunteer Alerts"
-      submitLabel="Subscribe to Volunteer alerts"
+      title="Volunteer"
+      submitLabel="Subscribe"
       isSubmitting={isSubmitting}
       isOnline={isOnline}
       submitError={submitError}
@@ -86,23 +87,17 @@ export const VolunteerModal = ({ isOpen, onClose, onSubmit, isOnline = true }: V
           )} />
           {errors.country && <p className="mt-1 text-xs text-red-600">{errors.country.message}</p>}
         </div>
+        <div>
+          <label htmlFor="vol-zip" className="mb-1 block text-sm font-medium">Zip Code</label>
+          <Controller name="zipCode" control={control} render={({ field }) => (
+            <input {...field} id="vol-zip" className="w-full rounded border border-[var(--color-soft-border)] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+          )} />
+        </div>
       </div>
 
       <fieldset className="rounded-xl border border-[var(--color-panel-border)] p-3">
         <legend className="px-1 text-sm font-medium">Matching area *</legend>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <div>
-            <label htmlFor="vol-latitude" className="mb-1 block text-xs font-medium text-text-muted">Latitude</label>
-            <Controller name="latitude" control={control} render={({ field }) => (
-              <input {...field} id="vol-latitude" type="number" step="0.0001" className="w-full rounded border border-[var(--color-soft-border)] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" />
-            )} />
-          </div>
-          <div>
-            <label htmlFor="vol-longitude" className="mb-1 block text-xs font-medium text-text-muted">Longitude</label>
-            <Controller name="longitude" control={control} render={({ field }) => (
-              <input {...field} id="vol-longitude" type="number" step="0.0001" className="w-full rounded border border-[var(--color-soft-border)] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" />
-            )} />
-          </div>
+        <div className="grid gap-3 sm:grid-cols-2">
           <div>
             <label htmlFor="vol-radius" className="mb-1 block text-xs font-medium text-text-muted">Radius in km</label>
             <Controller name="radiusKm" control={control} render={({ field }) => (
@@ -110,30 +105,41 @@ export const VolunteerModal = ({ isOpen, onClose, onSubmit, isOnline = true }: V
             )} />
           </div>
         </div>
-        {(errors.latitude || errors.longitude || errors.radiusKm) && (
-          <p className="mt-2 text-xs text-red-600" role="alert">
-            {errors.latitude?.message || errors.longitude?.message || errors.radiusKm?.message}
-          </p>
+        {errors.radiusKm && (
+          <p className="mt-2 text-xs text-red-600" role="alert">{errors.radiusKm.message}</p>
         )}
       </fieldset>
 
       <fieldset className="rounded-xl border border-[var(--color-panel-border)] p-3">
-        <legend className="px-1 text-sm font-medium">Interested categories *</legend>
-        <Controller name="categoryIds" control={control} render={({ field }) => (
-          <div className="grid gap-2 sm:grid-cols-2">
-            {categoryOptions.map((category) => (
-              <label key={category.id} className="flex items-center gap-2 rounded-lg border border-[var(--color-soft-border)] px-3 py-2 text-sm">
-                <input type="checkbox" checked={field.value.includes(category.id)}
-                  onChange={(event) => {
-                    const next = event.target.checked ? [...field.value, category.id] : field.value.filter((id) => id !== category.id);
-                    field.onChange(next);
+        <legend className="px-1 text-sm font-medium">Interested Scientific Fields *</legend>
+        <Controller name="categoryIds" control={control} render={({ field }) => {
+          const allSelected = allCategoryIds.every((id) => field.value.includes(id));
+          return (
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 rounded-lg border border-primary-300 bg-primary-50 px-3 py-2 text-sm font-medium">
+                <input type="checkbox" checked={allSelected}
+                  onChange={() => {
+                    field.onChange(allSelected ? [] : [...allCategoryIds]);
                   }}
                 />
-                {category.label}
+                All Scientific Fields
               </label>
-            ))}
-          </div>
-        )} />
+              <div className="grid gap-2 sm:grid-cols-2">
+                {categoryOptions.map((category) => (
+                  <label key={category.id} className="flex items-center gap-2 rounded-lg border border-[var(--color-soft-border)] px-3 py-2 text-sm">
+                    <input type="checkbox" checked={field.value.includes(category.id)}
+                      onChange={(event) => {
+                        const next = event.target.checked ? [...field.value, category.id] : field.value.filter((id) => id !== category.id);
+                        field.onChange(next);
+                      }}
+                    />
+                    {category.label}
+                  </label>
+                ))}
+              </div>
+            </div>
+          );
+        }} />
         {errors.categoryIds && <p className="mt-2 text-xs text-red-600">{errors.categoryIds.message}</p>}
       </fieldset>
 

@@ -36,15 +36,17 @@ export const MapDrawingControl = ({ onPolygonCreated }: MapDrawingControlProps) 
         position: 'topright',
         draw: {
           polyline: false,
-          rectangle: false,
-          circle: false,
-          circlemarker: false,
-          marker: false,
           polygon: {
             allowIntersection: false,
             showArea: true,
             shapeOptions: { color: '#006633' },
           },
+          rectangle: {
+            shapeOptions: { color: '#006633' },
+          },
+          circle: false,
+          marker: false,
+          circlemarker: false,
         },
         edit: {
           featureGroup: drawnItemsRef.current,

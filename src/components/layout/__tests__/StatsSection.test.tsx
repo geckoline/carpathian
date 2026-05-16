@@ -13,9 +13,9 @@ describe('StatsSection', () => {
     render(
       <StatsSection
         projects={[
-          { id: '1', status: 'active', country: 'Romania' } as any,
-          { id: '2', status: 'past', country: 'Poland' } as any,
-          { id: '3', status: 'active', country: 'Romania' } as any,
+          { id: '1', status: 'active', countries: ['RO'] } as any,
+          { id: '2', status: 'past', countries: ['PL'] } as any,
+          { id: '3', status: 'active', countries: ['RO'] } as any,
         ]}
         experts={[{ id: 'e1' } as any, { id: 'e2' } as any]}
       />
@@ -29,7 +29,7 @@ describe('StatsSection', () => {
     render(
       <StatsSection
         projects={[
-          { id: '1', status: 'active', country: 'Romania' } as any,
+          { id: '1', status: 'active', countries: ['RO'] } as any,
         ]}
         experts={[{ id: 'e1' } as any]}
       />

@@ -20,21 +20,21 @@ vi.mock('@/services/loadAppData', () => ({
 const projects = [
   {
     id: '1', name: 'Forest Watch', status: 'active' as const, field: 'forests', categoryId: 'forests',
-    description: 'Monitoring forest health', location: 'Romania', country: 'Romania', yearRange: '2024-2028',
-    leadExpertId: 'e1', leadExpertName: 'Dr. Expert', isCitizenScience: true,
+    description: 'Monitoring forest health', location: 'Romania', yearRange: '2024-2028',
+    expertIds: ['e1'], teamMembers: [{ id: 'e1', name: 'Dr. Expert' }], isCitizenScience: true, countries: ['RO'],
     lat: 46, lng: 25,
   },
   {
     id: '2', name: 'River Cleanup', status: 'planned' as const, field: 'water', categoryId: 'water',
-    description: 'Cleaning rivers', location: 'Poland', country: 'Poland', yearRange: '2025-2029',
-    leadExpertId: 'e2', leadExpertName: 'Dr. Water', isCitizenScience: true,
+    description: 'Cleaning rivers', location: 'Poland', yearRange: '2025-2029',
+    expertIds: ['e2'], teamMembers: [{ id: 'e2', name: 'Dr. Water' }], isCitizenScience: true, countries: ['PL'],
     lat: 47, lng: 24,
   },
 ];
 
 const experts = [
-  { id: 'e1', name: 'Dr. Expert', institution: 'Univ', country: 'Romania', bio: 'Forest expert.', expertise: ['Forests'], email: 'a@b.com' },
-  { id: 'e2', name: 'Dr. Water', institution: 'Inst', country: 'Poland', bio: 'Water expert.', expertise: ['Water'], email: 'c@d.com' },
+  { id: 'e1', name: 'Dr. Expert', institution: 'Univ', countries: ['RO'], bio: 'Forest expert.', expertise: ['Forests'], email: 'a@b.com' },
+  { id: 'e2', name: 'Dr. Water', institution: 'Inst', countries: ['PL'], bio: 'Water expert.', expertise: ['Water'], email: 'c@d.com' },
 ];
 
 describe('filter flow integration', () => {

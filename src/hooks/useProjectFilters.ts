@@ -13,7 +13,7 @@ export const useProjectFilters = (projects: ProjectData[]) => {
       const projectCategory = normalizeCategoryId(project.categoryId ?? project.field);
       const filterCategory = normalizeCategoryId(fieldFilter);
       const matchesField = fieldFilter === 'all' || (!!projectCategory && projectCategory === filterCategory);
-      const matchesCountry = countryFilter === 'all' || (project.country?.toLowerCase() === countryFilter.toLowerCase());
+      const matchesCountry = countryFilter === 'all' || (project.countries?.some((c) => c === countryFilter) ?? false);
 
       return matchesStatus && matchesField && matchesCountry;
     });

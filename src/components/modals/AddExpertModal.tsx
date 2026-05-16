@@ -5,6 +5,8 @@ import { FormModal } from '@/components/modals/FormModal';
 import { ImportConflictDialog, type ConflictField } from '@/components/modals/ImportConflictDialog';
 import { ExpertFormSchema, type ExpertFormData, type ExpertData } from '@/types/expert';
 import { importValidator } from '@/services/importValidator';
+import { COUNTRY_OPTIONS } from '@/utils/countries';
+import { normalizeCategoryId, type CategoryId } from '@/utils/categories';
 
 interface AddExpertModalProps {
   isOpen: boolean;
@@ -19,10 +21,14 @@ const expertiseOptions = [
   'awareness-education', 'climate-change',
 ];
 
+const isEmailAddress = (value: unknown): value is string =>
+  typeof value === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
 export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: AddExpertModalProps) => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [validatingField, setValidatingField] = useState<string | null>(null);
   const [conflictFields, setConflictFields] = useState<ConflictField[] | null>(null);
+  const [pendingConflictProfile, setPendingConflictProfile] = useState<Record<string, unknown> | null>(null);
 
   const {
     control,
@@ -36,7 +42,7 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
     defaultValues: {
       name: '',
       institution: '',
-      country: '',
+      countries: [],
       degree: '',
       headline: '',
       expertiseSubtitle: '',
@@ -47,9 +53,24 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
       scopus: '',
       orcid: '',
       googleScholar: '',
+      profileImageUrl: '',
       publications: 0,
+      projects: 0,
+      importMetadata: undefined,
     },
   });
+
+  const deriveScholarThumbnailUrl = (url: string) => {
+    try {
+      const parsed = new URL(url);
+      const scholarId = parsed.searchParams.get('user');
+      return scholarId
+        ? `https://scholar.googleusercontent.com/citations?view_op=medium_photo&user=${encodeURIComponent(scholarId)}`
+        : undefined;
+    } catch {
+      return undefined;
+    }
+  };
 
   const handleFetchProfile = useCallback(async (source: 'orcid' | 'google_scholar') => {
     const url = source === 'orcid' ? getValues('orcid') : getValues('googleScholar');
@@ -64,7 +85,16 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
       );
       const result = results[0];
       if (!result?.valid || !result.profile) {
-        setSubmitError(result?.error ?? 'Could not fetch profile');
+        if (source === 'google_scholar') {
+          const thumbnail = deriveScholarThumbnailUrl(url);
+          if (thumbnail) {
+            setValue('profileImageUrl', thumbnail, { shouldValidate: true });
+          }
+        }
+        setSubmitError(
+          result?.error
+            ?? 'Could not fetch profile. Check the SerpAPI key or upload a profile picture manually.'
+        );
         return;
       }
 
@@ -83,36 +113,118 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
       if ('name' in profile && profile.name) checkConflict('name', 'Name', profile.name);
       if ('affiliation' in profile && profile.affiliation) checkConflict('institution', 'Institution', profile.affiliation);
       if ('biography' in profile && profile.biography) checkConflict('bio', 'Bio', profile.biography);
-      if ('country' in profile && profile.country) checkConflict('country', 'Country', profile.country);
+      if ('country' in profile && profile.country) {
+        const imported = profile.country as string;
+        const match = COUNTRY_OPTIONS.find(c => c.name.toLowerCase() === imported.toLowerCase());
+        if (match) {
+          const current = currentValues.countries;
+          if (current && current.length > 0 && !current.includes(match.code)) {
+            conflicts.push({ key: 'countries', label: 'Country', current: current.join(', '), imported: match.code });
+          }
+        }
+      }
+
+      const conflictKeys = new Set(conflicts.map((conflict) => conflict.key as keyof ExpertFormData));
+      applyImportedData(profile, conflictKeys);
 
       if (conflicts.length > 0) {
+        setPendingConflictProfile(profile);
         setConflictFields(conflicts);
-      } else {
-        applyImportedData(profile);
       }
     } catch {
       setSubmitError('Failed to validate profile URL');
     } finally {
       setValidatingField(null);
     }
-  }, [getValues]);
+  }, [getValues, setValue]);
+
+  const handleProfileImageUpload = useCallback((file: File | undefined) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setSubmitError('Choose a JPG, PNG, or WebP profile image.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : '';
+      if (result) {
+        setValue('profileImageUrl', result, { shouldValidate: true });
+        setSubmitError(null);
+      }
+    };
+    reader.onerror = () => setSubmitError('Could not read the selected profile image.');
+    reader.readAsDataURL(file);
+  }, [setValue]);
 
   const applyImportedData = (
     profile: Record<string, unknown>,
+    skippedKeys = new Set<keyof ExpertFormData>(),
   ) => {
-    if (profile.name) setValue('name', profile.name as string, { shouldValidate: true });
-    if ('affiliation' in profile && profile.affiliation) setValue('institution', profile.affiliation as string, { shouldValidate: true });
-    if ('biography' in profile && profile.biography) setValue('bio', profile.biography as string, { shouldValidate: true });
-    if ('country' in profile && profile.country) setValue('country', profile.country as string, { shouldValidate: true });
-    if ('keywords' in profile && profile.keywords) {
-      const matched = (profile.keywords as string[])
-        .map(k => k.toLowerCase().replace(/\s+/g, '-'))
-        .filter(k => expertiseOptions.includes(k));
+    const keywords = Array.isArray(profile.keywords)
+      ? profile.keywords.filter((keyword): keyword is string => typeof keyword === 'string' && keyword.trim().length > 0)
+      : [];
+    const affiliation = typeof profile.affiliation === 'string' ? profile.affiliation : '';
+    const thumbnail = typeof profile.thumbnail === 'string' && profile.thumbnail
+      ? profile.thumbnail
+      : typeof profile.scholarId === 'string'
+        ? deriveScholarThumbnailUrl(`https://scholar.google.com/citations?user=${profile.scholarId}`)
+        : undefined;
+
+    if (!skippedKeys.has('name') && profile.name) setValue('name', profile.name as string, { shouldValidate: true });
+    if (!skippedKeys.has('institution') && affiliation) setValue('institution', affiliation, { shouldValidate: true });
+    if (!skippedKeys.has('email') && 'email' in profile && isEmailAddress(profile.email)) setValue('email', profile.email, { shouldValidate: true });
+    if (!skippedKeys.has('profileImageUrl') && thumbnail) setValue('profileImageUrl', thumbnail, { shouldValidate: true });
+    if (!skippedKeys.has('bio') && 'biography' in profile && profile.biography) setValue('bio', profile.biography as string, { shouldValidate: true });
+    if (!skippedKeys.has('headline') && keywords[0]) {
+      const headline = `${keywords[0]} expert${affiliation ? ` at ${affiliation}` : ''}`.slice(0, 200);
+      if (headline.length >= 10) setValue('headline', headline, { shouldValidate: true });
+    }
+    if (!skippedKeys.has('expertiseSubtitle') && keywords.length > 0) {
+      setValue('expertiseSubtitle', keywords.slice(0, 6).join(' • ').slice(0, 200), { shouldValidate: true });
+    }
+    if ('country' in profile && profile.country) {
+      const code = COUNTRY_OPTIONS.find(c => c.name.toLowerCase() === (profile.country as string).toLowerCase())?.code;
+      if (code && !skippedKeys.has('countries')) setValue('countries', [code], { shouldValidate: true });
+    }
+    if (!skippedKeys.has('expertise') && keywords.length > 0) {
+      const matched = Array.from(new Set(
+        keywords
+          .map((keyword) => mapScholarKeywordToExpertise(keyword))
+          .filter((keyword): keyword is CategoryId => Boolean(keyword))
+      ));
       if (matched.length > 0) setValue('expertise', matched, { shouldValidate: true });
     }
-    if ('citedBy' in profile || 'hIndex' in profile || 'i10Index' in profile) {
-      if ('citedBy' in profile && typeof profile.citedBy === 'number') setValue('publications', profile.citedBy);
+    if (!skippedKeys.has('publications') && 'articles' in profile && Array.isArray(profile.articles)) {
+      setValue('publications', profile.articles.length, { shouldValidate: true });
+    } else if (!skippedKeys.has('publications') && 'citedBy' in profile && typeof profile.citedBy === 'number') {
+      setValue('publications', profile.citedBy, { shouldValidate: true });
     }
+    if ('scholarId' in profile) {
+      setValue('importMetadata', {
+        source: 'google_scholar',
+        importedAt: new Date().toISOString(),
+        profileImageUrl: thumbnail,
+        scholar: profile,
+      });
+    }
+  };
+
+  const mapScholarKeywordToExpertise = (keyword: string): CategoryId | undefined => {
+    const normalized = keyword.toLowerCase();
+    const direct = normalizeCategoryId(keyword);
+    if (direct) return direct;
+    if (/(bio|ecolog|species|habitat|conservation|genom|gene|computational)/.test(normalized)) return 'biodiversity';
+    if (/(water|hydro|river|lake|wetland)/.test(normalized)) return 'water';
+    if (/(forest|tree|wood)/.test(normalized)) return 'forests';
+    if (/(farm|crop|agricultur|soil)/.test(normalized)) return 'agriculture';
+    if (/(climate|carbon|weather)/.test(normalized)) return 'climate-change';
+    if (/(touris|recreation)/.test(normalized)) return 'tourism';
+    if (/(heritage|culture|tradition|archaeolog|history)/.test(normalized)) return 'cultural-heritage';
+    if (/(spatial|planning|land use|mapping|gis|remote sensing)/.test(normalized)) return 'spatial-planning';
+    if (/(infrastructure|industry|transport|energy)/.test(normalized)) return 'industry-infrastructure';
+    if (/(education|awareness|learning|citizen science)/.test(normalized)) return 'awareness-education';
+    return 'biodiversity';
   };
 
   const handleConflictConfirm = useCallback((selectedKeys: string[]) => {
@@ -123,13 +235,19 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
     if (!profile) return;
 
     selectedKeys.forEach(key => {
-      if (profile[key]) {
-        setValue(key as keyof ExpertFormData, profile[key], { shouldValidate: true });
+      const importedValue = profile[key];
+      if (importedValue) {
+        setValue(key as keyof ExpertFormData, importedValue, { shouldValidate: true });
       }
     });
 
+    if (pendingConflictProfile) {
+      applyImportedData(pendingConflictProfile, new Set(selectedKeys as Array<keyof ExpertFormData>));
+    }
+
     setConflictFields(null);
-  }, [conflictFields, setValue]);
+    setPendingConflictProfile(null);
+  }, [conflictFields, pendingConflictProfile, setValue]);
 
   const handleSubmitForm = async (data: ExpertFormData) => {
     try {
@@ -144,6 +262,7 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
   const handleClose = () => {
     setSubmitError(null);
     setConflictFields(null);
+    setPendingConflictProfile(null);
     onClose();
   };
 
@@ -180,11 +299,25 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="expert-country" className="block text-sm font-medium mb-1">Country *</label>
-              <Controller name="country" control={control} render={({ field }) => (
-                <input {...field} id="expert-country" className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.country ? 'border-red-500' : 'border-[var(--color-soft-border)]'}`} aria-invalid={!!errors.country} />
+              <label htmlFor="expert-countries" className="block text-sm font-medium mb-1">Countries *</label>
+              <Controller name="countries" control={control} render={({ field }) => (
+                <select
+                  id="expert-countries"
+                  multiple
+                  value={field.value}
+                  onChange={(e) => {
+                    const selected = Array.from(e.target.selectedOptions, opt => opt.value);
+                    field.onChange(selected);
+                  }}
+                  className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-[100px] ${errors.countries ? 'border-red-500' : 'border-[var(--color-soft-border)]'}`}
+                  aria-invalid={!!errors.countries}
+                >
+                  {COUNTRY_OPTIONS.map(c => (
+                    <option key={c.code} value={c.code}>{c.name}</option>
+                  ))}
+                </select>
               )} />
-              {errors.country && <p className="text-xs text-red-600 mt-1">{errors.country.message}</p>}
+              {errors.countries && <p className="text-xs text-red-600 mt-1">{errors.countries.message}</p>}
             </div>
             <div>
               <label htmlFor="expert-degree" className="block text-sm font-medium mb-1">Degree</label>
@@ -208,6 +341,35 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
               <textarea {...field} id="expert-bio" rows={3} className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.bio ? 'border-red-500' : 'border-[var(--color-soft-border)]'}`} aria-invalid={!!errors.bio} />
             )} />
             {errors.bio && <p className="text-xs text-red-600 mt-1">{errors.bio.message}</p>}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="expert-publications" className="block text-sm font-medium mb-1">Publications</label>
+              <Controller name="publications" control={control} render={({ field }) => (
+                <input
+                  {...field}
+                  id="expert-publications"
+                  type="number"
+                  min={0}
+                  className="w-full px-3 py-2 border border-[var(--color-soft-border)] rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              )} />
+              {errors.publications && <p className="text-xs text-red-600 mt-1">{errors.publications.message}</p>}
+            </div>
+            <div>
+              <label htmlFor="expert-projects" className="block text-sm font-medium mb-1">Projects</label>
+              <Controller name="projects" control={control} render={({ field }) => (
+                <input
+                  {...field}
+                  id="expert-projects"
+                  type="number"
+                  min={0}
+                  className="w-full px-3 py-2 border border-[var(--color-soft-border)] rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              )} />
+              {errors.projects && <p className="text-xs text-red-600 mt-1">{errors.projects.message}</p>}
+            </div>
           </div>
 
           <div>
@@ -237,6 +399,42 @@ export const AddExpertModal = ({ isOpen, onClose, onSubmit, isOnline = true }: A
           <div className="border-t pt-4">
             <h3 className="text-sm font-semibold text-primary-700 mb-3">Contact & Verification</h3>
             <p className="text-xs text-text-muted mb-3">Email is required. At least one of Google Scholar or ORCID is required.</p>
+
+            <div className="mb-3">
+              <label htmlFor="expert-profile-image" className="block text-sm font-medium mb-1">Profile picture</label>
+              <div className="flex items-center gap-3">
+                {watch('profileImageUrl') ? (
+                  <img
+                    src={watch('profileImageUrl')}
+                    alt="Profile preview"
+                    className="h-16 w-16 rounded-full border border-[var(--color-soft-border)] object-cover"
+                  />
+                ) : (
+                  <div className="h-16 w-16 rounded-full border border-dashed border-[var(--color-soft-border)] bg-surface-muted" aria-hidden="true" />
+                )}
+                <div className="flex-1 space-y-2">
+                  <Controller name="profileImageUrl" control={control} render={({ field }) => (
+                    <input
+                      {...field}
+                      id="expert-profile-image-url"
+                      type="url"
+                      aria-label="Profile picture URL"
+                      placeholder="https://..."
+                      className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${errors.profileImageUrl ? 'border-red-500' : 'border-[var(--color-soft-border)]'}`}
+                      aria-invalid={!!errors.profileImageUrl}
+                    />
+                  )} />
+                  <input
+                    id="expert-profile-image"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={(event) => handleProfileImageUpload(event.currentTarget.files?.[0])}
+                    className="block w-full text-sm text-text-muted file:mr-3 file:rounded file:border-0 file:bg-primary-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-primary-700"
+                  />
+                </div>
+              </div>
+              {errors.profileImageUrl && <p className="text-xs text-red-600 mt-1">{errors.profileImageUrl.message}</p>}
+            </div>
 
             <div className="mb-3">
               <label htmlFor="expert-email" className="block text-sm font-medium mb-1">Email *</label>

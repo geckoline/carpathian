@@ -37,7 +37,7 @@ describe('FilterBar', () => {
       setStatusFilter,
       data: {
         projects: [
-          { id: 'p1', name: 'P1', status: 'active', field: 'Water', description: 'Project description here', location: 'Romania', yearRange: '2024-2028', leadExpertId: '123e4567-e89b-12d3-a456-426614174001', leadExpertName: 'Dr. Elena Popescu', lat: 47, lng: 25, country: 'Romania' },
+          { id: 'p1', name: 'P1', status: 'active', field: 'Water', description: 'Project description here', location: 'Romania', yearRange: '2024-2028', expertIds: ['123e4567-e89b-12d3-a456-426614174001'], teamMembers: [{ id: '123e4567-e89b-12d3-a456-426614174001', name: 'Dr. Elena Popescu' }], countries: ['RO'], lat: 47, lng: 25 },
         ],
         experts: [],
         loading: false,
@@ -59,8 +59,8 @@ describe('FilterBar', () => {
       setCountryFilter,
       data: {
         projects: [
-          { id: 'p1', name: 'P1', status: 'active', field: 'Water', description: 'Project description here', location: 'Romania', yearRange: '2024-2028', leadExpertId: '123e4567-e89b-12d3-a456-426614174001', leadExpertName: 'Dr. Elena Popescu', lat: 47, lng: 25, country: 'Romania' },
-          { id: 'p2', name: 'P2', status: 'planned', field: 'Forests', description: 'Project description here', location: 'Poland', yearRange: '2024-2028', leadExpertId: '123e4567-e89b-12d3-a456-426614174002', leadExpertName: 'Dr. Marek Kowalski', lat: 49, lng: 20, country: 'Poland' },
+          { id: 'p1', name: 'P1', status: 'active', field: 'Water', description: 'Project description here', location: 'Romania', yearRange: '2024-2028', expertIds: ['e1'], teamMembers: [{ id: 'e1', name: 'Dr. Elena Popescu' }], countries: ['RO'], lat: 47, lng: 25 },
+          { id: 'p2', name: 'P2', status: 'planned', field: 'Forests', description: 'Project description here', location: 'Poland', yearRange: '2024-2028', expertIds: ['e2'], teamMembers: [{ id: 'e2', name: 'Dr. Marek Kowalski' }], countries: ['PL'], lat: 49, lng: 20 },
         ],
         experts: [],
         loading: false,
@@ -70,11 +70,11 @@ describe('FilterBar', () => {
 
     render(<FilterBar />);
     await userEvent.selectOptions(screen.getByRole('combobox', { name: /category/i }), 'water');
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: /country/i }), 'Romania');
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: /country/i }), 'RO');
 
     expect(screen.getByRole('option', { name: 'Water' })).toBeInTheDocument();
     expect(setFieldFilter).toHaveBeenCalledWith('water');
-    expect(setCountryFilter).toHaveBeenCalledWith('Romania');
+    expect(setCountryFilter).toHaveBeenCalledWith('RO');
   });
 
   it('limits categories by selected status and countries by selected category', () => {
@@ -82,9 +82,9 @@ describe('FilterBar', () => {
       filters: { searchTerm: '', statusFilter: 'active', fieldFilter: 'water', countryFilter: 'all', activeTab: 'projects', sortKey: 'name' as const, sortDirection: 'asc' as const },
       data: {
         projects: [
-          { id: 'p1', name: 'P1', status: 'active', field: 'Water', description: 'Project description here', location: 'Romania', yearRange: '2024-2028', leadExpertId: '123e4567-e89b-12d3-a456-426614174001', leadExpertName: 'Dr. Elena Popescu', lat: 47, lng: 25, country: 'Romania' },
-          { id: 'p2', name: 'P2', status: 'planned', field: 'Forests', description: 'Project description here', location: 'Poland', yearRange: '2024-2028', leadExpertId: '123e4567-e89b-12d3-a456-426614174002', leadExpertName: 'Dr. Marek Kowalski', lat: 49, lng: 20, country: 'Poland' },
-          { id: 'p3', name: 'P3', status: 'active', field: 'Tourism', description: 'Project description here', location: 'Slovakia', yearRange: '2024-2028', leadExpertId: '123e4567-e89b-12d3-a456-426614174003', leadExpertName: 'Dr. Hana Novak', lat: 48, lng: 21, country: 'Slovakia' },
+          { id: 'p1', name: 'P1', status: 'active', field: 'Water', description: 'Project description here', location: 'Romania', yearRange: '2024-2028', expertIds: ['e1'], teamMembers: [{ id: 'e1', name: 'Dr. Elena Popescu' }], countries: ['RO'], lat: 47, lng: 25 },
+          { id: 'p2', name: 'P2', status: 'planned', field: 'Forests', description: 'Project description here', location: 'Poland', yearRange: '2024-2028', expertIds: ['e2'], teamMembers: [{ id: 'e2', name: 'Dr. Marek Kowalski' }], countries: ['PL'], lat: 49, lng: 20 },
+          { id: 'p3', name: 'P3', status: 'active', field: 'Tourism', description: 'Project description here', location: 'Slovakia', yearRange: '2024-2028', expertIds: ['e3'], teamMembers: [{ id: 'e3', name: 'Dr. Hana Novak' }], countries: ['SK'], lat: 48, lng: 21 },
         ],
         experts: [],
         loading: false,

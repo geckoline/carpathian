@@ -18,9 +18,9 @@ export const getCitizenScienceProjectExperts = (
   experts: ExpertData[]
 ): ExpertData[] => {
   const csProjects = getDatasetProjects('cs', projects);
-  const leadExpertIds = new Set(
+  const csExpertIds = new Set(
     csProjects
-      .flatMap((project) => [project.leadExpertId, ...(project.linkedExpertIds ?? [])])
+      .flatMap((project) => project.expertIds)
       .filter((id): id is string => Boolean(id))
   );
   const contactEmails = new Set(
@@ -31,7 +31,7 @@ export const getCitizenScienceProjectExperts = (
 
   return experts.filter((expert) => {
     const email = normalizeContact(expert.email);
-    return leadExpertIds.has(expert.id) || Boolean(email && contactEmails.has(email));
+    return csExpertIds.has(expert.id) || Boolean(email && contactEmails.has(email));
   });
 };
 

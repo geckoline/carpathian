@@ -117,66 +117,52 @@ Review Supabase RLS policies for `app_projects`, `app_experts`:
 
 ---
 
-## Phase 4 — Modal Optimization, Finish, Polish & Cleanup
+## ⏳ Phase 3b — Schema & Filter Overhaul
 
-**~3 hours · 5 work packages**
+**Spec decisions (2026-05-16):**
 
-Implementation direction:
-- Change modal flows where it improves UX, not just styling.
-- AddProject becomes a guided flow with `Basics → Expert → Location → Details → Review`.
-- Review is a separate confirmation screen with Confirm/Back actions before final submit.
-- AddProject expert picker always shows `Add new expert` at the top, followed by suggested/search entries.
-- Inline expert creation includes all expert fields, validates before project submit, creates the expert first, then creates the project with that expert as lead.
-- The standalone AddExpert button/modal remains; its dedicated tab redesign can follow after AddProject reuses the expert field sections.
-- Draft autosave uses `localStorage`; reset clears the form and stored draft.
-- Collapsing inline expert creation preserves its draft.
-- Offline submissions keep the existing offline error behavior.
-- Volunteer modal copy/alerts use “Volunteer” language.
-- Project location becomes tabbed: `Simple location`, `Search and draw`, `Import geodata`.
-- `Simple location` is required and creates one location with a fixed default 20 km area.
-- `Search and draw` uses free-text OSM-style location search and may produce either a point or drawn geometry.
-- `Import geodata` should support GeoJSON, KML, GPX, and Shapefile.
+### Project team model
+- Replace `leadExpertId` + `leadExpertName` + `linkedExpertIds` with flat `expertIds: string[]` (at least 1)
+- ProjectCard receives `teamMembers: {id, name}[]` prop (resolved upstream)
+- Team pill list: max 3 visible + `+N more` badge
+- Each pill clickable → switch to experts tab, scroll to expert card, pulse with glow ring
 
-### 4.1 — Form field consistency — 30 min
+### Country model
+- Both projects and experts: `countries: z.array(z.string().length(2))` (ISO alpha-2)
+- Constant `COUNTRY_OPTIONS` in `src/utils/countries.ts` with `isCarpathian: boolean` flag
+- Carpathian countries (primary): AT, CZ, HU, PL, RO, RS, SK, UA
+- Extended countries (secondary): DE, MD, etc.
+- Existing free-text migrated: "Poland/Ukraine" → `['PL', 'UA']`, "Romania" → `['RO']`
+- No new DB tables — vocabulary is a code constant
 
-Audit all form fields across `AddProjectModal`, `AddExpertModal`, `VolunteerModal`:
-- Same input height, padding, border radius
-- Same label styling (font size, weight, spacing)
-- Same error message placement and styling
-- Same focus ring style
-- Same disabled state styling
-- Visible `*` for required fields and accessible required labeling.
+### Filter overhaul
+- Country filter: OR logic (`project.countries.includes(selectedCode)`)
+- Faceted dropdown populated from `COUNTRY_OPTIONS` constant (not data-derived)
+- Carpathian countries shown first, extended countries below separator
+- Tab switch via expert click: keep filter active; reset only if target would be filtered out
 
-### 4.2 — Form behavior audit — 30 min
+### Expert card pulse
+- Full card glow ring animation (box-shadow pulse, ~1.5s fade)
+- CSS class `expert-card-pulse` toggled on/off
 
-- Required field indicators consistent?
-- Validation triggers: social/profile fetch first, dedicated email validation, submit validation for the full form.
-- Submit button disabled during submission?
-- Success/error feedback visible and accessible?
-- Form drafts autosave to `localStorage`; reset clears both form state and stored draft.
-- Draft polygon persists correctly in AddProject flow?
+**Prerequisite for Phase 4** — schema types, filter logic, and constant must be in place first.
 
-### 4.3 — Focus trap + keyboard — 30 min
+---
 
-- Modal open: focus moves to first field?
-- Tab order: follows visual order?
-- Escape: closes modal?
-- Shift+Tab from first field: wraps to last?
-- Focus restoration: returns to trigger element on close?
+## ✅ Phase 4 — Modal Optimization, Finish, Polish & Cleanup (Complete)
 
-### 4.4 — ORCID integration polish — 45 min
+**Spec decisions (2026-05-16):**
+- ✅ AddProject: full multi-step wizard (Basics → Expert → Location → Details → Review)
+- ✅ Location: 3 tabs — Simple location, Search and draw, Import geodata
+- ✅ Inline expert creation inside AddProject
+- ✅ ORCID: full polish including conflict detection + merge UI
+- ✅ Volunteer modal updated: "Volunteer" language, zip code, all-fields toggle, scientific fields label
+- ✅ Location step: geocoding search in Simple mode, preserved area tab on back, vertex editing, `L.DomEvent.disableClickPropagation` button bug fix
+- ✅ Expert step: search filter + lazy-loaded `AddExpertModal` integration
+- ✅ Country pre-selection from location text + area coords (reverse geocode)
+- Schema changes required first (see Phase 3b below)
 
-- Fetch error handling: network failure, invalid ORCID, malformed response
-- Loading state during fetch
-- Auto-fill mapping: which fields are populated?
-- Conflict detection: existing data vs imported data
-- Conflict resolution UI: show/compare/merge flow clean?
-
-### 4.5 — `FormModal` shared wrapper extraction — 45 min
-
-Review `FormModal.tsx` — already extracted. Verify all three modals use it consistently.
-
-**Validation checkpoint:** `tsc --noEmit` + `vitest run` + manual modal testing
+**~3 hours · 5 work packages** — all features complete. Polish items (4.1–4.5) rolled into Phase 5.
 
 ---
 

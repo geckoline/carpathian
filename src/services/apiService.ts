@@ -13,11 +13,17 @@ import type {
 } from '@/types/database';
 import type { VolunteerSubscriptionData } from '@/types/volunteer';
 import { getCategoryLabel, normalizeCategoryId, normalizeCategoryWithFallback } from '@/utils/categories';
+import { COUNTRY_BY_NAME } from '@/utils/countries';
 import { mockApi } from './mockApi';
 
 const optionalString = (value: unknown): string | undefined => {
   return typeof value === 'string' && value.trim().length > 0 ? value : undefined;
 };
+
+const getRecord = (value: unknown): Record<string, unknown> | undefined =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : undefined;
 
 const getInstitutionId = (name: string) =>
   name
@@ -27,14 +33,6 @@ const getInstitutionId = (name: string) =>
     .replace(/&/g, ' and ')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '') || 'independent';
-
-const requiredString = (value: unknown, fieldName: string): string => {
-  const normalized = optionalString(value);
-  if (!normalized) {
-    throw new Error(`Project is missing required ${fieldName}. Every project must reference an existing leading expert.`);
-  }
-  return normalized;
-};
 
 const numericOrDefault = (value: unknown, fallback: number) => {
   if (typeof value === 'number' && Number.isFinite(value)) return value;
@@ -58,14 +56,66 @@ const parseYearRange = (yearRange: string | undefined) => {
   return { startYear: Number(match[1]), endYear: Number(match[2]) };
 };
 
+const normalizeCountryCode = (value: string) => {
+  const trimmed = value.trim();
+  if (trimmed.length === 2) return trimmed.toUpperCase();
+  return COUNTRY_BY_NAME[trimmed]?.code;
+};
+
+const getProjectCountries = (project: AppProjectRow): string[] => {
+  if (Array.isArray(project.countries) && project.countries.length > 0) {
+    return project.countries
+      .map(normalizeCountryCode)
+      .filter((country): country is string => Boolean(country));
+  }
+
+  return (project.country ?? '')
+    .split('/')
+    .map(normalizeCountryCode)
+    .filter((country): country is string => Boolean(country));
+};
+
+const getExpertCountries = (expert: AppExpertRow): string[] => {
+  if (Array.isArray(expert.countries) && expert.countries.length > 0) {
+    return expert.countries
+      .map(normalizeCountryCode)
+      .filter((country): country is string => Boolean(country));
+  }
+
+  const country = optionalString(expert.country);
+  const normalized = country ? normalizeCountryCode(country) : undefined;
+  return normalized ? [normalized] : [];
+};
+
+const getProjectExpertIds = (project: AppProjectRow): string[] => {
+  const ids = project.expert_ids?.length
+    ? project.expert_ids
+    : project.linked_expert_ids?.length
+      ? project.linked_expert_ids
+      : project.lead_expert_id
+        ? [project.lead_expert_id]
+        : [];
+
+  return ids.filter((id): id is string => typeof id === 'string' && id.length > 0);
+};
+
+const getExpertProfileImageUrl = (expert: AppExpertRow) => {
+  const importMetadata = getRecord(expert.import_metadata);
+  const scholar = getRecord(importMetadata?.scholar);
+  return optionalString(expert.avatar_url)
+    ?? optionalString(expert.profile_image_url)
+    ?? optionalString(importMetadata?.profileImageUrl)
+    ?? optionalString(scholar?.thumbnail);
+};
+
 export const toProjectData = (project: AppProjectRow): ProjectData => {
   const categoryId = normalizeCategoryWithFallback(project.category_id, project.field);
   const field = getCategoryLabel(categoryId);
   const description = optionalString(project.description) ?? 'Project description will be added soon.';
-  const displayLocation = optionalString(project.display_location) ?? optionalString(project.region_label) ?? optionalString(project.country);
+  const displayLocation = optionalString(project.display_location) ?? optionalString(project.region_label);
   const contact = optionalString(project.contact);
-  const leadExpertId = requiredString(project.lead_expert_id, 'lead_expert_id');
-  const leadExpertName = requiredString(project.lead_expert_name, 'lead_expert_name');
+  const expertIds = getProjectExpertIds(project);
+  const countries = getProjectCountries(project);
 
   return {
     id: project.id,
@@ -80,12 +130,11 @@ export const toProjectData = (project: AppProjectRow): ProjectData => {
     yearRange: normalizeYearRange(project),
     lat: numericOrDefault(project.lat, 47.5),
     lng: numericOrDefault(project.lng, 25.0),
-    leadExpertId,
-    leadExpertName,
-    linkedExpertIds: project.linked_expert_ids?.length ? project.linked_expert_ids : [leadExpertId],
+    expertIds,
+    teamMembers: [],
     website: optionalString(project.website),
     area: optionalString(project.area),
-    country: optionalString(project.country),
+    countries,
     contact,
     cardSummary: optionalString(project.card_summary),
     focusSummary: optionalString(project.focus_summary),
@@ -97,10 +146,10 @@ export const toProjectData = (project: AppProjectRow): ProjectData => {
 export const toExpertData = (expert: AppExpertRow): ExpertData => ({
   id: expert.id,
   name: expert.name,
-  institutionId: expert.institution_id,
+  institutionId: optionalString(expert.institution_id),
   institution: expert.institution,
   institutionWebsite: optionalString(expert.institution_website),
-  country: expert.country,
+  countries: getExpertCountries(expert),
   degree: optionalString(expert.degree),
   headline: optionalString(expert.headline),
   expertiseSubtitle: optionalString(expert.expertise_subtitle),
@@ -113,10 +162,9 @@ export const toExpertData = (expert: AppExpertRow): ExpertData => ({
   scopus: optionalString(expert.scopus),
   orcid: optionalString(expert.orcid),
   googleScholar: optionalString(expert.google_scholar),
+  profileImageUrl: getExpertProfileImageUrl(expert),
   isCitizenScience: expert.is_cs === true,
-  importMetadata: typeof expert.import_metadata === 'object' && expert.import_metadata !== null && !Array.isArray(expert.import_metadata)
-    ? (expert.import_metadata as Record<string, unknown>)
-    : undefined,
+  importMetadata: getRecord(expert.import_metadata),
 });
 
 export const apiService = {
@@ -141,7 +189,6 @@ export const apiService = {
   async addProject(project: Partial<ProjectData>) {
     const categoryId = normalizeCategoryWithFallback(project.categoryId, project.field);
     const { startYear, endYear } = parseYearRange(project.yearRange);
-    const leadExpertId = requiredString(project.leadExpertId, 'leadExpertId');
     const insert: ProjectInsert = {
       name: project.name ?? 'Untitled',
       status: project.status ?? 'planned',
@@ -154,9 +201,8 @@ export const apiService = {
       card_summary: project.cardSummary ?? null,
       focus_summary: project.focusSummary ?? null,
       outputs_summary: project.outputsSummary ?? null,
-      lead_expert_id: leadExpertId,
       website: project.website ?? null,
-      country: project.country ?? null,
+      countries: project.countries ?? [],
       is_cs: project.isCitizenScience ?? true,
     };
 
@@ -185,7 +231,7 @@ export const apiService = {
     const insert: ExpertInsert = {
       name: expert.name ?? 'Anonymous',
       institution_id: institutionId,
-      country: expert.country ?? 'Unknown',
+      countries: expert.countries ?? [],
       degree: expert.degree ?? null,
       headline: expert.headline ?? null,
       expertise_subtitle: expert.expertiseSubtitle ?? null,
@@ -197,7 +243,11 @@ export const apiService = {
       scopus: expert.scopus ?? null,
       orcid: expert.orcid ?? null,
       google_scholar: expert.googleScholar ?? null,
-      import_metadata: (expert.importMetadata ?? {}) as Json,
+      import_metadata: ({
+        ...(expert.importMetadata ?? {}),
+        ...(expert.profileImageUrl ? { profileImageUrl: expert.profileImageUrl } : {}),
+        ...(typeof expert.projects === 'number' ? { manualProjects: expert.projects } : {}),
+      }) as Json,
     };
 
     const { data, error } = await getSupabaseClient()
@@ -216,7 +266,8 @@ export const apiService = {
       email: subscription.email,
       city: subscription.city,
       country: subscription.country,
-      home_location: `SRID=4326;POINT(${subscription.longitude} ${subscription.latitude})`,
+      zip_code: subscription.zipCode ?? null,
+      home_location: null,
       radius_km: subscription.radiusKm,
       note: optionalString(subscription.note) ?? null,
       status: 'active',

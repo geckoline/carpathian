@@ -11,12 +11,10 @@ describe('vite config', () => {
     expect(existsSync(resolve(__dirname, '../../vite.config.js'))).toBe(false);
   });
 
-  it('has HMR configured for localhost WebSocket', () => {
+  it('does not hardcode HMR port (Vite auto-detects to avoid port mismatch)', () => {
     const configPath = resolve(__dirname, '../../vite.config.ts');
     const config = readFileSync(configPath, 'utf-8');
-    expect(config).toMatch(/protocol:\s*['"]ws['"]/);
-    expect(config).toMatch(/host:\s*['"]localhost['"]/);
-    expect(config).toMatch(/port:\s*5173/);
+    expect(config).not.toMatch(/hmr/);
   });
 
   it('keeps build chunk splitting in the TypeScript config', () => {

@@ -14,8 +14,8 @@ vi.mock('@/hooks/useCardFlip', () => ({
 }));
 
 const mockExpert = {
-  id: 'e1', name: 'Dr. Elena Popescu', institution: 'Univ. of Bucharest', country: 'Romania',
-  degree: 'PhD, Ecology', headline: 'Cross-border biodiversity lead and mountain systems researcher', expertiseSubtitle: 'Ecology • Restoration • Citizen-science networks', bio: 'Leading research on Carpathian biodiversity. Full bio expands on toggle.',
+  id: 'e1', name: 'Dr. Elena Popescu', institution: 'Univ. of Bucharest', countries: ['RO'],
+  headline: 'Cross-border biodiversity lead and mountain systems researcher', expertiseSubtitle: 'Ecology • Restoration • Citizen-science networks', bio: 'Leading research on Carpathian biodiversity. Full bio expands on toggle.',
   expertise: ['Alpine Eco', 'Climate Resilience'], publications: 42, projects: 15,
   email: 'elena@example.com', linkedin: 'https://linkedin.com/in/elena', scopus: 'https://scopus.com/authid/elena',
   googleScholar: 'https://scholar.google.com/citations?user=abc123',
@@ -99,6 +99,12 @@ describe('ExpertCard', () => {
     render(<ExpertCard {...mockExpert} />);
     const img = within(screen.getByTestId('expert-face-front')).getByRole('img', { name: /dr\. elena popescu portrait/i });
     expect(img).toHaveAttribute('src', expect.stringContaining('/profile-pictures/'));
+  });
+
+  it('uses an imported profile image before local portrait fallbacks', () => {
+    render(<ExpertCard {...mockExpert} profileImageUrl="https://example.com/profile.jpg" />);
+    const img = within(screen.getByTestId('expert-face-front')).getByRole('img', { name: /dr\. elena popescu portrait/i });
+    expect(img).toHaveAttribute('src', 'https://example.com/profile.jpg');
   });
 
   it('renders the variation c back layout with institution subtitle and full bio', () => {

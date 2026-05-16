@@ -15,10 +15,11 @@ describe('apiService - Mock Fallback', () => {
     description: 'A valid test description with enough characters',
     location: 'Test Location',
     yearRange: '2024-2028',
-    leadExpertId: '123e4567-e89b-12d3-a456-426614174001',
-    leadExpertName: 'Test Expert',
+    expertIds: ['123e4567-e89b-12d3-a456-426614174001'],
+    teamMembers: [{ id: '123e4567-e89b-12d3-a456-426614174001', name: 'Test Expert' }],
     lat: 47.5,
     lng: 25.0,
+    countries: ['RO'],
     isCitizenScience: true,
   };
 
@@ -26,8 +27,7 @@ describe('apiService - Mock Fallback', () => {
     id: '123e4567-e89b-12d3-a456-426614174001',
     name: 'Test Expert',
     institution: 'University',
-    country: 'Romania',
-    degree: 'PhD',
+    countries: ['RO'],
     bio: 'A valid expert bio with enough characters to pass validation.',
     expertise: ['Ecology'],
     email: 'expert@example.com',

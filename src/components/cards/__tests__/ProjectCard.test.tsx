@@ -29,8 +29,8 @@ const mockProject = {
   location: 'POLYGON((24.9 47.4, 25.1 47.4, 25.1 47.6, 24.9 47.6, 24.9 47.4))',
   displayLocation: '3 Countries',
   yearRange: '2021-2025',
-  leadExpertId: '123e4567-e89b-12d3-a456-426614174001',
-  leadExpertName: 'Dr. E. Popescu',
+  expertIds: ['123e4567-e89b-12d3-a456-426614174001'],
+  teamMembers: [{ id: '123e4567-e89b-12d3-a456-426614174001', name: 'Dr. E. Popescu' }],
   regionLabel: '3-country mountain corridor',
   cardSummary: 'Draft-ready project summary for the front face.',
   focusSummary: 'Pollinators, habitat fragmentation, community mapping',
@@ -54,7 +54,7 @@ describe('ProjectCard', () => {
     expect(within(front).getByTestId('project-field')).toHaveTextContent('Biodiversity');
     expect(within(front).getByText('Region')).toBeInTheDocument();
     expect(within(front).getByText('Timeline')).toBeInTheDocument();
-    expect(within(front).getByText('Lead')).toBeInTheDocument();
+    expect(within(front).getByText('Team')).toBeInTheDocument();
     expect(within(front).getByTestId('project-badge-row')).toBeInTheDocument();
     expect(within(front).getByTestId('project-title-row')).toHaveClass('project-title-row');
     expect(within(front).getByTestId('project-badge-row')).toHaveClass('project-badge-stack');
@@ -62,13 +62,12 @@ describe('ProjectCard', () => {
     expect(within(front).getByTestId('project-field')).toHaveAttribute('title', 'Biodiversity');
     expect(within(front).getByTestId('project-field')).toHaveClass('project-category-pill');
     expect(within(front).getByTestId('project-card-title')).toHaveTextContent('Carpathian Watch');
-    expect(within(front).getByTestId('project-lead-expert')).toHaveClass('lead-meta-row');
-    expect(within(front).getByTestId('project-lead-expert').querySelector('.pulse')).not.toBeInTheDocument();
+    expect(within(front).getByTestId('project-team')).toHaveClass('team-meta-row');
     expect(within(front).getByTestId('project-location')).toHaveTextContent('3-country mountain corridor');
     expect(within(front).getByTestId('project-year')).toHaveTextContent('2021-2025');
     expect(within(front).getByTestId('project-summary')).toHaveTextContent('Draft-ready project summary for the front face.');
     expect(within(front).getByTestId('project-meta-grid')).toBeInTheDocument();
-    expect(within(front).getByTestId('project-lead-expert')).toHaveTextContent('Dr. E. Popescu');
+    expect(within(front).getByTestId('project-team')).toHaveTextContent('Dr. E. Popescu');
     expect(within(front).getByRole('link', { name: /website/i })).toHaveAttribute('href', 'https://example.com');
     expect(within(front).getByRole('button', { name: /copy project link/i })).toBeInTheDocument();
     expect(within(front).getByTestId('copy-project-link').closest('.project-footer-left')).not.toBeNull();
@@ -110,7 +109,7 @@ describe('ProjectCard', () => {
     document.body.appendChild(expertEl);
 
     render(<ProjectCard {...mockProject} />);
-    await user.click(within(screen.getByTestId('project-face-front')).getByRole('button', { name: /show lead expert dr\. e\. popescu/i }));
+    await user.click(within(screen.getByTestId('project-face-front')).getByRole('button', { name: /show expert dr\. e\. popescu/i }));
 
     expect(storeMocks.setSelectedExpertId).toHaveBeenCalledWith('123e4567-e89b-12d3-a456-426614174001');
     expect(storeMocks.setActiveTab).toHaveBeenCalledWith('experts');

@@ -46,7 +46,7 @@ export const CardShell = ({ id, cardType, dataset: datasetProp, isSelected, fron
         reducedMotion
           ? 'hover:shadow-[var(--shadow-card)]'
           : 'transition-all duration-200 [perspective:1600px] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-1'
-      } ${isSelected ? 'ring-2 ring-primary-500 ring-offset-2' : ''} focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2`}
+      } ${isSelected ? `ring-2 ring-primary-500 ring-offset-2 ${cardType === 'expert' ? 'expert-card-pulse' : ''}` : ''} focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2`}
       id={`${prefix}-card-${id}`}
       data-testid={`${prefix}-card-${isFlipped ? 'back' : 'front'}`}
       aria-labelledby={`${prefix}-card-title-${id}`}

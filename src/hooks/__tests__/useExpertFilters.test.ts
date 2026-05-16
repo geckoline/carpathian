@@ -5,9 +5,9 @@ import { useExpertFilters } from '../useExpertFilters';
 const createMockAppStore = vi.hoisted(() => (globalThis as any).__createMockAppStore);
 
 const mockExperts = [
-  { id: '1', name: 'Dr. Elena Popescu', institution: 'Univ. of Bucharest', country: 'Romania', degree: 'PhD', bio: 'Leading research on biodiversity', expertise: ['Alpine Eco', 'Climate'] },
-  { id: '2', name: 'Dr. Marek Kowalski', institution: 'Jagiellonian Univ.', country: 'Poland', degree: 'PhD', bio: 'Expert in pollinator ecology', expertise: ['Pollination Networks'] },
-  { id: '3', name: 'Dr. Laura Munteanu', institution: 'Carpathian Wildlife Inst.', country: 'Romania', degree: 'PhD', bio: 'Studies wolf pack dynamics', expertise: ['Wildlife Tracking', 'GIS'] },
+  { id: '1', name: 'Dr. Elena Popescu', institution: 'Univ. of Bucharest', countries: ['RO'], bio: 'Leading research on biodiversity', expertise: ['Alpine Eco', 'Climate'] },
+  { id: '2', name: 'Dr. Marek Kowalski', institution: 'Jagiellonian Univ.', countries: ['PL'], bio: 'Expert in pollinator ecology', expertise: ['Pollination Networks'] },
+  { id: '3', name: 'Dr. Laura Munteanu', institution: 'Carpathian Wildlife Inst.', countries: ['RO'], bio: 'Studies wolf pack dynamics', expertise: ['Wildlife Tracking', 'GIS'] },
 ];
 
 const storeState: {
@@ -78,7 +78,7 @@ describe('useExpertFilters', () => {
   });
 
   it('filters by country', () => {
-    storeState.filters.countryFilter = 'Romania';
+    storeState.filters.countryFilter = 'RO';
     const { result } = renderHook(() => useExpertFilters());
     expect(result.current.filteredExperts).toHaveLength(2);
   });

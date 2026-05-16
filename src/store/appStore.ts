@@ -89,8 +89,8 @@ export const useAppStore = create<AppState>()(
     setError: (error) => set((s) => { s.data.error = error; }),
     setA11y: (updates) => set((s) => { Object.assign(s.a11y, updates); }),
     addProject: (project) => {
-      if (!project.leadExpertId || !project.leadExpertName) {
-        console.warn('[store] addProject skipped: leadExpertId and leadExpertName are required');
+      if (!project.expertIds || project.expertIds.length === 0) {
+        console.warn('[store] addProject skipped: expertIds is required with at least one entry');
         return;
       }
       set((s) => {
@@ -110,6 +110,9 @@ export const useAppStore = create<AppState>()(
           yearRange: project.yearRange || `${new Date().getFullYear()}-${new Date().getFullYear() + 4}`,
           lat: project.lat || 47.5,
           lng: project.lng || 25.0,
+          expertIds: project.expertIds ?? [],
+          teamMembers: project.teamMembers ?? [],
+          countries: project.countries ?? [],
           isCitizenScience: project.isCitizenScience ?? true,
           ...defined,
         } as ProjectData;
@@ -124,7 +127,7 @@ export const useAppStore = create<AppState>()(
         id: expert.id || crypto.randomUUID(),
         name: expert.name || 'Anonymous',
         institution: expert.institution || 'Independent',
-        country: expert.country || 'Unknown',
+        countries: expert.countries ?? [],
         degree: expert.degree || 'Volunteer',
         bio: expert.bio || '',
         expertise: expert.expertise || [],

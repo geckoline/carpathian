@@ -5,7 +5,7 @@ describe('ExpertFormSchema', () => {
   const validBase = {
     name: 'Dr. Jane Smith',
     institution: 'University of Bucharest',
-    country: 'Romania',
+    countries: ['RO'],
     bio: 'Expert in Carpathian biodiversity with 15 years of field research experience.',
     expertise: ['biodiversity', 'forests'],
     email: 'jane.smith@unibuc.ro',
@@ -40,7 +40,7 @@ describe('ExpertFormSchema', () => {
     const result = ExpertFormSchema.safeParse({
       name: 'Dr. Jane Smith',
       institution: 'University of Bucharest',
-      country: 'Romania',
+      countries: ['RO'],
       bio: 'Expert in Carpathian biodiversity.',
       expertise: ['biodiversity'],
       orcid: 'https://orcid.org/0000-0002-1825-0097',

@@ -13,7 +13,7 @@ export const useExpertFilters = (experts?: ExpertData[]) => {
       if (filters.fieldFilter !== 'all' && !expert.expertise.some((e) => e.toLowerCase().includes(filters.fieldFilter.toLowerCase()))) {
         return false;
       }
-      if (filters.countryFilter && filters.countryFilter !== 'all' && expert.country.toLowerCase() !== filters.countryFilter.toLowerCase()) {
+      if (filters.countryFilter && filters.countryFilter !== 'all' && !(expert.countries?.some((c) => c === filters.countryFilter) ?? false)) {
         return false;
       }
       return true;

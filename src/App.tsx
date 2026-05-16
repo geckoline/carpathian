@@ -69,11 +69,24 @@ export default function App() {
   const { submitProject } = useProjectSubmission(setStatusMessage);
   const { submitVolunteerSubscription } = useVolunteerSubscription(setStatusMessage);
   const addExpert = useAppStore(s => s.addExpert);
-  const renderCardItem = useCallback((item: ProjectData | ExpertData) =>
-    activeTab === 'projects'
-      ? <ProjectCard key={item.id} {...(item as ProjectData)} />
-      : <ExpertCard key={item.id} {...(item as ExpertData)} />
-  , [activeTab]);
+  const renderCardItem = useCallback((item: ProjectData | ExpertData) => {
+    if (activeTab === 'projects') {
+      const project = item as ProjectData;
+      const teamMembers = project.expertIds.map((id) => {
+        const expert = storeExperts.find((e) => e.id === id);
+        return { id, name: expert?.name ?? 'Unknown' };
+      });
+      let contact: string | undefined;
+      if (project.website) {
+        try { contact = `contact@${new URL(project.website).hostname}`; } catch { /* ignore */ }
+      }
+      if (!contact) {
+        contact = storeExperts.find(e => e.id === project.expertIds[0])?.email;
+      }
+      return <ProjectCard key={project.id} {...project} teamMembers={teamMembers} contact={contact} />;
+    }
+    return <ExpertCard key={item.id} {...(item as ExpertData)} />;
+  }, [activeTab, storeExperts]);
 
   const handleAddProjectSubmit = useCallback(async (data: ProjectFormData) => {
     await submitProject(data);
@@ -85,17 +98,19 @@ export default function App() {
       id: crypto.randomUUID(),
       name: data.name,
       institution: data.institution,
-      country: data.country,
-      degree: data.degree,
+      countries: data.countries,
       headline: data.headline,
       expertiseSubtitle: data.expertiseSubtitle,
       bio: data.bio,
       expertise: data.expertise,
+      publications: data.publications,
+      projects: data.projects,
       email: data.email,
       linkedin: data.linkedin,
       orcid: data.orcid,
       googleScholar: data.googleScholar,
-      importMetadata: { source: 'manual', importedAt: new Date().toISOString() },
+      profileImageUrl: data.profileImageUrl,
+      importMetadata: data.importMetadata ?? { source: 'manual', importedAt: new Date().toISOString() },
     });
     setStatusMessage({ tone: 'success', text: 'Expert added successfully.' });
     addExpertModal.close();

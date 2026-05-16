@@ -49,9 +49,9 @@ vi.mock('@/hooks/usePolygonLayer', () => ({
 const mockProject = {
   id: '1', name: 'Alpha Project', status: 'active' as const, field: 'Biodiversity',
   description: 'Monitoring forest health', location: 'Carpathians', yearRange: '2024-2028',
-  leadExpertId: '123e4567-e89b-12d3-a456-426614174001',
-  leadExpertName: 'Dr. Elena Popescu',
-  isCitizenScience: true, country: 'Romania',
+  expertIds: ['123e4567-e89b-12d3-a456-426614174001'],
+  teamMembers: [{ id: '123e4567-e89b-12d3-a456-426614174001', name: 'Dr. Elena Popescu' }],
+  isCitizenScience: true, countries: ['RO'],
 };
 
 describe('SmoothScroll', () => {

@@ -4,6 +4,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import type { ProjectData } from '@/types/project';
 import { normalizeCategoryId } from '@/utils/categories';
 import { getProjectFilterOptions, type ProjectFilterOptions } from '@/utils/projectFilterOptions';
+import { COUNTRY_OPTIONS, getCountryName } from '@/utils/countries';
 
 type FilterControlsProps = {
   projects?: ProjectData[];
@@ -158,9 +159,20 @@ const FilterControlsInner = ({ projects, idPrefix = 'project-filters', variant =
           className={controlClass}
         >
           <option value="all">All countries</option>
-          {options.countries.map((country) => (
-            <option key={country} value={country}>{country}</option>
-          ))}
+          <optgroup label="Carpathian">
+            {options.countries
+              .filter((code) => COUNTRY_OPTIONS.find((c) => c.code === code)?.isCarpathian)
+              .map((code) => (
+                <option key={code} value={code}>{getCountryName(code)}</option>
+              ))}
+          </optgroup>
+          <optgroup label="Extended">
+            {options.countries
+              .filter((code) => !COUNTRY_OPTIONS.find((c) => c.code === code)?.isCarpathian)
+              .map((code) => (
+                <option key={code} value={code}>{getCountryName(code)}</option>
+              ))}
+          </optgroup>
         </select>
       </div>
 

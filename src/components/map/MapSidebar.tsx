@@ -125,7 +125,7 @@ export const MapSidebar = ({ projects, filterProjects = projects, onAddProject, 
                   </span>
                 </span>
                 <span className="flex items-center gap-2 text-xs text-gray-500">
-                  <span>{project.displayLocation || project.regionLabel || project.country || 'Carpathian region'}</span>
+                  <span>{project.displayLocation || project.regionLabel || project.countries?.join(', ') || 'Carpathian region'}</span>
                   <span
                     className="project-category-pill map-sidebar-category-pill badge-single-line ml-auto"
                     data-testid={`map-sidebar-category-${project.id}`}

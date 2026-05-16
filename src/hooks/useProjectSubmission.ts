@@ -8,8 +8,12 @@ import { DEFAULT_CENTER } from '@/utils/constants';
 export type StatusMessage = { tone: 'success' | 'warning' | 'error'; text: string };
 
 const toGeometryWkt = (areaCoords?: [number, number][]) => {
-  if (!areaCoords || areaCoords.length < 3) {
+  if (!areaCoords || areaCoords.length === 0) {
     return `geometry('POINT(${DEFAULT_CENTER.lng} ${DEFAULT_CENTER.lat})', 4326)`;
+  }
+  if (areaCoords.length === 1) {
+    const point = areaCoords[0]!;
+    return `geometry('POINT(${point[1].toFixed(4)} ${point[0].toFixed(4)})', 4326)`;
   }
 
   const coords = areaCoords.map(([lat, lng]) => `${lng.toFixed(4)} ${lat.toFixed(4)}`).join(', ');
@@ -28,20 +32,31 @@ export const useProjectSubmission = (setStatusMessage: (message: StatusMessage) 
     }
 
     const categoryId = normalizeCategoryWithFallback(formData.field);
-    const leadExpert = experts.find((expert) => expert.id === formData.leadExpertId);
-    if (!leadExpert) {
-      throw new Error('Select an existing leading expert before submitting the project.');
+    const teamMembers = formData.expertIds
+      .map((id) => {
+        const expert = experts.find((e) => e.id === id);
+        return expert ? { id: expert.id, name: expert.name } : null;
+      })
+      .filter((m): m is { id: string; name: string } => m !== null);
+
+    if (teamMembers.length === 0) {
+      throw new Error('Select at least one valid expert before submitting the project.');
     }
 
     const projectDraft = {
-      ...formData,
-      categoryId,
+      id: crypto.randomUUID(),
+      name: formData.name,
+      status: formData.status,
       field: getCategoryLabel(categoryId),
-      leadExpertId: leadExpert.id,
-      leadExpertName: leadExpert.name,
+      categoryId,
+      description: formData.description,
       location: toGeometryWkt(formData.areaCoords),
       displayLocation: formData.location,
       regionLabel: formData.location,
+      yearRange: formData.yearRange,
+      expertIds: formData.expertIds,
+      teamMembers,
+      countries: formData.countries,
       lat: DEFAULT_CENTER.lat,
       lng: DEFAULT_CENTER.lng,
     };

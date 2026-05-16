@@ -110,9 +110,11 @@ describe('Mock API - Data Integrity', () => {
       const expertIds = new Set(experts.map(e => e.id));
 
       projects.forEach(project => {
-        expect(project.leadExpertId).toBeTruthy();
-        expect(project.leadExpertName).toBeTruthy();
-        expect(expertIds).toContain(project.leadExpertId);
+        expect(project.expertIds).toBeTruthy();
+        expect(project.teamMembers).toBeTruthy();
+        expect(project.expertIds.length).toBeGreaterThan(0);
+        expect(project.teamMembers.length).toBeGreaterThan(0);
+        expect(project.expertIds.every((id) => expertIds.has(id))).toBe(true);
       });
     });
 

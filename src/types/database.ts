@@ -4,6 +4,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 
 export type Status = 'active' | 'past' | 'planned';
 export type ProjectExpertRole = 'lead' | 'contact' | 'contributor';
+/** @deprecated flat team – role column removed */
 export type VolunteerStatus = 'active' | 'unsubscribed' | 'pending_review';
 
 export type CategoryRow = {
@@ -36,7 +37,7 @@ export type ExpertRow = {
   id: string;
   name: string;
   institution_id: string;
-  country: string;
+  countries: string[];
   degree: string | null;
   headline: string | null;
   expertise_subtitle: string | null;
@@ -72,9 +73,8 @@ export type ProjectRow = {
   card_summary: string | null;
   focus_summary: string | null;
   outputs_summary: string | null;
-  lead_expert_id: string;
   website: string | null;
-  country: string | null;
+  countries: string[];
   is_cs: boolean | null;
   created_at: string | null;
   updated_at: string | null;
@@ -103,7 +103,7 @@ export type ProjectLocationInsert = Omit<ProjectLocationRow, 'id' | 'created_at'
 export type ProjectExpertRow = {
   project_id: string;
   expert_id: string;
-  role: ProjectExpertRole;
+  sort_order: number;
   created_at: string | null;
 };
 
@@ -117,6 +117,7 @@ export type VolunteerSubscriptionRow = {
   email: string;
   city: string;
   country: string;
+  zip_code: string | null;
   home_location: unknown;
   radius_km: number;
   note: string | null;
@@ -154,12 +155,13 @@ export type AppProjectRow = {
   end_year: number | null;
   lat: number | string | null;
   lng: number | string | null;
-  lead_expert_id: string;
-  lead_expert_name: string;
-  linked_expert_ids: string[] | null;
   website: string | null;
   area: string | null;
-  country: string | null;
+  countries?: string[] | null;
+  country?: string | null;
+  expert_ids?: string[] | null;
+  linked_expert_ids?: string[] | null;
+  lead_expert_id?: string | null;
   contact: string | null;
   card_summary: string | null;
   focus_summary: string | null;
@@ -167,12 +169,17 @@ export type AppProjectRow = {
   is_cs: boolean | null;
 };
 
-export type AppExpertRow = ExpertRow & {
+export type AppExpertRow = Omit<ExpertRow, 'institution_id' | 'countries' | 'import_metadata'> & {
+  institution_id?: string | null;
   institution: string;
-  institution_website: string | null;
+  institution_website?: string | null;
+  countries?: string[] | null;
+  country?: string | null;
+  avatar_url?: string | null;
+  profile_image_url?: string | null;
   projects: number | null;
   is_cs: boolean | null;
-  import_metadata: Json;
+  import_metadata?: Json | null;
 };
 
 export type VolunteerProjectMatchRow = {

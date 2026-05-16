@@ -28,7 +28,7 @@ describe('useVolunteerSubscription', () => {
     await act(async () => {
       await result.current.submitVolunteerSubscription({
         fullName: 'Test', email: 'a@b.com', city: 'City', country: 'CO',
-        latitude: 45, longitude: 25, radiusKm: 50, categoryIds: ['biodiversity'], consent: true, note: '',
+        radiusKm: 50, categoryIds: ['biodiversity'], consent: true, note: '',
       });
     });
 
@@ -44,7 +44,7 @@ describe('useVolunteerSubscription', () => {
       try {
         await result.current.submitVolunteerSubscription({
           fullName: 'Test', email: 'a@b.com', city: 'City', country: 'CO',
-          latitude: 45, longitude: 25, radiusKm: 50, categoryIds: ['biodiversity'], consent: true, note: '',
+          radiusKm: 50, categoryIds: ['biodiversity'], consent: true, note: '',
         });
       } catch { /* expected */ }
     });
@@ -60,7 +60,7 @@ describe('useVolunteerSubscription', () => {
       await act(async () => {
         await result.current.submitVolunteerSubscription({
           fullName: 'Test', email: 'a@b.com', city: 'City', country: 'CO',
-          latitude: 45, longitude: 25, radiusKm: 50, categoryIds: ['biodiversity'], consent: true, note: '',
+          radiusKm: 50, categoryIds: ['biodiversity'], consent: true, note: '',
         });
       });
     }).rejects.toThrow(/offline/i);

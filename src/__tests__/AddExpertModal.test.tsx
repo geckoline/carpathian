@@ -41,7 +41,7 @@ describe('AddExpertModal', () => {
     renderModal();
     expect(screen.getByLabelText(/^name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^institution/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/^country/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^countries/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^email/i)).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: /bio \*/i })).toBeInTheDocument();
   });
@@ -82,7 +82,7 @@ describe('AddExpertModal', () => {
 
     await user.type(screen.getByLabelText(/^name/i), 'Dr. Jane Smith');
     await user.type(screen.getByLabelText(/^institution/i), 'UB');
-    await user.type(screen.getByLabelText(/^country/i), 'Romania');
+    await user.selectOptions(screen.getByLabelText(/^countries/i), 'RO');
     await user.type(screen.getByLabelText(/^email/i), 'not-an-email');
     await user.type(screen.getByRole('textbox', { name: /bio \*/i }), 'Expert in Carpathian biodiversity with years of experience.');
     await user.type(screen.getByLabelText(/google scholar/i), 'https://scholar.google.com/citations?user=abc123');
@@ -99,7 +99,7 @@ describe('AddExpertModal', () => {
 
     await user.type(screen.getByLabelText(/^name/i), 'Dr. Jane Smith');
     await user.type(screen.getByLabelText(/^institution/i), 'UB');
-    await user.type(screen.getByLabelText(/^country/i), 'Romania');
+    await user.selectOptions(screen.getByLabelText(/^countries/i), 'RO');
     await user.type(screen.getByLabelText(/^email/i), 'jane@unibuc.ro');
     await user.type(screen.getByRole('textbox', { name: /bio \*/i }), 'Expert in Carpathian biodiversity with years of experience in the field.');
 

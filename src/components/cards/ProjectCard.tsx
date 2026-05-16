@@ -2,6 +2,7 @@ import { useMemo, useCallback, memo } from 'react';
 import { useAppStore } from '@/store/appStore';
 import { highlightText } from '@/utils/highlightText';
 import { getCompactCategoryLabel, getProjectStatusLabel } from '@/utils/projectBadges';
+import { getCountryName } from '@/utils/countries';
 import { extractFirstSentence } from '@/utils/cardInteraction';
 import { CardShell } from './CardShell';
 
@@ -15,15 +16,15 @@ export interface ProjectCardProps {
   displayLocation?: string;
   regionLabel?: string;
   yearRange: string;
-  leadExpertId: string;
-  leadExpertName: string;
+  expertIds: string[];
+  teamMembers: { id: string; name: string }[];
   cardSummary?: string;
   focusSummary?: string;
   outputsSummary?: string;
   website?: string;
   isCitizenScience?: boolean;
   contact?: string;
-  country?: string;
+  countries?: string[];
 }
 
 const getRegionLabel = (regionLabel?: string, displayLocation?: string, location?: string) => {
@@ -61,14 +62,14 @@ export const ProjectCard = memo<ProjectCardProps>(({
   displayLocation,
   regionLabel,
   yearRange,
-  leadExpertId,
-  leadExpertName,
+  teamMembers,
   cardSummary,
   focusSummary,
   outputsSummary,
   website,
   isCitizenScience,
   contact,
+  countries,
 }) => {
   const dataset = useAppStore((s) => s.dataset);
   const searchTerm = useAppStore((s) => s.filters?.searchTerm ?? '');
@@ -93,19 +94,20 @@ export const ProjectCard = memo<ProjectCardProps>(({
   );
   const statusLabel = useMemo(() => getProjectStatusLabel(status), [status]);
   const compactFieldLabel = useMemo(() => getCompactCategoryLabel(field), [field]);
-  const contactEmail = useMemo(() => contact ?? 'citizen-science@carpathian.org', [contact]);
+  const visibleTeam = useMemo(() => teamMembers.slice(0, 3), [teamMembers]);
+  const extraCount = useMemo(() => Math.max(0, teamMembers.length - 3), [teamMembers]);
 
-  const handleLeadExpertClick = useCallback((e: React.MouseEvent) => {
+  const handleTeamMemberClick = useCallback((e: React.MouseEvent, expertId: string) => {
     e.stopPropagation();
-    if (!leadExpertId) return;
+    if (!expertId) return;
 
-    setSelectedExpertId(leadExpertId);
+    setSelectedExpertId(expertId);
     setActiveTab('experts');
-    document.getElementById(`expert-card-${leadExpertId}`)?.scrollIntoView({
+    document.getElementById(`expert-card-${expertId}`)?.scrollIntoView({
       behavior: reducedMotion ? 'auto' : 'smooth',
       block: 'center',
     });
-  }, [leadExpertId, reducedMotion, setSelectedExpertId, setActiveTab]);
+  }, [reducedMotion, setSelectedExpertId, setActiveTab]);
 
   return (
     <CardShell
@@ -145,18 +147,32 @@ export const ProjectCard = memo<ProjectCardProps>(({
                 <strong>Timeline</strong>
                 <span data-testid="project-year">{yearRange}</span>
               </div>
-              <button
-                type="button"
-                onClick={handleLeadExpertClick}
-                className="meta-chip lead-meta-row"
-                data-testid="project-lead-expert"
-                aria-label={`Show lead expert ${leadExpertName}`}
-              >
-                <strong>Lead</strong>
-                <span className="lead-link">
-                  {leadExpertName}
+              {countries && countries.length > 0 && (
+                <div className="meta-chip">
+                  <strong>Countries</strong>
+                  <span data-testid="project-countries">{countries.map(getCountryName).join(', ')}</span>
+                </div>
+              )}
+              <div className="meta-chip team-meta-row" data-testid="project-team">
+                <strong>Team</strong>
+                <span className="team-pill-list">
+                  {visibleTeam.map((member) => (
+                    <button
+                      key={member.id}
+                      type="button"
+                      onClick={(e) => handleTeamMemberClick(e, member.id)}
+                      className="team-pill"
+                      data-testid={`team-member-${member.id}`}
+                      aria-label={`Show expert ${member.name}`}
+                    >
+                      {member.name}
+                    </button>
+                  ))}
+                  {extraCount > 0 && (
+                    <span className="team-extra-badge" data-testid="team-extra-count">+{extraCount} more</span>
+                  )}
                 </span>
-              </button>
+              </div>
             </div>
             <p
               className="summary project-summary-copy"
@@ -231,12 +247,12 @@ export const ProjectCard = memo<ProjectCardProps>(({
                 <h4 id={`project-contact-${id}`} className="notebook-section-title">Contact</h4>
                 <p>
                   <a
-                    href={`mailto:${contactEmail}`}
+                    href={`mailto:${contact}`}
                     className="notebook-link"
                     onClick={(event) => event.stopPropagation()}
-                    aria-label={`Email ${contactEmail}`}
+                    aria-label={`Email ${contact}`}
                   >
-                    {contactEmail}
+                    {contact}
                   </a>
                 </p>
               </section>

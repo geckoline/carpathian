@@ -6,7 +6,7 @@ import AnimatedCounter from '@/components/ui/AnimatedCounter';
 export const StatsSection = memo(({ projects, experts }: { projects: ProjectData[]; experts: ExpertData[] }) => {
   const stats = useMemo(() => {
     const activeProjects = projects.filter(p => p.status === 'active').length;
-    const countries = [...new Set(projects.map(p => p.country).filter(Boolean))].length;
+    const countries = [...new Set(projects.flatMap(p => p.countries ?? []).filter(Boolean))].length;
     return [
       { id: 'projects', label: 'Total Projects', value: projects.length },
       { id: 'active', label: 'Active Projects', value: activeProjects },

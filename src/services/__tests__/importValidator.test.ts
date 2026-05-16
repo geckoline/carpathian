@@ -93,7 +93,7 @@ describe('importValidator', () => {
         'https://scholar.google.com/citations?user=abc123'
       );
       expect(result.valid).toBe(false);
-      expect(result.error).toBe('Could not fetch Google Scholar profile');
+      expect(result.error).toMatch(/VITE_SERPAPI_KEY/);
     });
 
     it('returns invalid result for non-scholar URL', async () => {

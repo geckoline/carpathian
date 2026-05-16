@@ -89,6 +89,91 @@ describe('AddExpertModal', () => {
     });
   });
 
+  it('stores rich Google Scholar import metadata including thumbnail', async () => {
+    mockValidateBoth.mockResolvedValue([{
+      source: 'google_scholar', valid: true,
+      profile: {
+        scholarId: 'nIBF034AAAAJ',
+        name: 'Scholar Expert',
+        affiliation: 'Leuphana University',
+        email: 'Verified email at leuphana.de',
+        thumbnail: 'https://scholar.googleusercontent.com/citations?view_op=medium_photo&user=nIBF034AAAAJ',
+        keywords: ['Biodiversity'],
+        citedBy: 100,
+        hIndex: 20,
+        i10Index: 30,
+        articles: [{ title: 'Important paper', citedBy: 50 }],
+      },
+    }]);
+    const user = userEvent.setup();
+    render(<AddExpertModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} />);
+
+    await user.type(screen.getByLabelText(/google scholar url \*/i), 'https://scholar.google.com/citations?hl=en&user=nIBF034AAAAJ');
+    await user.click(screen.getAllByRole('button', { name: /fetch profile/i })[0]!);
+
+    await waitFor(() => {
+      expect(screen.getByDisplayValue('Scholar Expert')).toBeInTheDocument();
+    });
+
+    await user.selectOptions(screen.getByLabelText(/countries \*/i), 'DE');
+    await user.type(screen.getByLabelText(/headline/i), 'Scholar profile import');
+    await user.type(screen.getByLabelText(/bio \*/i), 'A valid expert biography for submission.');
+    await user.type(screen.getByLabelText(/email \*/i), 'expert@example.com');
+    if (!(screen.getByLabelText(/biodiversity/i) as HTMLInputElement).checked) {
+      await user.click(screen.getByLabelText(/biodiversity/i));
+    }
+    await user.click(screen.getByRole('button', { name: /add expert/i }));
+
+    await waitFor(() => {
+      expect(mockOnSubmit).toHaveBeenCalledWith(expect.objectContaining({
+        name: 'Scholar Expert',
+        institution: 'Leuphana University',
+        email: 'expert@example.com',
+        profileImageUrl: expect.stringContaining('medium_photo'),
+        importMetadata: expect.objectContaining({
+          source: 'google_scholar',
+          profileImageUrl: expect.stringContaining('medium_photo'),
+          scholar: expect.objectContaining({
+            scholarId: 'nIBF034AAAAJ',
+            thumbnail: expect.stringContaining('medium_photo'),
+            articles: [expect.objectContaining({ title: 'Important paper' })],
+          }),
+        }),
+      }));
+    });
+  });
+
+  it('derives a Scholar thumbnail preview when profile fetch fails', async () => {
+    mockValidateBoth.mockResolvedValue([{
+      source: 'google_scholar',
+      valid: false,
+      error: 'Could not fetch Google Scholar profile. Check VITE_SERPAPI_KEY, or upload a profile picture manually.',
+    }]);
+    const user = userEvent.setup();
+    render(<AddExpertModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} />);
+
+    await user.type(screen.getByLabelText(/google scholar url \*/i), 'https://scholar.google.com/citations?hl=en&user=nIBF034AAAAJ');
+    await user.click(screen.getAllByRole('button', { name: /fetch profile/i })[0]!);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/VITE_SERPAPI_KEY/i);
+    expect(screen.getByLabelText(/profile picture url/i)).toHaveValue(
+      'https://scholar.googleusercontent.com/citations?view_op=medium_photo&user=nIBF034AAAAJ'
+    );
+    expect(screen.getByRole('img', { name: /profile preview/i })).toHaveAttribute('src', expect.stringContaining('nIBF034AAAAJ'));
+  });
+
+  it('accepts an uploaded profile picture', async () => {
+    const user = userEvent.setup();
+    render(<AddExpertModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} />);
+
+    const file = new File(['profile'], 'profile.png', { type: 'image/png' });
+    await user.upload(screen.getByLabelText(/^profile picture$/i), file);
+
+    await waitFor(() => {
+      expect(screen.getByRole('img', { name: /profile preview/i })).toHaveAttribute('src', expect.stringMatching(/^data:image\/png/));
+    });
+  });
+
   it('shows fetch error when validation fails', async () => {
     mockValidateBoth.mockResolvedValue([{ source: 'orcid', valid: false, error: 'Invalid ORCID URL format' }]);
     const user = userEvent.setup();

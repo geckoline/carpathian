@@ -25,10 +25,11 @@ const project = {
   description: 'A valid test project description.',
   location: 'Romania',
   yearRange: '2024-2028',
-  leadExpertId: '123e4567-e89b-12d3-a456-426614174001',
-  leadExpertName: 'Dr. Test Expert',
+  expertIds: ['123e4567-e89b-12d3-a456-426614174001'],
+  teamMembers: [{ id: '123e4567-e89b-12d3-a456-426614174001', name: 'Dr. Test Expert' }],
   lat: 47.5,
   lng: 25,
+  countries: ['RO'],
   isCitizenScience: true,
 };
 
@@ -36,8 +37,7 @@ const expert = {
   id: '123e4567-e89b-12d3-a456-426614174001',
   name: 'Dr. Test Expert',
   institution: 'Carpathian Institute',
-  country: 'Romania',
-  degree: 'PhD',
+  countries: ['RO'],
   bio: 'A valid expert biography for data loading tests.',
   expertise: ['Ecology'],
   email: 'expert@example.com',

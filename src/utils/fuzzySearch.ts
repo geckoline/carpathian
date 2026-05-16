@@ -1,6 +1,7 @@
 import Fuse, { type IFuseOptions } from 'fuse.js';
 import type { ExpertData } from '@/types/expert';
 import type { ProjectData } from '@/types/project';
+import { getCountryName } from './countries';
 
 const normalizeSearchTerm = (searchTerm: string) => searchTerm.trim();
 
@@ -25,9 +26,9 @@ const filterWithFuse = <T>(items: T[], searchTerm: string, options: IFuseOptions
 export const filterProjectsBySearch = (projects: ProjectData[], searchTerm: string) => filterWithFuse(projects, searchTerm, {
   keys: [
     { name: 'name', weight: 0.28 },
-    { name: 'leadExpertName', weight: 0.16 },
+    { name: 'teamMembers', weight: 0.16, getFn: (obj: ProjectData) => obj.teamMembers?.map(tm => tm.name) ?? [] },
     { name: 'field', weight: 0.12 },
-    { name: 'country', weight: 0.1 },
+    { name: 'countries', weight: 0.1, getFn: (obj: ProjectData) => obj.countries?.map(c => getCountryName(c)) ?? [] },
     { name: 'displayLocation', weight: 0.1 },
     { name: 'regionLabel', weight: 0.1 },
     { name: 'description', weight: 0.08 },
@@ -44,7 +45,7 @@ export const filterExpertsBySearch = (experts: ExpertData[], searchTerm: string)
     { name: 'headline', weight: 0.14 },
     { name: 'expertiseSubtitle', weight: 0.10 },
     { name: 'expertise', weight: 0.10 },
-    { name: 'country', weight: 0.08 },
+    { name: 'countries', weight: 0.08, getFn: (obj: ExpertData) => obj.countries?.map(c => getCountryName(c)) ?? [] },
     { name: 'email', weight: 0.08 },
     { name: 'bio', weight: 0.08 },
   ],

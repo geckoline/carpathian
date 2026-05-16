@@ -16,11 +16,11 @@ const mappedProject: ProjectData = {
   location: 'POINT(25 47.5)',
   displayLocation: 'Carpathian test valley',
   yearRange: '2021-2026',
-  leadExpertId: '22222222-2222-4222-8222-222222222222',
-  leadExpertName: 'Dr. Test Lead',
+  expertIds: ['22222222-2222-4222-8222-222222222222'],
+  teamMembers: [{ id: '22222222-2222-4222-8222-222222222222', name: 'Dr. Test Lead' }],
   lat: 47.5,
   lng: 25,
-  country: 'Romania',
+  countries: ['RO'],
   isCitizenScience: true,
 };
 

@@ -37,7 +37,7 @@ describe('VolunteerModal', () => {
     expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/City/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Radius in km/i)).toBeInTheDocument();
-    expect(screen.getByText(/Interested categories/i)).toBeInTheDocument();
+    expect(screen.getByText(/Interested Scientific Fields/i)).toBeInTheDocument();
   });
 
   it('submits valid subscription data', async () => {
@@ -45,7 +45,7 @@ describe('VolunteerModal', () => {
     render(<VolunteerModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} />);
 
     await fillVolunteerForm(user);
-    await user.click(screen.getByRole('button', { name: /Subscribe to Volunteer alerts/i }));
+    await user.click(screen.getByRole('button', { name: /^Subscribe$/i }));
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalledWith(expect.objectContaining({
@@ -70,7 +70,7 @@ describe('VolunteerModal', () => {
     await user.type(screen.getByLabelText(/City/i), 'Brasov');
     await user.type(screen.getByLabelText(/Country/i), 'Romania');
     await user.click(screen.getByLabelText('Biodiversity'));
-    await user.click(screen.getByRole('button', { name: /Subscribe to Volunteer alerts/i }));
+    await user.click(screen.getByRole('button', { name: /^Subscribe$/i }));
 
     expect(await screen.findByText(/Consent is required/i)).toBeInTheDocument();
     expect(mockOnSubmit).not.toHaveBeenCalled();
@@ -82,7 +82,7 @@ describe('VolunteerModal', () => {
     render(<VolunteerModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} />);
 
     await fillVolunteerForm(user);
-    await user.click(screen.getByRole('button', { name: /Subscribe to Volunteer alerts/i }));
+    await user.click(screen.getByRole('button', { name: /^Subscribe$/i }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Volunteer alert failed');
     expect(mockOnClose).not.toHaveBeenCalled();
@@ -92,7 +92,22 @@ describe('VolunteerModal', () => {
     render(<VolunteerModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} isOnline={false} />);
 
     expect(screen.getByRole('alert')).toHaveTextContent(/offline/i);
-    expect(screen.getByRole('button', { name: /subscribe to volunteer alerts/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /^Subscribe$/i })).toBeDisabled();
+  });
+
+  it('toggles all scientific fields with All checkbox', async () => {
+    const user = userEvent.setup();
+    render(<VolunteerModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} />);
+
+    const allCheckbox = screen.getByLabelText(/All Scientific Fields/i);
+
+    expect(allCheckbox).not.toBeChecked();
+
+    await user.click(allCheckbox);
+    expect(allCheckbox).toBeChecked();
+
+    await user.click(allCheckbox);
+    expect(allCheckbox).not.toBeChecked();
   });
 
   it('has no accessibility violations', async () => {

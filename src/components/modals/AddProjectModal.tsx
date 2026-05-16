@@ -1,26 +1,17 @@
-import { useEffect, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { FormModal } from '@/components/modals/FormModal';
-import { MapDrawingWrapper } from '@/components/map/MapDrawingWrapper';
-import { useAppStore } from '@/store/appStore';
-import { getCategoryOptions } from '@/utils/categories';
+import { WizardShell } from './AddProjectWizard/WizardShell';
+import { BasicsStep } from './AddProjectWizard/steps/BasicsStep';
+import { ExpertStep } from './AddProjectWizard/steps/ExpertStep';
+import { LocationStep } from './AddProjectWizard/steps/LocationStep';
+import { DetailsStep } from './AddProjectWizard/steps/DetailsStep';
+import { ReviewStep } from './AddProjectWizard/steps/ReviewStep';
+import type { WizardFormData } from './AddProjectWizard/wizardTypes';
+import { wizardSchema, WIZARD_STEPS, DRAFT_STORAGE_KEY } from './AddProjectWizard/wizardTypes';
+import { geocodeLocation, getCountriesFromText, reverseGeocode } from '@/utils/geocoding';
 
-const projectSchema = z.object({
-  name: z.string().min(3, 'Name must be at least 3 characters').max(200),
-  status: z.enum(['active', 'past', 'planned']),
-  field: z.string().min(1, 'Field is required'),
-  leadExpertId: z.string().uuid('Choose a leading expert from the expert database'),
-  description: z.string().min(20, 'Description must be at least 20 characters').max(2000),
-  location: z.string().min(1, 'Location is required'),
-  yearRange: z.string().regex(/^\d{4}-\d{4}$/, 'Format: YYYY-YYYY'),
-  areaCoords: z.array(z.tuple([z.number(), z.number()])).min(3, 'Polygon needs ≥3 points').optional(),
-});
-
-export type ProjectFormData = z.infer<typeof projectSchema>;
-
-const categoryOptions = getCategoryOptions();
+export type ProjectFormData = WizardFormData;
 
 interface AddProjectModalProps {
   isOpen: boolean;
@@ -30,239 +21,182 @@ interface AddProjectModalProps {
 }
 
 export const AddProjectModal = ({ isOpen, onClose, onSubmit, isOnline = true }: AddProjectModalProps) => {
-  const draftPolygon = useAppStore(s => s.draftPolygon);
-  const setDraftPolygon = useAppStore(s => s.setDraftPolygon);
-  const experts = useAppStore(s => s.data.experts);
+  const [currentStep, setCurrentStep] = useState(0);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const detectedCountries = useRef<string[]>([]);
 
-  const { 
-    control, 
-    handleSubmit, 
-    formState: { errors, isSubmitting },
-    setValue,
-    watch,
-    getValues,
-  } = useForm<ProjectFormData>({
-    resolver: zodResolver(projectSchema),
-    defaultValues: {
+  const form = useForm<WizardFormData>({
+    resolver: zodResolver(wizardSchema),
+    defaultValues: loadDraft() ?? {
       name: '',
       status: 'planned',
       field: 'biodiversity',
-      leadExpertId: experts[0]?.id ?? '',
       description: '',
+      expertIds: [],
       location: '',
+      areaCoords: undefined,
+      areaMode: 'simple',
       yearRange: `${new Date().getFullYear()}-${new Date().getFullYear() + 4}`,
+      countries: [],
     },
   });
 
+  const { handleSubmit, getValues, reset, setValue, watch, formState: { isSubmitting } } = form;
+  const locationValue = watch('location');
+  const areaCoordsValue = watch('areaCoords');
+
   useEffect(() => {
-    if (!getValues('leadExpertId') && experts[0]?.id) {
-      setValue('leadExpertId', experts[0].id, { shouldValidate: true });
+    if (!locationValue) return;
+    if (areaCoordsValue && areaCoordsValue.length > 0) return;
+    const localMatch = getCountriesFromText(locationValue);
+    if (localMatch.length > 0) {
+      detectedCountries.current = localMatch;
+      return;
     }
-  }, [experts, setValue, getValues]);
+    const timer = setTimeout(async () => {
+      const result = await geocodeLocation(locationValue);
+      if (result?.countryCode) {
+        detectedCountries.current = [result.countryCode];
+      }
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [locationValue, areaCoordsValue]);
 
-  const areaCoords = watch('areaCoords');
+  useEffect(() => {
+    if (!areaCoordsValue || areaCoordsValue.length === 0) return;
+    const [lat, lng] = areaCoordsValue.length >= 3
+      ? centroid(areaCoordsValue)
+      : [areaCoordsValue[0]![0], areaCoordsValue[0]![1]];
+    const timer = setTimeout(async () => {
+      const countryCode = await reverseGeocode(lat, lng);
+      if (countryCode) {
+        detectedCountries.current = [countryCode];
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [areaCoordsValue]);
 
-  const handlePolygonCreated = (coords: [number, number][]) => {
-    setValue('areaCoords', coords, { shouldDirty: true, shouldValidate: true });
-    setDraftPolygon(coords);
-  };
+  useEffect(() => {
+    if (isOpen) {
+      const draft = loadDraft();
+      if (draft) reset(draft);
+      setCurrentStep(0);
+      setSubmitError(null);
+      detectedCountries.current = [];
+    }
+  }, [isOpen, reset]);
 
-  const handleClearPolygon = () => {
-    setValue('areaCoords', undefined, { shouldDirty: true, shouldValidate: true });
-    setDraftPolygon(null);
-  };
+  const handleNext = useCallback(() => {
+    saveDraft(getValues());
+    if (currentStep === 2 && detectedCountries.current.length > 0) {
+      setValue('countries', detectedCountries.current, { shouldDirty: true });
+    }
+    setCurrentStep(prev => Math.min(prev + 1, WIZARD_STEPS.length - 1));
+  }, [getValues, currentStep, setValue]);
 
-  const handleClose = () => {
+  const handleBack = useCallback(() => {
+    setCurrentStep(prev => Math.max(prev - 1, 0));
+  }, []);
+
+  const handleReset = useCallback(() => {
+    reset({
+      name: '',
+      status: 'planned',
+      field: 'biodiversity',
+      description: '',
+      expertIds: [],
+      location: '',
+      areaCoords: undefined,
+      areaMode: 'simple',
+      yearRange: `${new Date().getFullYear()}-${new Date().getFullYear() + 4}`,
+      countries: [],
+    });
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+    setCurrentStep(0);
     setSubmitError(null);
-    setDraftPolygon(null);
-    onClose();
-  };
+    detectedCountries.current = [];
+  }, [reset]);
 
-  const handleSubmitForm = async (data: ProjectFormData) => {
+  const handleClose = useCallback(() => {
+    setSubmitError(null);
+    onClose();
+  }, [onClose]);
+
+  const handleFinalSubmit = useCallback(async (data: WizardFormData) => {
     try {
       setSubmitError(null);
-      await onSubmit({ ...data, areaCoords: draftPolygon || data.areaCoords });
-      setDraftPolygon(null);
-      onClose();
+      await onSubmit(data);
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+      handleClose();
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Project could not be saved. Please try again.');
     }
-  };
+  }, [onSubmit, handleClose]);
+
+  const canGoNext = useMemo(() => {
+    if (currentStep === WIZARD_STEPS.length - 1) return true;
+    return true;
+  }, [currentStep]);
+
+  const currentStepComponent = useMemo(() => {
+    switch (currentStep) {
+      case 0: return <BasicsStep />;
+      case 1: return <ExpertStep />;
+      case 2: return <LocationStep />;
+      case 3: return <DetailsStep />;
+      case 4: return <ReviewStep />;
+      default: return null;
+    }
+  }, [currentStep]);
 
   return (
-    <FormModal
-      isOpen={isOpen}
-      onClose={handleClose}
-      title="Add New Project"
-      size="lg"
-      submitLabel="Add Project"
-      isSubmitting={isSubmitting}
-      isOnline={isOnline}
-      submitError={submitError}
-      onSubmit={handleSubmit(handleSubmitForm)}
-      submitDisabled={experts.length === 0}
-      submitTestId="add-project-submit"
-      initialFocus="#add-project-name"
-    >
-      {/* Name */}
-        <div>
-          <label htmlFor="add-project-name" className="block text-sm font-medium mb-1">Project Name *</label>
-          <Controller
-            name="name"
-            control={control}
-            render={({ field }) => (
-              <input
-                {...field}
-                id="add-project-name"
-                className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                  errors.name ? 'border-red-500' : 'border-[var(--color-soft-border)]'
-                }`}
-                aria-invalid={!!errors.name}
-              />
-            )}
-          />
-          {errors.name && <p className="text-xs text-red-600 mt-1">{errors.name.message}</p>}
-        </div>
-
-        {/* Status + Field Row */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="add-project-status" className="block text-sm font-medium mb-1">Status *</label>
-            <Controller
-              name="status"
-              control={control}
-              render={({ field }) => (
-                <select {...field} id="add-project-status" className="w-full px-3 py-2 border border-[var(--color-soft-border)] rounded focus:outline-none focus:ring-2 focus:ring-primary-500">
-                  <option value="planned">Planned</option>
-                  <option value="active">Active</option>
-                  <option value="past">Past</option>
-                </select>
-              )}
-            />
-          </div>
-          <div>
-            <label htmlFor="add-project-field" className="block text-sm font-medium mb-1">Field *</label>
-            <Controller
-              name="field"
-              control={control}
-              render={({ field }) => (
-                <select {...field} id="add-project-field" data-testid="add-project-field-input" className="w-full px-3 py-2 border border-[var(--color-soft-border)] rounded focus:outline-none focus:ring-2 focus:ring-primary-500">
-                  {categoryOptions.map((category) => (
-                    <option key={category.id} value={category.id}>{category.label}</option>
-                  ))}
-                </select>
-              )}
-            />
-          </div>
-        </div>
-
-        <div>
-          <label htmlFor="add-project-lead-expert" className="block text-sm font-medium mb-1">Leading Expert *</label>
-          <Controller
-            name="leadExpertId"
-            control={control}
-            render={({ field }) => (
-              <select
-                {...field}
-                id="add-project-lead-expert"
-                className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                  errors.leadExpertId ? 'border-red-500' : 'border-[var(--color-soft-border)]'
-                }`}
-                aria-invalid={!!errors.leadExpertId}
-                disabled={experts.length === 0}
-              >
-                {experts.length === 0 ? (
-                  <option value="">Add an expert before adding a project</option>
-                ) : (
-                  experts.map((expert) => (
-                    <option key={expert.id} value={expert.id}>
-                      {expert.name} · {expert.institution}
-                    </option>
-                  ))
-                )}
-              </select>
-            )}
-          />
-          <p className="mt-1 text-xs text-text-muted">
-            The leading expert must already exist as an expert card in the database.
-          </p>
-          {errors.leadExpertId && <p className="text-xs text-red-600 mt-1">{errors.leadExpertId.message}</p>}
-        </div>
-
-        {/* Description */}
-        <div>
-          <label htmlFor="add-project-description" className="block text-sm font-medium mb-1">Description *</label>
-          <Controller
-            name="description"
-            control={control}
-            render={({ field }) => (
-              <textarea {...field} id="add-project-description" rows={4} className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                errors.description ? 'border-red-500' : 'border-[var(--color-soft-border)]'
-              }`} />
-            )}
-          />
-          {errors.description && <p className="text-xs text-red-600 mt-1">{errors.description.message}</p>}
-        </div>
-
-        {/* Location + Year Range */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="add-project-location" className="block text-sm font-medium mb-1">Location *</label>
-            <Controller
-              name="location"
-              control={control}
-              render={({ field }) => (
-                <input {...field} id="add-project-location" className="w-full px-3 py-2 border border-[var(--color-soft-border)] rounded focus:outline-none focus:ring-2 focus:ring-primary-500" />
-              )}
-            />
-          </div>
-          <div>
-            <label htmlFor="add-project-year" className="block text-sm font-medium mb-1">Year Range *</label>
-            <Controller
-              name="yearRange"
-              control={control}
-              render={({ field }) => (
-                <input {...field} id="add-project-year" placeholder="2024-2028" className="w-full px-3 py-2 border border-[var(--color-soft-border)] rounded focus:outline-none focus:ring-2 focus:ring-primary-500" />
-              )}
-            />
-            {errors.yearRange && <p className="text-xs text-red-600 mt-1">{errors.yearRange.message}</p>}
-          </div>
-        </div>
-
-        {/* Map Picker + Drawing */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Project Area (Optional)</label>
-          <div className="h-64 border border-[var(--color-soft-border)] rounded overflow-hidden">
-            <MapDrawingWrapper 
-              onPolygonCreated={handlePolygonCreated}
-              areaCoords={areaCoords}
-            />
-          </div>
-          <div className="mt-1 flex items-center justify-between gap-3">
-            <p className="text-xs text-text-muted">
-              {areaCoords?.length ? `${areaCoords.length} area points selected` : 'Use the polygon tool to draw the project area'}
-            </p>
-            {areaCoords?.length ? (
-              <button
-                type="button"
-                onClick={handleClearPolygon}
-                className="text-xs font-medium text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 rounded px-2 py-1"
-              >
-                Clear project area
-              </button>
-            ) : null}
-          </div>
-          {errors.areaCoords && (
-            <p className="text-xs text-red-600 mt-1" role="alert">{errors.areaCoords.message}</p>
-          )}
-        </div>
-
-        {/* Actions */}
-        <div className="flex justify-end gap-3 pt-4 border-t">
-        </div>
-    </FormModal>
+    <FormProvider {...form}>
+      <WizardShell
+        isOpen={isOpen}
+        onClose={handleClose}
+        title="Add New Project"
+        currentStep={currentStep}
+        steps={[...WIZARD_STEPS]}
+        onNext={handleNext}
+        onBack={handleBack}
+        canGoNext={canGoNext}
+        isSubmitting={isSubmitting}
+        isOnline={isOnline}
+        submitError={submitError}
+        onReset={handleReset}
+        submitTestId="add-project-submit"
+        onSubmit={handleSubmit(handleFinalSubmit)}
+      >
+        {currentStepComponent}
+      </WizardShell>
+    </FormProvider>
   );
 };
+
+function loadDraft(): WizardFormData | null {
+  try {
+    const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as WizardFormData;
+  } catch {
+    return null;
+  }
+}
+
+function saveDraft(data: WizardFormData) {
+  try {
+    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    /* quota exceeded, silently fail */
+  }
+}
+
+function centroid(coords: [number, number][]): [number, number] {
+  const n = coords.length;
+  return [
+    coords.reduce((s, c) => s + c[0], 0) / n,
+    coords.reduce((s, c) => s + c[1], 0) / n,
+  ];
+}
 
 export default AddProjectModal;

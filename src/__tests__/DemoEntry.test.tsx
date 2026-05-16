@@ -43,7 +43,7 @@ vi.mock('@/services/mockApi', () => ({
       id: '123e4567-e89b-12d3-a456-426614174001',
       name: 'Dr. Demo Lead',
       institution: 'Demo Institute',
-      country: 'Romania',
+      countries: ['RO'],
       degree: 'PhD',
       bio: 'A demo leading expert available for project creation tests.',
       expertise: ['Citizen science'],
@@ -83,10 +83,22 @@ beforeEach(() => {
 const fillProjectForm = async (user: ReturnType<typeof userEvent.setup>) => {
   await user.type(await screen.findByLabelText(/project name/i, {}, { timeout: 5000 }), 'Demo Test Project');
   await user.type(screen.getByLabelText(/description/i), 'This is a test entry created in demo mode for testing purposes.');
+  await user.selectOptions(screen.getByTestId('wizard-field-input'), 'climate-change');
+  await user.click(screen.getByRole('button', { name: /next/i }));
+
+  await user.click(screen.getAllByRole('checkbox')[0]!);
+  await user.click(screen.getByRole('button', { name: /next/i }));
+
   await user.type(screen.getByLabelText(/location/i), 'Virtual');
+  await user.click(screen.getByRole('button', { name: /next/i }));
+
   await user.clear(screen.getByLabelText(/year range/i));
   await user.type(screen.getByLabelText(/year range/i), '2024-2025');
-  await user.selectOptions(screen.getByTestId('add-project-field-input'), 'climate-change');
+  const countryCheckboxes = screen.getAllByRole('checkbox');
+  if (countryCheckboxes.length > 0) {
+    await user.click(countryCheckboxes[0]!);
+  }
+  await user.click(screen.getByRole('button', { name: /next/i }));
 };
 
 const fillVolunteerForm = async (user: ReturnType<typeof userEvent.setup>) => {
@@ -181,7 +193,7 @@ describe('M4W1: Direct Demo Entry', () => {
 
     await user.click(screen.getByRole('button', { name: /volunteer alerts/i }));
     await fillVolunteerForm(user);
-    await user.click(screen.getByRole('button', { name: /subscribe for alerts/i }));
+    await user.click(screen.getByRole('button', { name: /^Subscribe$/i }));
 
     expect(await screen.findByText(/volunteer subscription saved/i)).toBeInTheDocument();
     await waitFor(() => {
@@ -198,7 +210,7 @@ describe('M4W1: Direct Demo Entry', () => {
 
     await user.click(screen.getByRole('button', { name: /volunteer alerts/i }));
     await fillVolunteerForm(user);
-    await user.click(screen.getByRole('button', { name: /subscribe for alerts/i }));
+    await user.click(screen.getByRole('button', { name: /^Subscribe$/i }));
 
     expect(await screen.findByText(/could not be saved/i)).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toBeInTheDocument();

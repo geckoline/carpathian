@@ -25,8 +25,9 @@ describe('App Store', () => {
       description: 'A properly formatted description with sufficient length',
       location: 'Carpathians',
       yearRange: '2024-2028',
-      leadExpertId: '123e4567-e89b-12d3-a456-426614174001',
-      leadExpertName: 'Dr. Elena Popescu',
+      expertIds: ['123e4567-e89b-12d3-a456-426614174001'],
+      teamMembers: [{ id: '123e4567-e89b-12d3-a456-426614174001', name: 'Dr. Elena Popescu' }],
+      countries: ['RO'],
       lat: 47.5,
       lng: 25.0,
     });
@@ -40,8 +41,8 @@ describe('App Store', () => {
     useAppStore.getState().addProject({
       name: 'New Project',
       field: 'Climate Change',
-      leadExpertId: '123e4567-e89b-12d3-a456-426614174001',
-      leadExpertName: 'Dr. Elena Popescu',
+      expertIds: ['123e4567-e89b-12d3-a456-426614174001'],
+      teamMembers: [{ id: '123e4567-e89b-12d3-a456-426614174001', name: 'Dr. Elena Popescu' }],
     });
 
     const added = useAppStore.getState().data.projects[0]!;
@@ -52,7 +53,7 @@ describe('App Store', () => {
     expect(added.yearRange).toMatch(/^\d{4}-\d{4}$/);
   });
 
-  it('addProject skips when leadExpertId is missing', () => {
+  it('addProject skips when expertIds is missing', () => {
     const initialCount = useAppStore.getState().data.projects.length;
     useAppStore.getState().addProject({ name: 'Bad' });
     expect(useAppStore.getState().data.projects.length).toBe(initialCount);
@@ -63,7 +64,7 @@ describe('App Store', () => {
     const added = useAppStore.getState().data.experts[0]!;
     expect(added.name).toBe('Dr. Test');
     expect(added.institution).toBe('Independent');
-    expect(added.country).toBe('Unknown');
+    expect(added.countries).toEqual([]);
     expect(added.degree).toBe('Volunteer');
   });
 
@@ -135,7 +136,7 @@ describe('App Store', () => {
     useAppStore.getState().setError('Connection failed');
     expect(useAppStore.getState().data.error).toBe('Connection failed');
 
-    useAppStore.getState().setExperts([{ id: 'e1', name: 'Test', institution: 'U', country: 'C', bio: 'Bio', expertise: ['Eco'] } as any]);
+    useAppStore.getState().setExperts([{ id: 'e1', name: 'Test', institution: 'U', countries: ['RO'], bio: 'Bio', expertise: ['Eco'] } as any]);
     expect(useAppStore.getState().data.experts).toHaveLength(1);
   });
 

@@ -12,6 +12,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "typecheck": "tsc --noEmit",
+    "fetch:scholar": "node scripts/fetch-scholar-expert.mjs",
     "smoke:test": "node scripts/smoke-test.mjs",
     "lighthouse:audit": "lighthouse http://localhost:4173 --output=html --output-path=./reports/lighthouse.html --view --preset=desktop",
     "perf:check": "node scripts/lighthouse-check.mjs",

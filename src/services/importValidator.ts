@@ -31,7 +31,11 @@ export const importValidator = {
 
     const profile = await serpapiService.getProfile(scholarId);
     if (!profile) {
-      return { source: 'google_scholar', valid: false, error: 'Could not fetch Google Scholar profile' };
+      return {
+        source: 'google_scholar',
+        valid: false,
+        error: 'Could not fetch Google Scholar profile. Check VITE_SERPAPI_KEY / VITE_SERPAPI_API_KEY, or upload a profile picture manually.',
+      };
     }
 
     return { source: 'google_scholar', valid: true, profile };

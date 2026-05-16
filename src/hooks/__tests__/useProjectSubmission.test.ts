@@ -37,9 +37,12 @@ describe('useProjectSubmission', () => {
       await result.current.submitProject({
         name: 'Test Project',
         field: 'Biodiversity',
-        leadExpertId: 'exp-1',
+        expertIds: ['exp-1'],
         location: 'Romania',
         description: 'A valid description for the project submission test.',
+        status: 'active',
+        yearRange: '2024-2028',
+        countries: ['RO'],
       } as any);
     });
 
@@ -58,15 +61,20 @@ describe('useProjectSubmission', () => {
     ).rejects.toThrow('offline');
   });
 
-  it('throws when lead expert not found', async () => {
+  it('throws when no valid experts found', async () => {
     const { result } = renderHook(() => useProjectSubmission(mockSetStatusMessage));
 
     await expect(
       act(async () => result.current.submitProject({
         name: 'Test',
         field: 'Biodiversity',
-        leadExpertId: 'nonexistent',
+        expertIds: ['nonexistent'],
+        location: 'Romania',
+        description: 'A valid description for the project submission test.',
+        status: 'active',
+        yearRange: '2024-2028',
+        countries: ['RO'],
       } as any))
-    ).rejects.toThrow('leading expert');
+    ).rejects.toThrow('expert');
   });
 });

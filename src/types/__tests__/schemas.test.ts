@@ -14,8 +14,9 @@ describe('Zod Schemas', () => {
       description: 'Monitoring deforestation across northern ranges.',
       location: '3 Countries',
       yearRange: '2021-2025',
-      leadExpertId: '123e4567-e89b-12d3-a456-426614174001',
-      leadExpertName: 'Dr. Elena Popescu',
+      expertIds: ['123e4567-e89b-12d3-a456-426614174001'],
+      teamMembers: [{ id: '123e4567-e89b-12d3-a456-426614174001', name: 'Dr. Elena Popescu' }],
+      countries: ['RO'],
       lat: 47,
       lng: 25,
     };
@@ -27,7 +28,7 @@ describe('Zod Schemas', () => {
     expect(() => ProjectSchema.parse(invalid)).toThrow();
   });
 
-  it('rejects projects without a leading expert', () => {
+  it('rejects projects without expertIds', () => {
     expect(() => ProjectSchema.parse({
       id: '123e4567-e89b-12d3-a456-426614174000',
       name: 'Carpathian Watch',
@@ -46,7 +47,7 @@ describe('Zod Schemas', () => {
       id: '123e4567-e89b-12d3-a456-426614174001',
       name: 'Dr. Elena Popescu',
       institution: 'Univ. of Bucharest',
-      country: 'Romania',
+      countries: ['RO'],
       degree: 'PhD, Ecology',
       bio: 'Leading research on Carpathian biodiversity for over 15 years.',
       expertise: ['Alpine Eco', 'Climate Resilience'],
@@ -62,8 +63,6 @@ describe('Zod Schemas', () => {
       email: 'test@example.com',
       city: 'Brasov',
       country: 'Romania',
-      latitude: 45.6427,
-      longitude: 25.5887,
       radiusKm: 75,
       categoryIds: ['biodiversity', 'water'],
       note: 'Available on weekends.',
@@ -79,8 +78,6 @@ describe('Zod Schemas', () => {
       email: 'test@example.com',
       city: 'Brasov',
       country: 'Romania',
-      latitude: 45.6427,
-      longitude: 25.5887,
       radiusKm: 75,
       categoryIds: ['biodiversity'],
       consent: false,

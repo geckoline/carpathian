@@ -3,6 +3,7 @@ import { LinkedInIcon, ScopusIcon, GoogleScholarIcon, OrcidIcon } from '@/compon
 import { Mail } from 'lucide-react';
 import { useEffect, useState, useMemo, useCallback, memo } from 'react';
 import { getLocalExpertPortraitPaths, buildUiAvatarUrl } from './expertProfileImage';
+import { getCountryName } from '@/utils/countries';
 import { CardShell } from './CardShell';
 
 type SocialLink = {
@@ -18,8 +19,7 @@ export interface ExpertCardProps {
   name: string;
   institution: string;
   institutionWebsite?: string;
-  country: string;
-  degree?: string;
+  countries: string[];
   headline?: string;
   expertiseSubtitle?: string;
   bio: string;
@@ -31,13 +31,14 @@ export interface ExpertCardProps {
   scopus?: string;
   orcid?: string;
   googleScholar?: string;
+  profileImageUrl?: string;
 }
 
 export const ExpertCard = memo<ExpertCardProps>(({
   id,
   name,
   institution,
-  country,
+  countries,
   bio,
   expertise,
   publications = 0,
@@ -47,10 +48,14 @@ export const ExpertCard = memo<ExpertCardProps>(({
   scopus,
   orcid,
   googleScholar,
+  profileImageUrl,
 }) => {
   const selectedExpertId = useAppStore((s) => s.ui.selectedExpertId);
   const isSelected = selectedExpertId === id;
-  const portraitSources = useMemo(() => getLocalExpertPortraitPaths(id), [id]);
+  const portraitSources = useMemo(
+    () => [profileImageUrl, ...getLocalExpertPortraitPaths(id)].filter((src): src is string => Boolean(src)),
+    [id, profileImageUrl]
+  );
   const fallbackSrc = useMemo(() => buildUiAvatarUrl(name), [name]);
   const [useFallback, setUseFallback] = useState(false);
   const [portraitSourceIndex, setPortraitSourceIndex] = useState(0);
@@ -128,7 +133,7 @@ export const ExpertCard = memo<ExpertCardProps>(({
 
           <div className="body card-content-scroll expert-front-content" data-testid="expert-front-content">
             <div className="expert-identity">
-              <div data-testid="expert-country"><strong>Country:</strong> {country}</div>
+              <div data-testid="expert-country"><strong>Country:</strong> {countries.map(getCountryName).join(', ')}</div>
             </div>
             <div className="tag-row" data-testid="expert-tags">
               {expertise.map((tag) => (

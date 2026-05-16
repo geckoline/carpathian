@@ -12,8 +12,8 @@ const baseStore = {
   dataset: 'cs',
   data: {
     projects: [
-      { id: '1', name: 'Forest Watch', status: 'active', field: 'forests', country: 'Romania', categoryId: 'forests', lat: 46, lng: 25 },
-      { id: '2', name: 'River Clean', status: 'planned', field: 'water', country: 'Poland', categoryId: 'water', lat: 47, lng: 24 },
+      { id: '1', name: 'Forest Watch', status: 'active', field: 'forests', countries: ['RO'], categoryId: 'forests', lat: 46, lng: 25 },
+      { id: '2', name: 'River Clean', status: 'planned', field: 'water', countries: ['PL'], categoryId: 'water', lat: 47, lng: 24 },
     ],
     experts: [],
     loading: false,

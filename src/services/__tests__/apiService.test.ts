@@ -27,14 +27,14 @@ describe('apiService mock fallback', () => {
   });
 
   it('returns projects from mockApi via getProjectsMock', async () => {
-    vi.mocked(mockApi.getProjects).mockResolvedValue([{ id: '123e4567-e89b-12d3-a456-426614174000', name: 'Test', status: 'active', field: 'Bio', description: 'A test project description here', location: 'Loc', yearRange: '2021-2025', leadExpertId: '123e4567-e89b-12d3-a456-426614174001', leadExpertName: 'Test Expert', lat: 1, lng: 1 }]);
+    vi.mocked(mockApi.getProjects).mockResolvedValue([{ id: '123e4567-e89b-12d3-a456-426614174000', name: 'Test', status: 'active', field: 'Bio', description: 'A test project description here', location: 'Loc', yearRange: '2021-2025', expertIds: ['123e4567-e89b-12d3-a456-426614174001'], teamMembers: [{ id: '123e4567-e89b-12d3-a456-426614174001', name: 'Test Expert' }], lat: 1, lng: 1, countries: ['RO'] }]);
     const data = await apiService.getProjectsMock();
     expect(data).toHaveLength(1);
     expect(vi.mocked(mockApi.getProjects)).toHaveBeenCalled();
   });
 
   it('returns experts from mockApi via getExpertsMock', async () => {
-    vi.mocked(mockApi.getExperts).mockResolvedValue([{ id: '123e4567-e89b-12d3-a456-426614174001', name: 'Expert', institution: 'Inst', country: 'CO', degree: 'PhD', bio: 'Valid bio with enough chars for validation test.', expertise: ['Ecology'], email: 'a@b.com', linkedin: 'https://linkedin.com/in/a' }]);
+    vi.mocked(mockApi.getExperts).mockResolvedValue([{ id: '123e4567-e89b-12d3-a456-426614174001', name: 'Expert', institution: 'Inst', countries: ['RO'], bio: 'Valid bio with enough chars for validation test.', expertise: ['Ecology'], email: 'a@b.com', linkedin: 'https://linkedin.com/in/a' }]);
     const data = await apiService.getExpertsMock();
     expect(data).toHaveLength(1);
     expect(vi.mocked(mockApi.getExperts)).toHaveBeenCalled();
@@ -59,15 +59,7 @@ describe('apiService mock fallback', () => {
           end_year: 2028,
           lat: 47.5,
           lng: 25,
-          lead_expert_id: '123e4567-e89b-12d3-a456-426614174001',
-          lead_expert_name: 'Dr. Elena Popescu',
-          linked_expert_ids: [
-            '123e4567-e89b-12d3-a456-426614174001',
-            '123e4567-e89b-12d3-a456-426614174004',
-          ],
-          website: null,
-          area: null,
-          country: 'Romania',
+          countries: ['RO'],
           contact: null,
           is_cs: true,
         }],
@@ -79,14 +71,51 @@ describe('apiService mock fallback', () => {
     const [project] = await apiService.getProjects();
 
     expect(mockSupabaseFrom).toHaveBeenCalledWith('app_projects');
-    expect(project!.leadExpertId).toBe('123e4567-e89b-12d3-a456-426614174001');
-    expect(project!.leadExpertName).toBe('Dr. Elena Popescu');
-    expect(project!.linkedExpertIds).toEqual([
-      '123e4567-e89b-12d3-a456-426614174001',
-      '123e4567-e89b-12d3-a456-426614174004',
-    ]);
+    expect(project!.countries).toEqual(['RO']);
     expect(project!.website).toBeUndefined();
     expect(project!.categoryId).toBe('biodiversity');
+    expect(ProjectSchema.safeParse(project).success).toBe(true);
+  });
+
+  it('normalizes legacy app_projects country and linked expert columns', async () => {
+    const query = {
+      select: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({
+        data: [{
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          name: 'Legacy View Project',
+          status: 'active',
+          category_id: 'biodiversity',
+          field: 'Biodiversity',
+          description: 'A valid project from the legacy app_projects view.',
+          location: 'Romania',
+          display_location: 'Romania',
+          region_label: null,
+          year_range: '2024-2028',
+          start_year: 2024,
+          end_year: 2028,
+          lat: 47.5,
+          lng: 25,
+          country: 'Romania/Poland',
+          linked_expert_ids: [
+            '123e4567-e89b-12d3-a456-426614174001',
+            '123e4567-e89b-12d3-a456-426614174002',
+          ],
+          contact: null,
+          is_cs: false,
+        }],
+        error: null,
+      }),
+    };
+    mockSupabaseFrom.mockReturnValue(query);
+
+    const [project] = await apiService.getProjects();
+
+    expect(project!.countries).toEqual(['RO', 'PL']);
+    expect(project!.expertIds).toEqual([
+      '123e4567-e89b-12d3-a456-426614174001',
+      '123e4567-e89b-12d3-a456-426614174002',
+    ]);
     expect(ProjectSchema.safeParse(project).success).toBe(true);
   });
 
@@ -109,12 +138,7 @@ describe('apiService mock fallback', () => {
           end_year: 2028,
           lat: 47.5,
           lng: 25,
-          lead_expert_id: '123e4567-e89b-12d3-a456-426614174001',
-          lead_expert_name: 'Dr. Elena Popescu',
-          linked_expert_ids: null,
-          website: null,
-          area: null,
-          country: 'Romania',
+          countries: ['RO'],
           contact: null,
           is_cs: null,
         }],
@@ -126,7 +150,6 @@ describe('apiService mock fallback', () => {
     const [project] = await apiService.getProjects();
 
     expect(project!.isCitizenScience).toBe(false);
-    expect(project!.linkedExpertIds).toEqual(['123e4567-e89b-12d3-a456-426614174001']);
   });
 
   it('normalizes nullable Supabase expert fields before validation', async () => {
@@ -139,8 +162,7 @@ describe('apiService mock fallback', () => {
           institution_id: 'inst',
           institution: 'Inst',
           institution_website: null,
-          country: 'Romania',
-          degree: 'PhD',
+          countries: ['RO'],
           bio: 'A valid expert biography for service mapping.',
           expertise: ['Ecology'],
           publications: null,
@@ -150,6 +172,7 @@ describe('apiService mock fallback', () => {
           scopus: 'https://scopus.com/authid/example',
           orcid: null,
           google_scholar: null,
+          avatar_url: 'https://example.com/avatar.jpg',
           is_cs: true,
         }],
         error: null,
@@ -164,6 +187,39 @@ describe('apiService mock fallback', () => {
     expect(expert!.publications).toBe(0);
     expect(expert!.institutionId).toBe('inst');
     expect(expert!.institutionWebsite).toBeUndefined();
+    expect(expert!.profileImageUrl).toBe('https://example.com/avatar.jpg');
+    expect(ExpertSchema.safeParse(expert).success).toBe(true);
+  });
+
+  it('normalizes legacy app_experts country column', async () => {
+    const query = {
+      select: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({
+        data: [{
+          id: '123e4567-e89b-12d3-a456-426614174001',
+          name: 'Legacy Expert',
+          institution: 'Inst',
+          country: 'Romania',
+          bio: 'A valid expert biography from the legacy app_experts view.',
+          expertise: ['Ecology'],
+          publications: 12,
+          projects: 3,
+          email: 'legacy@example.com',
+          linkedin: null,
+          scopus: null,
+          orcid: null,
+          google_scholar: null,
+          is_cs: true,
+        }],
+        error: null,
+      }),
+    };
+    mockSupabaseFrom.mockReturnValue(query);
+
+    const [expert] = await apiService.getExperts();
+
+    expect(expert!.countries).toEqual(['RO']);
+    expect(expert!.institutionId).toBeUndefined();
     expect(ExpertSchema.safeParse(expert).success).toBe(true);
   });
 
@@ -183,7 +239,7 @@ describe('apiService mock fallback', () => {
     await apiService.addExpert({
       name: 'New Expert',
       institution: 'University of Bucharest',
-      country: 'Romania',
+      countries: ['RO'],
       bio: 'A valid expert biography for insertion.',
       expertise: ['Ecology'],
       email: 'new@example.com',
@@ -199,18 +255,7 @@ describe('apiService mock fallback', () => {
     }));
   });
 
-  it('requires a leading expert before inserting a project', async () => {
-    await expect(apiService.addProject({
-      name: 'Orphan Project',
-      status: 'planned',
-      field: 'Biodiversity',
-      description: 'A project without a database expert should be rejected.',
-      location: 'Romania',
-      yearRange: '2024-2028',
-    })).rejects.toThrow(/leading expert/i);
-  });
-
-  it('inserts projects with a required leading expert reference', async () => {
+  it('inserts projects with expert references', async () => {
     const insert = vi.fn().mockReturnValue({
       select: vi.fn().mockReturnValue({
         single: vi.fn().mockResolvedValue({ data: { id: 'project-1' }, error: null }),
@@ -222,17 +267,15 @@ describe('apiService mock fallback', () => {
       name: 'Led Project',
       status: 'planned',
       field: 'Water',
-      description: 'A valid project with a real leading expert.',
+      description: 'A valid project with expert references.',
       location: 'Romania',
       yearRange: '2024-2028',
-      leadExpertId: '123e4567-e89b-12d3-a456-426614174001',
-      leadExpertName: 'Dr. Elena Popescu',
+      expertIds: ['123e4567-e89b-12d3-a456-426614174001'],
     });
 
     expect(mockSupabaseFrom).toHaveBeenCalledWith('projects');
     expect(insert).toHaveBeenCalledWith(expect.objectContaining({
       category_id: 'water',
-      lead_expert_id: '123e4567-e89b-12d3-a456-426614174001',
     }));
   });
 
@@ -254,8 +297,6 @@ describe('apiService mock fallback', () => {
       email: 'test@example.com',
       city: 'Brasov',
       country: 'Romania',
-      latitude: 45.6427,
-      longitude: 25.5887,
       radiusKm: 75,
       categoryIds: ['Biodiversity', 'Wather'],
       note: 'Weekend fieldwork',
@@ -265,7 +306,7 @@ describe('apiService mock fallback', () => {
     expect(result.id).toBe('sub-1');
     expect(subscriptionInsert).toHaveBeenCalledWith(expect.objectContaining({
       full_name: 'Test User',
-      home_location: 'SRID=4326;POINT(25.5887 45.6427)',
+      home_location: null,
       radius_km: 75,
       status: 'active',
     }));
@@ -294,12 +335,10 @@ describe('apiService mock fallback', () => {
           end_year: null,
           lat: null,
           lng: null,
-          lead_expert_id: 'expert-1',
-          lead_expert_name: 'Lead Expert',
-          linked_expert_ids: null,
+          expert_ids: [],
+          countries: [],
           website: null,
           area: null,
-          country: null,
           contact: null,
           is_cs: null,
         }],
@@ -332,7 +371,7 @@ describe('apiService mock fallback', () => {
 
     await expect(apiService.addVolunteerSubscription({
       fullName: 'Test', email: 'a@b.com', city: 'City', country: 'CO',
-      latitude: 45, longitude: 25, radiusKm: 50,
+      radiusKm: 50,
       categoryIds: ['nonexistent-category'],
       consent: true,
     })).rejects.toThrow(/at least one valid category/i);
@@ -357,12 +396,10 @@ describe('apiService mock fallback', () => {
           end_year: 2025,
           lat: 47.5,
           lng: 25,
-          lead_expert_id: 'expert-1',
-          lead_expert_name: 'Expert',
-          linked_expert_ids: null,
+          expert_ids: ['expert-1'],
+          countries: ['RO'],
           website: null,
           area: null,
-          country: null,
           contact: null,
           is_cs: true,
         }],
