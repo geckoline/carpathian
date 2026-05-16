@@ -343,7 +343,7 @@ html.high-contrast .project-category-pill {
 
 .notebook-section {
   display: grid;
-  gap: 8px;
+  gap: 4px;
 }
 
 .notebook-section-title {
@@ -483,6 +483,10 @@ html.high-contrast .project-category-pill {
   margin-bottom: 16px;
 }
 
+.expert-front-content .tag-row {
+  margin-bottom: 16px;
+}
+
 .expert-identity div {
   color: #1f2a21;
   font-size: 0.96rem;
@@ -526,9 +530,9 @@ html.high-contrast .project-category-pill {
 }
 
 .bio-box {
-  max-height: 136px;
+  max-height: 280px;
   overflow: auto;
-  padding: 14px 16px;
+  padding: 10px 14px;
   border-radius: 16px;
 }
 

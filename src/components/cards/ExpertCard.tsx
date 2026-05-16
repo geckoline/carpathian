@@ -1,13 +1,9 @@
 import { useAppStore } from '@/store/appStore';
-import { extractFirstSentence } from '@/utils/cardInteraction';
 import { LinkedInIcon, ScopusIcon, GoogleScholarIcon, OrcidIcon } from '@/components/ui/SocialIcons';
 import { Mail } from 'lucide-react';
 import { useEffect, useState, useMemo, useCallback, memo } from 'react';
 import { getLocalExpertPortraitPaths, buildUiAvatarUrl } from './expertProfileImage';
 import { CardShell } from './CardShell';
-
-const getFrontSubtitle = (bio: string) => extractFirstSentence(bio, 110);
-const getBackSubtitle = (expertise: string[]) => expertise.slice(0, 3).join(' • ');
 
 type SocialLink = {
   href: string;
@@ -41,11 +37,7 @@ export const ExpertCard = memo<ExpertCardProps>(({
   id,
   name,
   institution,
-  institutionWebsite,
   country,
-  degree,
-  headline,
-  expertiseSubtitle,
   bio,
   expertise,
   publications = 0,
@@ -58,8 +50,6 @@ export const ExpertCard = memo<ExpertCardProps>(({
 }) => {
   const selectedExpertId = useAppStore((s) => s.ui.selectedExpertId);
   const isSelected = selectedExpertId === id;
-  const frontSubtitle = headline ?? getFrontSubtitle(bio);
-  const backSubtitle = expertiseSubtitle ?? getBackSubtitle(expertise);
   const portraitSources = useMemo(() => getLocalExpertPortraitPaths(id), [id]);
   const fallbackSrc = useMemo(() => buildUiAvatarUrl(name), [name]);
   const [useFallback, setUseFallback] = useState(false);
@@ -102,23 +92,6 @@ export const ExpertCard = memo<ExpertCardProps>(({
     </div>
   ), [useFallback, fallbackSrc, portraitSrc, name]);
 
-  const renderInstitution = useCallback(() => (
-    <div data-testid="expert-institution">
-      <strong>Institution:</strong>{' '}
-      {institutionWebsite ? (
-        <a
-          href={institutionWebsite}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="notebook-link"
-          onClick={(event) => event.stopPropagation()}
-        >
-          {institution}
-        </a>
-      ) : institution}
-    </div>
-  ), [institution, institutionWebsite]);
-
   const renderSocialLinks = useCallback((surface: 'front' | 'back') => (
     <div className="social-row" data-testid={surface === 'front' ? 'expert-social-row' : `expert-${surface}-social-row`}>
       {socialLinks.map((link) => (
@@ -149,15 +122,18 @@ export const ExpertCard = memo<ExpertCardProps>(({
         <>
           <header data-testid="expert-front-header" className="header profile-header profile-header-safe">
             <h3 id={`expert-card-title-${id}`}>{name}</h3>
-            <p className="expert-subtitle" data-testid="expert-subtitle">{frontSubtitle}</p>
+            <p className="expert-subtitle" data-testid="expert-subtitle">{institution}</p>
             {renderAvatar()}
           </header>
 
           <div className="body card-content-scroll expert-front-content" data-testid="expert-front-content">
             <div className="expert-identity">
-              {renderInstitution()}
               <div data-testid="expert-country"><strong>Country:</strong> {country}</div>
-              <div data-testid="expert-degree"><strong>Degree:</strong> {degree || 'N/A'}</div>
+            </div>
+            <div className="tag-row" data-testid="expert-tags">
+              {expertise.map((tag) => (
+                <span key={tag} className="tag">{tag}</span>
+              ))}
             </div>
             <div className="stat-grid">
               <div className="stat-card" data-testid="expert-pubs">
@@ -188,19 +164,11 @@ export const ExpertCard = memo<ExpertCardProps>(({
         <>
           <header className="header profile-header profile-header-safe">
             <h3>{name}</h3>
-            <p className="expert-subtitle" data-testid="expert-back-subtitle">{backSubtitle}</p>
+            <p className="expert-subtitle" data-testid="expert-back-subtitle">{institution}</p>
             {renderAvatar(true)}
           </header>
 
           <div className="body card-content-scroll expert-back-body notebook-body" data-testid="expert-back-scroll">
-            <section className="notebook-section" aria-labelledby={`expert-expertise-${id}`}>
-              <h4 id={`expert-expertise-${id}`} className="notebook-section-title">Expertise</h4>
-              <div className="tag-row notebook-chip-row" data-testid="expert-tags">
-                {expertise.map((tag) => (
-                  <span key={tag} className="tag">{tag}</span>
-                ))}
-              </div>
-            </section>
             <section className="notebook-section" aria-labelledby={`expert-bio-section-${id}`}>
               <h4 id={`expert-bio-section-${id}`} className="notebook-section-title">Bio</h4>
               <div className="bio-box notebook-panel" data-testid="expert-bio-box">

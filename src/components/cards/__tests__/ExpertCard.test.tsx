@@ -40,10 +40,10 @@ describe('ExpertCard', () => {
     const { container } = render(<ExpertCard {...mockExpert} />);
     const front = screen.getByTestId('expert-face-front');
     expect(within(front).getByText('Dr. Elena Popescu')).toBeInTheDocument();
-    expect(within(front).getByTestId('expert-subtitle')).toHaveTextContent('Cross-border biodiversity lead and mountain systems researcher');
-    expect(within(front).getByTestId('expert-institution')).toHaveTextContent('Univ. of Bucharest');
+    expect(within(front).getByTestId('expert-subtitle')).toHaveTextContent('Univ. of Bucharest');
     expect(within(front).getByTestId('expert-country')).toHaveTextContent('Romania');
-    expect(within(front).getByTestId('expert-degree')).toHaveTextContent('PhD, Ecology');
+    expect(within(front).getByTestId('expert-tags')).toHaveTextContent('Alpine Eco');
+    expect(within(front).getByTestId('expert-tags')).toHaveTextContent('Climate Resilience');
     expect(within(front).getByTestId('expert-pubs')).toHaveTextContent('Publications');
     expect(within(front).getByTestId('expert-pubs')).toHaveTextContent('42');
     expect(within(front).getByTestId('expert-projects')).toHaveTextContent('Projects');
@@ -63,13 +63,6 @@ describe('ExpertCard', () => {
     expect(screen.getByTestId('expert-face-back')).toHaveClass('expert-card-backdrop');
     expect(container.querySelector('article')).toHaveClass('expert-card-shell', 'card-auto-height-shell');
     expect(within(front).getByTestId('expert-front-content')).toHaveClass('card-content-scroll');
-  });
-
-  it('links the institution when an institution website is available', () => {
-    render(<ExpertCard {...mockExpert} institutionWebsite="https://unibuc.ro" />);
-    const institution = within(screen.getByTestId('expert-face-front')).getByTestId('expert-institution');
-
-    expect(within(institution).getByRole('link', { name: 'Univ. of Bucharest' })).toHaveAttribute('href', 'https://unibuc.ro');
   });
 
   it('copies canonical share link and shows copied preview', async () => {
@@ -108,16 +101,13 @@ describe('ExpertCard', () => {
     expect(img).toHaveAttribute('src', expect.stringContaining('/profile-pictures/'));
   });
 
-  it('renders the variation c back layout with expertise subtitle, tags, and full bio', () => {
+  it('renders the variation c back layout with institution subtitle and full bio', () => {
     vi.mocked(useCardFlip).mockReturnValue({ isFlipped: true, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() });
     render(<ExpertCard {...mockExpert} />);
     const back = screen.getByTestId('expert-face-back');
-    expect(within(back).getByTestId('expert-back-subtitle')).toHaveTextContent('Ecology • Restoration • Citizen-science networks');
+    expect(within(back).getByTestId('expert-back-subtitle')).toHaveTextContent('Univ. of Bucharest');
     expect(within(back).getByText('Leading research on Carpathian biodiversity. Full bio expands on toggle.')).toBeInTheDocument();
-    expect(within(back).getByText('Expertise')).toBeInTheDocument();
     expect(within(back).getByText('Bio')).toBeInTheDocument();
-    expect(within(back).getByTestId('expert-tags')).toHaveTextContent('Alpine Eco');
-    expect(within(back).getByTestId('expert-tags').closest('.notebook-section')).not.toBeNull();
     expect(within(back).getByTestId('expert-bio-box')).toHaveClass('notebook-panel');
     expect(within(back).getByRole('link', { name: /linkedin/i })).toBeInTheDocument();
     expect(within(back).getByRole('link', { name: /send email/i })).toBeInTheDocument();
@@ -127,7 +117,7 @@ describe('ExpertCard', () => {
     expect(within(back).getByRole('button', { name: /back/i })).toBeInTheDocument();
   });
 
-  it('keeps long bio, many tags, and footer actions reachable on back side', () => {
+  it('renders many tags on front and long bio reachable on back', () => {
     vi.mocked(useCardFlip).mockReturnValue({ isFlipped: true, isFlipping: false, flip: vi.fn(), toggle: vi.fn(), clear: vi.fn() });
     const { container } = render(
       <ExpertCard
@@ -137,7 +127,7 @@ describe('ExpertCard', () => {
       />
     );
 
-    expect(screen.getByTestId('expert-tags')).toHaveTextContent('Restoration');
+    expect(within(screen.getByTestId('expert-face-front')).getByTestId('expert-tags')).toHaveTextContent('Restoration');
     expect(screen.getByRole('button', { name: /copy expert link/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /back to expert summary/i })).toBeInTheDocument();
     expect(container.querySelector('[data-testid="expert-bio"]')?.closest('.notebook-panel')).not.toBeNull();
