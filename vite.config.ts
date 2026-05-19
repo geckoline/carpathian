@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) => {
     ?? env.VITE_GOOGLE_SCHOLAR_SERPAPI_KEY;
 
   return {
+    base: './',
     plugins: [
       react(),
       tailwindcss(),
@@ -53,6 +54,10 @@ export default defineConfig(({ mode }) => {
       sourcemap: mode === 'analyze', // ✅ Enable sourcemaps for bundle analysis
       minify: mode !== 'analyze', // ✅ Skip minification for analysis
       rollupOptions: {
+        input: {
+          app: path.resolve(__dirname, 'index.html'),
+          citizenSciencePage: path.resolve(__dirname, 'citizen-science-page.html'),
+        },
         output: {
           manualChunks(id: string) {
             if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/zustand')) return 'vendor';

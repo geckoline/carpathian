@@ -66,7 +66,7 @@ describe('Bundle Sanity', { timeout: 60000 }, () => {
       return;
     }
 
-    const entryChunk = files.find((file) => /^index-.*\.js$/.test(file));
+    const entryChunk = files.find((file) => /^(index|main)-.*\.js$/.test(file));
     expect(entryChunk).toBeDefined();
 
     const sizeInKb = statSync(join(distDir, 'assets', entryChunk as string)).size / 1024;

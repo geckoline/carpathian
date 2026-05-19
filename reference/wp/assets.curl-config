@@ -1,0 +1,276 @@
+location
+create-dirs
+connect-timeout = 10
+max-time = 40
+retry = 2
+retry-delay = 1
+
+url = "http://www.carpathianconvention.org/wp-content/themes/hestia/assets/bootstrap/css/bootstrap.min.css?ver=1.0.2"
+output = "public/wp-snapshot/wp-content/themes/hestia/assets/bootstrap/css/bootstrap.min.css"
+
+url = "http://www.carpathianconvention.org/wp-content/themes/hestia/assets/css/font-sizes.min.css?ver=3.0.23"
+output = "public/wp-snapshot/wp-content/themes/hestia/assets/css/font-sizes.min.css"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/anwp-post-grid-for-elementor/public/css/styles.min.css?ver=1.2.0"
+output = "public/wp-snapshot/wp-content/plugins/anwp-post-grid-for-elementor/public/css/styles.min.css"
+
+url = "http://www.carpathianconvention.org/wp-includes/css/dist/block-library/style.min.css?ver=6.9.4"
+output = "public/wp-snapshot/wp-includes/css/dist/block-library/style.min.css"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/css/eae.min.css?ver=1.12.5"
+output = "public/wp-snapshot/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/css/eae.min.css"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/css/v4-shims.min.css?ver=1.0"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/css/v4-shims.min.css"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/css/all.min.css?ver=1.0"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/css/all.min.css"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/lib/vegas/vegas.min.css?ver=2.4.0"
+output = "public/wp-snapshot/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/lib/vegas/vegas.min.css"
+
+url = "http://www.carpathianconvention.org/wp-content/themes/hestia/style.min.css?ver=3.0.23"
+output = "public/wp-snapshot/wp-content/themes/hestia/style.min.css"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/eicons/css/elementor-icons.min.css?ver=5.23.0"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/eicons/css/elementor-icons.min.css"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/css/frontend.min.css?ver=3.16.4"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/css/frontend.min.css"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/swiper/css/swiper.min.css?ver=5.3.6"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/swiper/css/swiper.min.css"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/elementor/css/post-8.css?ver=1763638940"
+output = "public/wp-snapshot/wp-content/uploads/elementor/css/post-8.css"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/elementor/css/global.css?ver=1691496505"
+output = "public/wp-snapshot/wp-content/uploads/elementor/css/global.css"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/elementor/css/post-7331.css?ver=1765375195"
+output = "public/wp-snapshot/wp-content/uploads/elementor/css/post-7331.css"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/happy-elementor-addons/assets/fonts/style.min.css?ver=3.8.9"
+output = "public/wp-snapshot/wp-content/plugins/happy-elementor-addons/assets/fonts/style.min.css"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/css/font-awesome.min.css?ver=4.7.0"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/css/font-awesome.min.css"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/css/fontawesome.min.css?ver=5.15.3"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/css/fontawesome.min.css"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/css/solid.min.css?ver=5.15.3"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/css/solid.min.css"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/css/regular.min.css?ver=5.15.3"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/css/regular.min.css"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/2021/03/cropped-logo-2-32x32.png"
+output = "public/wp-snapshot/wp-content/uploads/2021/03/cropped-logo-2-32x32.png"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/2021/03/cropped-logo-2-192x192.png"
+output = "public/wp-snapshot/wp-content/uploads/2021/03/cropped-logo-2-192x192.png"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/2021/03/cropped-logo-2-180x180.png"
+output = "public/wp-snapshot/wp-content/uploads/2021/03/cropped-logo-2-180x180.png"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/elementor/css/post-541.css?ver=1695484870"
+output = "public/wp-snapshot/wp-content/uploads/elementor/css/post-541.css"
+
+url = "http://www.carpathianconvention.org/wp-includes/js/jquery/jquery.min.js?ver=3.7.1"
+output = "public/wp-snapshot/wp-includes/js/jquery/jquery.min.js"
+
+url = "http://www.carpathianconvention.org/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1"
+output = "public/wp-snapshot/wp-includes/js/jquery/jquery-migrate.min.js"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/js/eae.min.js?ver=1.12.5"
+output = "public/wp-snapshot/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/js/eae.min.js"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/js/v4-shims.min.js?ver=1.0"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/js/v4-shims.min.js"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/js/animated-main.min.js?ver=1.0"
+output = "public/wp-snapshot/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/js/animated-main.min.js"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/js/particles.min.js?ver=2.0.0"
+output = "public/wp-snapshot/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/js/particles.min.js"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/lib/magnific.min.js?ver=1.1.0"
+output = "public/wp-snapshot/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/lib/magnific.min.js"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/lib/vegas/vegas.min.js?ver=2.4.0"
+output = "public/wp-snapshot/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/lib/vegas/vegas.min.js"
+
+url = "http://www.carpathianconvention.org/wp-includes/js/comment-reply.min.js?ver=6.9.4"
+output = "public/wp-snapshot/wp-includes/js/comment-reply.min.js"
+
+url = "http://www.carpathianconvention.org/wp-content/themes/hestia/assets/bootstrap/js/bootstrap.min.js?ver=1.0.2"
+output = "public/wp-snapshot/wp-content/themes/hestia/assets/bootstrap/js/bootstrap.min.js"
+
+url = "http://www.carpathianconvention.org/wp-includes/js/jquery/ui/core.min.js?ver=1.13.3"
+output = "public/wp-snapshot/wp-includes/js/jquery/ui/core.min.js"
+
+url = "http://www.carpathianconvention.org/wp-content/themes/hestia/assets/js/script.min.js?ver=3.0.23"
+output = "public/wp-snapshot/wp-content/themes/hestia/assets/js/script.min.js"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/happy-elementor-addons/assets/js/happy-addons.min.js?ver=3.8.9"
+output = "public/wp-snapshot/wp-content/plugins/happy-elementor-addons/assets/js/happy-addons.min.js"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/js/webpack.runtime.min.js?ver=3.16.4"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/js/webpack.runtime.min.js"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/js/frontend-modules.min.js?ver=3.16.4"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/js/frontend-modules.min.js"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/waypoints/waypoints.min.js?ver=4.0.2"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/waypoints/waypoints.min.js"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/js/frontend.min.js?ver=3.16.4"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/js/frontend.min.js"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/anwp-post-grid-for-elementor/public/js/plugin.min.js?ver=1.2.0"
+output = "public/wp-snapshot/wp-content/plugins/anwp-post-grid-for-elementor/public/js/plugin.min.js"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/2021/03/logo-1.png"
+output = "public/wp-snapshot/wp-content/uploads/2021/03/logo-1.png"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/2021/08/1200px-Eurac_Research_logo.svg_-300x112.png"
+output = "public/wp-snapshot/wp-content/uploads/2021/08/1200px-Eurac_Research_logo.svg_-300x112.png"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/2021/04/UNEP_2019_English-White-1024x1024.png"
+output = "public/wp-snapshot/wp-content/uploads/2021/04/UNEP_2019_English-White-1024x1024.png"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/2021/08/1200px-Eurac_Research_logo.svg_-1024x381.png"
+output = "public/wp-snapshot/wp-content/uploads/2021/08/1200px-Eurac_Research_logo.svg_-1024x381.png"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/2021/08/1200px-Eurac_Research_logo.svg_-768x285.png"
+output = "public/wp-snapshot/wp-content/uploads/2021/08/1200px-Eurac_Research_logo.svg_-768x285.png"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/2021/08/1200px-Eurac_Research_logo.svg_.png"
+output = "public/wp-snapshot/wp-content/uploads/2021/08/1200px-Eurac_Research_logo.svg_.png"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/2021/04/UNEP_2019_English-White-300x300.png"
+output = "public/wp-snapshot/wp-content/uploads/2021/04/UNEP_2019_English-White-300x300.png"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/2021/04/UNEP_2019_English-White-150x150.png"
+output = "public/wp-snapshot/wp-content/uploads/2021/04/UNEP_2019_English-White-150x150.png"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/2021/04/UNEP_2019_English-White-768x768.png"
+output = "public/wp-snapshot/wp-content/uploads/2021/04/UNEP_2019_English-White-768x768.png"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/2021/04/UNEP_2019_English-White.png"
+output = "public/wp-snapshot/wp-content/uploads/2021/04/UNEP_2019_English-White.png"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/2021/03/cropped-logo-2-270x270.png"
+output = "public/wp-snapshot/wp-content/uploads/2021/03/cropped-logo-2-270x270.png"
+
+url = "http://www.carpathianconvention.org/wp-includes/js/tinymce/skins/lightgray/img/loader.gif"
+output = "public/wp-snapshot/wp-includes/js/tinymce/skins/lightgray/img/loader.gif"
+
+url = "http://www.carpathianconvention.org/wp-includes/js/wp-emoji-release.min.js?ver=6.9.4"
+output = "public/wp-snapshot/wp-includes/js/wp-emoji-release.min.js"
+
+url = "http://www.carpathianconvention.org/wp-includes/js/wp-emoji-loader.min.js"
+output = "public/wp-snapshot/wp-includes/js/wp-emoji-loader.min.js"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/css/arrow-left.svg"
+output = "public/wp-snapshot/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/css/arrow-left.svg"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/css/arrow-right.svg"
+output = "public/wp-snapshot/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/css/arrow-right.svg"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/digit-sep-svg.svg"
+output = "public/wp-snapshot/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/digit-sep-svg.svg"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/digits-svg-alpha.svg"
+output = "public/wp-snapshot/wp-content/plugins/addon-elements-for-elementor-page-builder/assets/digits-svg-alpha.svg"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/eicons/fonts/eicons.eot?5.23.0#iefix"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/eicons/fonts/eicons.eot"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/eicons/fonts/eicons.woff2?5.23.0"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/eicons/fonts/eicons.woff2"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/eicons/fonts/eicons.woff?5.23.0"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/eicons/fonts/eicons.woff"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/eicons/fonts/eicons.ttf?5.23.0"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/eicons/fonts/eicons.ttf"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/eicons/fonts/eicons.svg?5.23.0#eicon"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/eicons/fonts/eicons.svg"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-brands-400.eot?#iefix"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-brands-400.eot"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-brands-400.woff2"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-brands-400.woff2"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-brands-400.woff"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-brands-400.woff"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-brands-400.ttf"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-brands-400.ttf"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-brands-400.svg#fontawesome"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-brands-400.svg"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-regular-400.eot?#iefix"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-regular-400.eot"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-regular-400.woff2"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-regular-400.woff2"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-regular-400.woff"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-regular-400.woff"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-regular-400.ttf"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-regular-400.ttf"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-regular-400.svg#fontawesome"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-regular-400.svg"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-solid-900.eot?#iefix"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-solid-900.eot"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-solid-900.woff2"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-solid-900.woff2"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-solid-900.woff"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-solid-900.woff"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-solid-900.ttf"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-solid-900.ttf"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-solid-900.svg#fontawesome"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/webfonts/fa-solid-900.svg"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/fonts/fontawesome-webfont.eot?v=4.7.0"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/fonts/fontawesome-webfont.eot"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/fonts/fontawesome-webfont.eot?#iefix&v=4.7.0"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/fonts/fontawesome-webfont.eot"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/fonts/fontawesome-webfont.woff2?v=4.7.0"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/fonts/fontawesome-webfont.woff2"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/fonts/fontawesome-webfont.woff?v=4.7.0"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/fonts/fontawesome-webfont.woff"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/fonts/fontawesome-webfont.ttf?v=4.7.0"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/fonts/fontawesome-webfont.ttf"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/elementor/assets/lib/font-awesome/fonts/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular"
+output = "public/wp-snapshot/wp-content/plugins/elementor/assets/lib/font-awesome/fonts/fontawesome-webfont.svg"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/happy-elementor-addons/assets/fonts/happy-icons.woff2"
+output = "public/wp-snapshot/wp-content/plugins/happy-elementor-addons/assets/fonts/happy-icons.woff2"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/happy-elementor-addons/assets/fonts/happy-icons.woff"
+output = "public/wp-snapshot/wp-content/plugins/happy-elementor-addons/assets/fonts/happy-icons.woff"
+
+url = "http://www.carpathianconvention.org/wp-content/plugins/happy-elementor-addons/assets/fonts/happy-icons.svg#happy-icons"
+output = "public/wp-snapshot/wp-content/plugins/happy-elementor-addons/assets/fonts/happy-icons.svg"
+
+url = "http://www.carpathianconvention.org/wp-content/uploads/2021/05/Meetings-climate-change.jpg"
+output = "public/wp-snapshot/wp-content/uploads/2021/05/Meetings-climate-change.jpg"
