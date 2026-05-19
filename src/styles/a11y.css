@@ -94,7 +94,7 @@ html.theme-dark {
 }
 
 html.theme-dark body {
-  background: radial-gradient(circle at top left, rgb(34 197 94 / 0.16), transparent 34rem), linear-gradient(180deg, #0f1d16 0%, #14241b 58rem);
+  background: radial-gradient(circle at top left, rgb(34 197 94 / 0.16), transparent 544px), linear-gradient(180deg, #0f1d16 0%, #14241b 928px);
   color: #ecf5ee;
 }
 
@@ -146,7 +146,7 @@ html.theme-reduced-color {
 }
 
 html.theme-reduced-color body {
-  background: linear-gradient(180deg, #f6f7f4 0%, #ffffff 54rem);
+  background: linear-gradient(180deg, #f6f7f4 0%, #ffffff 864px);
 }
 
 html.theme-reduced-color .project-front .header,
