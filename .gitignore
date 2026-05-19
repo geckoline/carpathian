@@ -8,3 +8,7 @@ dist-types
 reports
 version5.html
 carpathian-complete.txt
+
+# Pixel diff screenshots (baselines tracked, current/diff generated)
+screenshots/current
+screenshots/diff
