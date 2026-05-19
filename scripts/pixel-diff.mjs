@@ -81,8 +81,16 @@ async function screenshotElement(page, selector, name) {
 }
 
 function compareImages(baselinePath, currentBuffer, name) {
-  const baseline = PNG.sync.read(readFileSync(baselinePath));
-  const current = PNG.sync.read(currentBuffer);
+  let baseline = PNG.sync.read(readFileSync(baselinePath));
+  let current = PNG.sync.read(currentBuffer);
+
+  if (baseline.width !== current.width || baseline.height !== current.height) {
+    const w = Math.min(baseline.width, current.width);
+    const h = Math.min(baseline.height, current.height);
+    baseline = cropPng(baseline, w, h);
+    current = cropPng(current, w, h);
+    console.log(`   📐 Image resized to ${w}×${h} for comparison`);
+  }
 
   const { width, height } = baseline;
   const diff = new PNG({ width, height });
@@ -105,6 +113,21 @@ function compareImages(baselinePath, currentBuffer, name) {
   return percent;
 }
 
+function cropPng(png, width, height) {
+  const cropped = new PNG({ width, height });
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const idx = (y * png.width + x) * 4;
+      const cIdx = (y * width + x) * 4;
+      cropped.data[cIdx] = png.data[idx];
+      cropped.data[cIdx + 1] = png.data[idx + 1];
+      cropped.data[cIdx + 2] = png.data[idx + 2];
+      cropped.data[cIdx + 3] = png.data[idx + 3];
+    }
+  }
+  return cropped;
+}
+
 async function run() {
   ensureDirs();
 
@@ -118,6 +141,7 @@ async function run() {
   });
 
   const isBaseline = process.argv.includes('--record');
+  const isWpShell = process.argv.includes('--wp-shell');
 
   if (isBaseline) {
     console.log('📸 Recording baseline screenshots...\n');
@@ -127,15 +151,19 @@ async function run() {
     process.exit(1);
   }
 
+  const modeLabel = isWpShell ? 'WP shell' : 'standalone';
+  const pagePath = isWpShell ? '/citizen-science-page.html' : '/index.html';
+
   let server;
   try {
     console.log('🚀 Starting preview server...');
     server = await startServer();
     console.log(`   Server ready at ${BASE_URL}\n`);
+    console.log(`   Mode: ${modeLabel} (${pagePath})\n`);
 
     const page = await browser.newPage();
     await page.setViewport({ width: 1440, height: 900 });
-    await page.goto(`${BASE_URL}/index.html`, { waitUntil: 'networkidle0', timeout: 15000 });
+    await page.goto(`${BASE_URL}${pagePath}`, { waitUntil: 'networkidle0', timeout: 15000 });
 
     await new Promise(r => setTimeout(r, 2000));
 
