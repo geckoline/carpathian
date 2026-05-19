@@ -44,7 +44,7 @@ export const MapSidebar = ({ projects, filterProjects = projects, onAddProject, 
   }, [selectedProjectId, reducedMotion]);
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-panel-border)] bg-[var(--color-panel-surface)] shadow-[var(--shadow-panel)]">
+    <div className="flex h-full flex-col overflow-y-auto rounded-[var(--radius-panel)] border border-[var(--color-panel-border)] bg-[var(--color-panel-surface)] shadow-[var(--shadow-panel)]">
       <div className="border-b border-[var(--color-panel-border)] p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -91,7 +91,7 @@ export const MapSidebar = ({ projects, filterProjects = projects, onAddProject, 
         <FilterControls projects={filterProjects} idPrefix="map-sidebar-filters" variant="compact" />
       </div>
 
-      <div className="flex-1 space-y-3 overflow-y-auto p-4">
+      <div className="flex-1 space-y-3 p-4">
         {projects.length > 0 ? (
           projects.map((project) => {
             const isSelected = selectedProjectId === project.id;
