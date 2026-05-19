@@ -25,8 +25,10 @@ type MarkerClusterGroupProps = {
 };
 
 const MarkerClusterGroup = lazy(async () => {
-  (globalThis as LeafletRuntimeGlobal).L = L;
-  return import('react-leaflet-markercluster') as Promise<{ default: ComponentType<MarkerClusterGroupProps> }>;
+  return import('react-leaflet-markercluster').then(mod => {
+    (globalThis as LeafletRuntimeGlobal).L = L;
+    return { default: mod.default as ComponentType<MarkerClusterGroupProps> };
+  });
 });
 
 const SELECTED_PROJECT_ZOOM = 9;

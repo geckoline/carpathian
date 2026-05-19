@@ -56,7 +56,6 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: {
           app: path.resolve(__dirname, 'index.html'),
-          citizenSciencePage: path.resolve(__dirname, 'citizen-science-page.html'),
         },
         output: {
           manualChunks(id: string) {

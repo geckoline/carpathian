@@ -19,7 +19,7 @@ CI order (GitHub Actions): `typecheck` → `test:run --coverage` → `build`.
 - **Styling:** Tailwind v4 CSS-first (`@import "tailwindcss"`, `@tailwindcss/vite` plugin). No PostCSS config.
 - **State:** Single Zustand store with Immer middleware. Slices: `filters`, `ui`, `data`, `a11y`.
 - **Validation:** Zod schemas at every service boundary (`ExpertSchema`, `ProjectSchema`).
-- **Routing:** None — single-page layout with tab toggle (`projects`/`experts`). Mounts to `#citizen-science-root` (WordPress/Elementor shell).
+- **Routing:** None — single-page layout with tab toggle (`projects`/`experts`). Mounts to `#citizen-science-root`. WordPress embeds via `<iframe>` (see `DEPLOYMENT.md`).
 - **Map:** Leaflet + react-leaflet, lazy-loaded via `React.lazy`. `touchleave` event filtered at mount (`src/main.tsx:28-40` — Leaflet bug workaround).
 - **Data flow:** Supabase (`apiService`) or mock (`mockApi`) → `loadAppData` → Zustand → UI. Falls back to mock when Supabase env vars missing.
 

@@ -215,7 +215,8 @@ if (mainStart === -1 || footerStart === -1 || footerStart <= mainStart) {
 }
 shell = `${shell.slice(0, mainStart)}${mainSection}\n				${shell.slice(footerStart)}`;
 
-shell = shell.replace('</body>', '  <script type="module" src="/src/main.tsx"></script>\n</body>');
+shell = shell.replace('id="citizen-science-root"></div>', 'src="/index.html" style="width: 100%; height: 100vh; border: none;" title="Citizen Science App" loading="lazy"></iframe>');
+shell = shell.replace('<div id="citizen-science-root">', '<iframe');
 
 writeFileSync(outputHtmlPath, shell);
 

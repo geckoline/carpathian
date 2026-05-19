@@ -30,6 +30,28 @@ npm run build
 npm run preview
 ```
 
+## WordPress Embed (iframe)
+
+The app runs standalone. WordPress embeds it via `<iframe>` on the target page.
+
+### Paste this into the WordPress page (Text/HTML editor):
+
+```html
+<iframe
+  src="https://citizenscience.carpathian.org/app"
+  style="width: 100%; height: 100vh; border: none;"
+  title="Carpathian Citizen Science App"
+  loading="lazy"
+></iframe>
+```
+
+Replace `src` with the actual deployed app URL after build & deploy.
+
+### Notes
+- `height: 100vh` — fills the viewport. Adjust to a fixed height (`800px`) if the WP theme crops the iframe.
+- If the WP page has a sidebar or constrained content width, wrap the iframe in a full-width container or use `min-height: 600px` instead.
+- Communication between WP and the app can be added via `postMessage` if needed (not implemented).
+
 ### 🔍 `src/utils/envValidation.ts` (M2W4 Gap Close)
 ```ts
 // src/utils/envValidation.ts

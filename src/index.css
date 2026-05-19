@@ -27,8 +27,6 @@
 
 @import "./styles/cards.css";
 
-@import "./styles/wp-shell.css";
-
 @custom-variant dark (&:is(.dark *));
 
 @theme {

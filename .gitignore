@@ -12,3 +12,4 @@ carpathian-complete.txt
 # Pixel diff screenshots (baselines tracked, current/diff generated)
 screenshots/current
 screenshots/diff
+.playwright-mcp/
