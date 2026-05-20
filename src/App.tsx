@@ -35,6 +35,7 @@ export default function App() {
   useRealtimeSync();
   useUrlSync();
   useApplyAccessibility();
+  const inIframe = window.self !== window.top;
   const dataset = useAppStore(s => s.dataset);
   const isOnline = useAppStore(s => s.isOnline);
   const activeTab = useAppStore(s => s.filters.activeTab);
@@ -149,6 +150,7 @@ export default function App() {
 
   return (
     <main className="flex flex-col min-h-screen" tabIndex={-1}>
+      {!inIframe && (
       <header className="px-4 md:px-6 lg:px-8 pt-3 sm:pt-4 md:pt-6 lg:pt-8 max-w-7xl mx-auto w-full mb-3 sm:mb-4 flex justify-between items-start gap-3">
         <div>
           <h1 className="text-2xl font-bold leading-tight text-primary-700">Citizen Science Platform</h1>
@@ -159,6 +161,7 @@ export default function App() {
           <AccessibilityControls />
         </div>
       </header>
+      )}
 
       <div className="px-4 md:px-6 lg:px-8 max-w-7xl mx-auto w-full mb-3 sm:mb-4">
         {statusMessage && (

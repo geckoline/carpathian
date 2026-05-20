@@ -94,6 +94,17 @@ export const ProjectCard = memo<ProjectCardProps>(({
   );
   const statusLabel = useMemo(() => getProjectStatusLabel(status), [status]);
   const compactFieldLabel = useMemo(() => getCompactCategoryLabel(field), [field]);
+  const countryNames = useMemo(
+    () => countries?.map(getCountryName) ?? [],
+    [countries]
+  );
+  const regionContainsCountry = useMemo(
+    () => {
+      if (!resolvedRegionLabel || countryNames.length === 0) return false;
+      return countryNames.some((name) => resolvedRegionLabel.includes(name));
+    },
+    [resolvedRegionLabel, countryNames]
+  );
   const handleTeamMemberClick = useCallback((e: React.MouseEvent, expertId: string) => {
     e.stopPropagation();
     if (!expertId) return;
@@ -152,43 +163,77 @@ export const ProjectCard = memo<ProjectCardProps>(({
                 <strong>Timeline</strong>
                 <span data-testid="project-year">{yearRange}</span>
               </div>
-              {countries && countries.length > 0 && (
-                <div className="meta-chip">
-                  <strong>{countries.length === 1 ? 'Country' : 'Countries'}</strong>
-                  <span data-testid="project-countries">{countries.map(getCountryName).join(', ')}</span>
+              {countries && countries.length > 0 && !regionContainsCountry ? (
+                <div className="flex gap-2.5" style={{ gridColumn: '1 / -1' }}>
+                  <div className="meta-chip flex-1 min-w-0">
+                    <strong>{countries.length === 1 ? 'Country' : 'Countries'}</strong>
+                    <span data-testid="project-countries">{countryNames.join(', ')}</span>
+                  </div>
+                  <div className="meta-chip flex-1 min-w-0 team-meta-row" data-testid="project-team">
+                    <strong>{teamMembers.length === 1 ? 'Expert' : 'Experts'}</strong>
+                    {teamMembers.length === 1 ? (
+                      <span>
+                        <button
+                          type="button"
+                          onClick={(e) => handleTeamMemberClick(e, teamMembers[0]!.id)}
+                          className="team-pill"
+                          data-testid={`team-member-${teamMembers[0]!.id}`}
+                          aria-label={`Show expert ${teamMembers[0]!.name}`}
+                        >
+                          {teamMembers[0]!.name}
+                        </button>
+                      </span>
+                    ) : (
+                      <span className="flex flex-col gap-1.5">
+                        {teamMembers.map((member) => (
+                          <button
+                            key={member.id}
+                            type="button"
+                            onClick={(e) => handleTeamMemberClick(e, member.id)}
+                            className="team-pill self-start"
+                            data-testid={`team-member-${member.id}`}
+                            aria-label={`Show expert ${member.name}`}
+                          >
+                            {member.name}
+                          </button>
+                        ))}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="meta-chip team-meta-row" data-testid="project-team">
+                  <strong>{teamMembers.length === 1 ? 'Expert' : 'Experts'}</strong>
+                  {teamMembers.length === 1 ? (
+                    <span>
+                      <button
+                        type="button"
+                        onClick={(e) => handleTeamMemberClick(e, teamMembers[0]!.id)}
+                        className="team-pill"
+                        data-testid={`team-member-${teamMembers[0]!.id}`}
+                        aria-label={`Show expert ${teamMembers[0]!.name}`}
+                      >
+                        {teamMembers[0]!.name}
+                      </button>
+                    </span>
+                  ) : (
+                    <span className="flex flex-col gap-1.5">
+                      {teamMembers.map((member) => (
+                        <button
+                          key={member.id}
+                          type="button"
+                          onClick={(e) => handleTeamMemberClick(e, member.id)}
+                          className="team-pill self-start"
+                          data-testid={`team-member-${member.id}`}
+                          aria-label={`Show expert ${member.name}`}
+                        >
+                          {member.name}
+                        </button>
+                      ))}
+                    </span>
+                  )}
                 </div>
               )}
-              <div className="meta-chip team-meta-row" data-testid="project-team">
-                <strong>{teamMembers.length === 1 ? 'Expert' : 'Experts'}</strong>
-                {teamMembers.length === 1 ? (
-                  <span>
-                    <button
-                      type="button"
-                      onClick={(e) => handleTeamMemberClick(e, teamMembers[0]!.id)}
-                      className="team-pill"
-                      data-testid={`team-member-${teamMembers[0]!.id}`}
-                      aria-label={`Show expert ${teamMembers[0]!.name}`}
-                    >
-                      {teamMembers[0]!.name}
-                    </button>
-                  </span>
-                ) : (
-                  <span className="flex flex-col gap-1.5">
-                    {teamMembers.map((member) => (
-                      <button
-                        key={member.id}
-                        type="button"
-                        onClick={(e) => handleTeamMemberClick(e, member.id)}
-                        className="team-pill self-start"
-                        data-testid={`team-member-${member.id}`}
-                        aria-label={`Show expert ${member.name}`}
-                      >
-                        {member.name}
-                      </button>
-                    ))}
-                  </span>
-                )}
-              </div>
             </div>
             <p
               className="summary project-summary-copy"

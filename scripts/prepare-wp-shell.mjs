@@ -215,8 +215,19 @@ if (mainStart === -1 || footerStart === -1 || footerStart <= mainStart) {
 }
 shell = `${shell.slice(0, mainStart)}${mainSection}\n				${shell.slice(footerStart)}`;
 
-shell = shell.replace('id="citizen-science-root"></div>', 'src="/index.html" style="width: 100%; height: 100vh; border: none;" title="Citizen Science App" loading="lazy"></iframe>');
-shell = shell.replace('<div id="citizen-science-root">', '<iframe');
+shell = shell.replace('<div id="citizen-science-root"></div>', '<iframe src="/index.html" style="width: 100%; height: calc(70vh + 56px); border: none; display: block;" title="Citizen Science App" loading="lazy"></iframe>');
+shell = shell.replace(/(class="elementor-widget-container")(>)(\s*)(<iframe)/, '$1 style="background: #0d7377; border-radius: 12px; overflow: hidden;"$2$3$4');
+
+shell = shell.replace(
+  /<script\b[^>]*\bsrc=["'][^"']*\/(?:elementor\/(?:assets\/js|assets\/lib)|addon-elements-for-elementor-page-builder|happy-elementor-addons|anwp-post-grid-for-elementor)[^"']*["'][^>]*><\/script>\s*/gi,
+  '',
+);
+shell = shell.replace(
+  /<script\b[^>]*\bid=["'](?:elementor-frontend-js-before|eae-main-js-extra|happy-elementor-addons-js-extra|anwp-pg-scripts-js-extra)["'][^>]*>.*?<\/script>\s*/gis,
+  '',
+);
+shell = shell.replace('</html>', '');
+shell += '\n</html>';
 
 writeFileSync(outputHtmlPath, shell);
 

@@ -7,6 +7,7 @@ import { ProjectPolygon } from './ProjectPolygon';
 import { usePolygonLayer } from '@/hooks/usePolygonLayer';
 import { STATUS_COLORS } from '@/utils/polygonUtils';
 import type { ProjectData } from '@/types/project';
+import { DEFAULT_CENTER, MAP_ZOOM } from '@/utils/constants';
 import { Map as MapIcon, Satellite, Tags } from 'lucide-react';
 
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -231,13 +232,15 @@ export const MapView = ({ projects: propProjects }: { projects?: ProjectData[] }
         </div>
       </div>
 
-      <div className="relative min-h-[340px] flex-1">
+      <div className="relative min-h-[340px] max-h-[70vh] flex-1">
           <MapContainer
-            center={[46.5, 25.0]}
-            zoom={6}
+            center={[DEFAULT_CENTER.lat, DEFAULT_CENTER.lng]}
+            zoom={MAP_ZOOM.default}
             className="absolute inset-0 h-full w-full"
             zoomControl={true}
             scrollWheelZoom={true}
+            maxBounds={[[43, 15], [51, 29]]}
+            maxBoundsViscosity={1.0}
           >
             <MapController filteredProjects={displayProjects} />
 

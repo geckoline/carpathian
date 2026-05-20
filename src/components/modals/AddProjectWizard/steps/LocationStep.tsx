@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { MapContainer, TileLayer, Marker, Polygon, useMap, useMapEvents } from 'react-leaflet';
 import { useAppStore } from '@/store/appStore';
+import { DEFAULT_CENTER, MAP_ZOOM } from '@/utils/constants';
 import { geocodeLocation, parseGeoJSON } from '@/utils/geocoding';
 import type { WizardFormData } from '../wizardTypes';
 import L from 'leaflet';
@@ -437,8 +438,8 @@ export const LocationStep = () => {
         <label className="block text-sm font-medium mb-1">Project Area (Optional)</label>
         <div className="h-64 border border-[var(--color-soft-border)] rounded overflow-hidden">
           <MapContainer
-            center={[47.5, 25.0]}
-            zoom={6}
+            center={[DEFAULT_CENTER.lat, DEFAULT_CENTER.lng]}
+            zoom={MAP_ZOOM.default}
             className="h-full w-full"
             zoomControl={false}
             attributionControl={false}
