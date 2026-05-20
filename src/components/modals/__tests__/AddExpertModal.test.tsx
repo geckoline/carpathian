@@ -8,8 +8,8 @@ import { AddExpertModal } from '../AddExpertModal';
 const createMockAppStore = vi.hoisted(() => (globalThis as any).__createMockAppStore);
 
 vi.mock('@/components/common/Modal', () => ({
-  Modal: ({ children, isOpen, title }: any) =>
-    isOpen ? <div data-testid="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div id="modal-title">{title}</div>{children}</div> : null,
+  Modal: ({ children, isOpen, title, footer }: any) =>
+    isOpen ? <div data-testid="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div id="modal-title">{title}</div>{children}{footer}</div> : null,
 }));
 
 vi.mock('@/components/modals/ImportConflictDialog', () => ({

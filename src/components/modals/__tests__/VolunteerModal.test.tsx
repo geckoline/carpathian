@@ -6,8 +6,8 @@ import { axe } from 'vitest-axe';
 import { VolunteerModal } from '../VolunteerModal';
 
 vi.mock('@/components/common/Modal', () => ({
-  Modal: ({ children, isOpen, title }: any) =>
-    isOpen ? <div data-testid="modal"><div>{title}</div>{children}</div> : null,
+  Modal: ({ children, isOpen, title, footer }: any) =>
+    isOpen ? <div data-testid="modal"><div>{title}</div>{children}{footer}</div> : null,
 }));
 
 describe('VolunteerModal', () => {

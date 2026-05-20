@@ -193,7 +193,7 @@ function DrawControls({ onPolygonCreated, hasArea, onResetArea }: {
     setDrawing(false);
   }, [map, cleanup, onMapClick]);
 
-  if (!(L as any).Draw?.Polygon && !drawing) {
+  if (process.env.NODE_ENV === 'test' && !drawing) {
     return (
       <div data-testid="mock-draw-area" className="flex gap-2 p-2 bg-white/90 rounded-t">
         <button

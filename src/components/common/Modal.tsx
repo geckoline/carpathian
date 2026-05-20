@@ -11,13 +11,14 @@ interface ModalProps {
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg';
   initialFocus?: string;
+  footer?: React.ReactNode;
 }
 
-export const Modal = ({ isOpen, onClose, title, children, size = 'md', initialFocus = '#modal-close-btn' }: ModalProps) => {
+export const Modal = ({ isOpen, onClose, title, children, size = 'md', initialFocus = '#modal-close-btn', footer }: ModalProps) => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
-  const sizes = { sm: 'max-w-sm', md: 'max-w-md', lg: 'max-w-lg' };
+  const sizes = { sm: 'max-w-md', md: 'max-w-lg', lg: 'max-w-2xl' };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -56,15 +57,20 @@ export const Modal = ({ isOpen, onClose, title, children, size = 'md', initialFo
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           transition={{ duration: 0.15 }}
-          className={`relative z-[4010] max-h-[90vh] w-full ${sizes[size]} overflow-y-auto rounded-[var(--radius-panel)] border border-[var(--color-panel-border)] bg-[var(--color-panel-surface)] shadow-[var(--shadow-surface)]`}
+          className={`relative z-[4010] flex max-h-[90vh] w-full ${sizes[size]} flex-col overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-panel-border)] bg-[var(--color-panel-surface)] shadow-[var(--shadow-surface)]`}
         >
-          <header className="flex items-center justify-between border-b border-[var(--color-panel-border)] p-4">
+          <header className="flex shrink-0 items-center justify-between border-b border-[var(--color-panel-border)] p-4">
             <h2 id="modal-title" className="text-lg font-semibold text-primary-700">{title}</h2>
             <button id="modal-close-btn" onClick={onClose} className="rounded p-1 hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-primary-500" aria-label="Close modal">
               <X size={20} />
             </button>
           </header>
-          <div className="p-4">{children}</div>
+          <div className={`min-h-0 flex-1 overflow-y-auto p-4 ${footer ? 'pb-16' : ''}`}>{children}</div>
+          {footer && (
+            <div className="absolute bottom-0 left-0 right-0 z-[4020] border-t border-[var(--color-panel-border)] bg-[var(--color-panel-surface)] px-4 py-3">
+              {footer}
+            </div>
+          )}
         </motion.div>
       </motion.div>
     </FocusTrap>
