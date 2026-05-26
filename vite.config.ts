@@ -1,3 +1,4 @@
+// vite.config.ts
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
@@ -13,9 +14,8 @@ export default defineConfig(({ mode }) => {
     ?? env.VITE_SERPAPI_API_KEY
     ?? env.VITE_GOOGLE_SCHOLAR_SERPAPI_KEY;
 
-  // For GitHub Pages project sites, use /carpathian/; otherwise use ./
-  const isGitHubPagesBuild = mode === 'static' && process.env.GITHUB_PAGES === 'true';
-  const baseUrl = isGitHubPagesBuild ? '/carpathian/' : './';
+  // For static builds, always use /carpathian/ (GitHub Pages project site)
+  const baseUrl = mode === 'static' ? '/carpathian/' : './';
 
   return {
     base: baseUrl,
@@ -63,8 +63,8 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
-      sourcemap: mode === 'analyze', // ✅ Enable sourcemaps for bundle analysis
-      minify: mode !== 'analyze', // ✅ Skip minification for analysis
+      sourcemap: mode === 'analyze',
+      minify: mode !== 'analyze',
       rollupOptions: {
         input: {
           app: path.resolve(__dirname, 'index.html'),
