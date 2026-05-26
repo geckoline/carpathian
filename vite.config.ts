@@ -13,8 +13,12 @@ export default defineConfig(({ mode }) => {
     ?? env.VITE_SERPAPI_API_KEY
     ?? env.VITE_GOOGLE_SCHOLAR_SERPAPI_KEY;
 
+  // For GitHub Pages project sites, use /carpathian/; otherwise use ./
+  const isGitHubPagesBuild = mode === 'static' && process.env.GITHUB_PAGES === 'true';
+  const baseUrl = isGitHubPagesBuild ? '/carpathian/' : './';
+
   return {
-    base: './',
+    base: baseUrl,
     envPrefix: mode === 'static' ? ['VITE_STATIC_EXAMPLE'] : 'VITE_',
     plugins: [
       react(),
