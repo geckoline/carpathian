@@ -12,7 +12,7 @@ The platform is designed for use on  [carpathianconvention.org]. It provides an 
 - Currently providing sample data for static demos and public GitHub Pages examples.
 - For current demonstaration state, the app is deployed inside a WordPress iframe to illustrate a implementation path for the Carpathian Convention website. (See the `citizen-science-page.html` shell and related tooling.)
 - Standalone state or as a database-backed Supabase deployment are for closer inspection.
-- **with an elsevier api (free for instututions) the profiles can be kept up to date **
+- **with an elsevier api (free for instututions) the profiles can be kept up to date**
 
 ## Main Features
 
@@ -24,7 +24,7 @@ The platform is designed for use on  [carpathianconvention.org]. It provides an 
 - Statistics section for active/planned/past project counts and expert coverage.
 - CSV and JSON export for the active project or expert list.
 - Add-project, add-expert, and volunteer-alert modal flows.
-- Expert enrichment workflow using Google Scholar and ORCID URLs where available. **this allows users to fetch (imprt) data directly from existing profiles**
+- Expert enrichment workflow using Google Scholar and ORCID URLs where available. **This allows users to fetch (imprt) data directly from existing profiles**
 - Local profile-picture support for seeded/mock experts.
 - Accessibility controls for font size, contrast, and reduced motion.
 - Static GitHub Pages build that uses bundled mock data and avoids database connections.
