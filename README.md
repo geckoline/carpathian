@@ -12,7 +12,7 @@ The platform is designed for use on  [carpathianconvention.org]. It provides an 
 - Currently providing sample data for static demos and public GitHub Pages examples.
 - For current demonstaration state, the app is deployed inside a WordPress iframe to illustrate a implementation path for the Carpathian Convention website. (See the `citizen-science-page.html` shell and related tooling.)
 - Standalone state or as a database-backed Supabase deployment are for closer inspection.
-- **with an elsevier api (free for instututions) the profiles can be kept up to date**
+- **With a Elsevier api (free for instututions) the profiles can be kept up to date.**
 
 ## Main Features
 
