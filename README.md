@@ -1,5 +1,15 @@
 # Carpathian
 
+## Publishing
+
+For a database-free GitHub Pages example, run:
+
+```bash
+npm run build:static
+```
+
+Publish the generated `dist/` folder, not the whole working tree. The static build uses the bundled mock dataset and rewrites the WordPress-shell wrapper for GitHub project-page paths. See [docs/publishing-audit.md](docs/publishing-audit.md) for the full publish/delete checklist.
+
 ## Expert Data Decision
 
 As of May 9, 2026, the refactored app uses `Tier 2: Scholar + manual enrichment` as the target expert-profile workflow.

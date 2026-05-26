@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 import type { ProjectFormData } from '@/components/modals/AddProjectModal';
-import { apiService } from '@/services/apiService';
 import { useAppStore } from '@/store/appStore';
 import { getCategoryLabel, normalizeCategoryWithFallback } from '@/utils/categories';
 import { DEFAULT_CENTER } from '@/utils/constants';
@@ -61,11 +60,16 @@ export const useProjectSubmission = (setStatusMessage: (message: StatusMessage) 
       lng: DEFAULT_CENTER.lng,
     };
 
-    try {
-      await apiService.addProject(projectDraft);
-      setStatusMessage({ tone: 'success', text: 'Project added successfully.' });
-    } catch {
-      setStatusMessage({ tone: 'warning', text: 'Project saved locally; remote sync is currently unavailable.' });
+    if (import.meta.env.MODE === 'static' || import.meta.env.VITE_STATIC_EXAMPLE === 'true') {
+      setStatusMessage({ tone: 'success', text: 'Demo project added locally for this session.' });
+    } else {
+      try {
+        const { apiService } = await import('@/services/apiService');
+        await apiService.addProject(projectDraft);
+        setStatusMessage({ tone: 'success', text: 'Project added successfully.' });
+      } catch {
+        setStatusMessage({ tone: 'warning', text: 'Project saved locally; remote sync is currently unavailable.' });
+      }
     }
 
     addProject(projectDraft);

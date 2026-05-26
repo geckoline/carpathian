@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { apiService } from '@/services/apiService';
 import { useAppStore } from '@/store/appStore';
 import type { VolunteerFormData } from '@/components/modals/VolunteerModal';
 import type { StatusMessage } from './useProjectSubmission';
@@ -13,6 +12,12 @@ export const useVolunteerSubscription = (setStatusMessage: (message: StatusMessa
     }
 
     try {
+      if (import.meta.env.MODE === 'static' || import.meta.env.VITE_STATIC_EXAMPLE === 'true') {
+        setStatusMessage({ tone: 'success', text: 'Demo subscription received locally; no database connection is used in this static example.' });
+        return;
+      }
+
+      const { apiService } = await import('@/services/apiService');
       await apiService.addVolunteerSubscription(formData);
       setStatusMessage({ tone: 'success', text: 'Volunteer subscription saved. We will match you with nearby citizen science projects.' });
     } catch (error) {

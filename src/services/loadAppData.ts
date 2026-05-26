@@ -1,4 +1,3 @@
-import { apiService } from './apiService';
 import { mockApi } from './mockApi';
 import { ExpertSchema, type ExpertData } from '@/types/expert';
 import { ProjectSchema, type ProjectData } from '@/types/project';
@@ -53,6 +52,19 @@ const parseItems = <T>(items: unknown[], schema: { safeParse: (data: unknown) =>
 };
 
 export const loadAppData = async (): Promise<AppData> => {
+  if (import.meta.env.MODE === 'static' || import.meta.env.VITE_STATIC_EXAMPLE === 'true') {
+    const [projects, experts] = await Promise.all([
+      mockApi.getProjects(),
+      mockApi.getExperts(),
+    ]);
+
+    return {
+      projects: parseItems(projects, ProjectSchema, 'project'),
+      experts: parseItems(experts, ExpertSchema, 'expert'),
+    };
+  }
+
+  const { apiService } = await import('@/services/apiService');
   const [projects, experts] = await Promise.all([
     fetchWithFallback(() => apiService.getProjects(), () => mockApi.getProjects()),
     fetchWithFallback(() => apiService.getExperts(), () => mockApi.getExperts()),

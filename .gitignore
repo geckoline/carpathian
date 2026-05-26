@@ -1,11 +1,23 @@
 node_modules
 dist
+dist-types
+
+# Local environment and secrets
 .env
 .env.local
 .env.*.local
+
+# Generated reports and caches
 coverage
-dist-types
 reports
+*.tsbuildinfo
+
+# Local/editor files
+.DS_Store
+*.bak
+
+# Generated screenshots and scratch exports
+audit-*.png
 version5.html
 carpathian-complete.txt
 

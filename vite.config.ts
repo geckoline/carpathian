@@ -15,15 +15,23 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: './',
+    envPrefix: mode === 'static' ? ['VITE_STATIC_EXAMPLE'] : 'VITE_',
     plugins: [
       react(),
       tailwindcss(),
       ...(mode === 'analyze' ? [visualizer({ filename: 'reports/bundle-analysis.html', open: true, gzipSize: true, brotliSize: true })] : []),
     ],
     resolve: {
-      alias: {
-        '@': path.resolve(__dirname, './src'),
-      },
+      alias: [
+        {
+          find: '@/services/apiService',
+          replacement: path.resolve(
+            __dirname,
+            mode === 'static' ? './src/services/staticApiService.ts' : './src/services/apiService.ts',
+          ),
+        },
+        { find: '@', replacement: path.resolve(__dirname, './src') },
+      ],
     },
     optimizeDeps: {
       include: ['react', 'react-dom', 'zustand', 'immer', 'lucide-react'],

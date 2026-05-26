@@ -30,6 +30,19 @@ npm run build
 npm run preview
 ```
 
+## GitHub Pages Static Example
+
+Use the static build when publishing a database-free example from `dist/`:
+
+```bash
+npm run build:static
+npm run preview
+```
+
+This build uses the bundled mock dataset instead of Supabase, keeps project/expert additions local to the browser session, and rewrites the WordPress snapshot wrapper so `citizen-science-page.html`, `index.html`, `assets/`, `profile-pictures/`, and `wp-snapshot/` can be served from a GitHub project page such as `https://USER.github.io/REPO/`.
+
+See [Publishing Audit](docs/publishing-audit.md) for what should be committed to the source repository, what should be published to GitHub Pages, and which generated/local files can be deleted or untracked.
+
 ## WordPress Embed (iframe)
 
 The app runs standalone. WordPress embeds it via `<iframe>` on the target page.
