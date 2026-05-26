@@ -1,37 +1,85 @@
-import { defineConfig, mergeConfig } from 'vitest/config';
-import viteConfigFn from './vite.config';
+import { defineConfig, loadEnv } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
+import { visualizer } from 'rollup-plugin-visualizer';
 
-const viteConfig = viteConfigFn({ mode: 'test', command: 'serve' });
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  const serpApiKey = env.SERPAPI_KEY
+    ?? env.SERPAPI_API_KEY
+    ?? env.GOOGLE_SCHOLAR_SERPAPI_KEY
+    ?? env.VITE_SERPAPI_KEY
+    ?? env.VITE_SERPAPI_API_KEY
+    ?? env.VITE_GOOGLE_SCHOLAR_SERPAPI_KEY;
 
-export default mergeConfig(viteConfig, defineConfig({
-  resolve: {
-    alias: {
-      '@store': path.resolve(__dirname, './src/store'),
-      '@components': path.resolve(__dirname, './src/components'),
-      '@hooks': path.resolve(__dirname, './src/hooks'),
-      '@types': path.resolve(__dirname, './src/types'),
-      '@services': path.resolve(__dirname, './src/services'),
-      '@test-utils': path.resolve(__dirname, './src/test-utils'),
-      'react-leaflet-markercluster/dist/styles.min.css': path.resolve(__dirname, './src/test-utils/cssStub.ts'),
+  // For GitHub Pages project sites, use /carpathian/; otherwise use ./
+  const isGitHubPagesBuild = mode === 'static' && process.env.GITHUB_PAGES === 'true';
+  const baseUrl = isGitHubPagesBuild ? '/carpathian/' : './';
+
+  return {
+    base: baseUrl,
+    envPrefix: mode === 'static' ? ['VITE_STATIC_EXAMPLE'] : 'VITE_',
+    plugins: [
+      react(),
+      tailwindcss(),
+      ...(mode === 'analyze' ? [visualizer({ filename: 'reports/bundle-analysis.html', open: true, gzipSize: true, brotliSize: true })] : []),
+    ],
+    resolve: {
+      alias: [
+        {
+          find: '@/services/apiService',
+          replacement: path.resolve(
+            __dirname,
+            mode === 'static' ? './src/services/staticApiService.ts' : './src/services/apiService.ts',
+          ),
+        },
+        { find: '@', replacement: path.resolve(__dirname, './src') },
+      ],
     },
-  },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/test-utils/setup.ts',
-    include: ['src/**/*.{test,spec}.{ts,tsx}'],
-    exclude: ['node_modules', 'dist', '**/carpathian-citizen-science-react18 Kopie/**'],
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html', 'lcov'],
-      reportsDirectory: './reports/coverage',
-      thresholds: {
-        statements: 80,
-        branches: 75,
-        functions: 80,
-        lines: 80,
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'zustand', 'immer', 'lucide-react'],
+    },
+    server: {
+      proxy: {
+        '/api/serpapi': {
+          target: 'https://serpapi.com',
+          changeOrigin: true,
+          secure: true,
+          rewrite: (requestPath) => requestPath.replace(/^\/api\/serpapi/, ''),
+          configure: (proxy) => {
+            proxy.on('proxyReq', (proxyReq) => {
+              if (!serpApiKey) return;
+
+              const pathWithQuery = proxyReq.path ?? '';
+              const [pathname, query = ''] = pathWithQuery.split('?');
+              const params = new URLSearchParams(query);
+              if (!params.has('api_key')) params.set('api_key', serpApiKey);
+              proxyReq.path = `${pathname}?${params.toString()}`;
+            });
+          },
+        },
       },
     },
-  },
-}));
+    build: {
+      outDir: 'dist',
+      sourcemap: mode === 'analyze', // ✅ Enable sourcemaps for bundle analysis
+      minify: mode !== 'analyze', // ✅ Skip minification for analysis
+      rollupOptions: {
+        input: {
+          app: path.resolve(__dirname, 'index.html'),
+        },
+        output: {
+          manualChunks(id: string) {
+            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/zustand')) return 'vendor';
+            if (id.includes('node_modules/leaflet.markercluster') || id.includes('node_modules/react-leaflet-markercluster')) return 'leaflet-cluster';
+            if (id.includes('node_modules/leaflet')) return 'leaflet';
+            if (id.includes('node_modules/fuse.js')) return 'search';
+            if (id.includes('node_modules/react-hook-form') || id.includes('node_modules/zod') || id.includes('@hookform')) return 'forms';
+            if (id.includes('node_modules/dompurify')) return 'utils';
+          },
+        },
+      },
+    },
+  };
+});
